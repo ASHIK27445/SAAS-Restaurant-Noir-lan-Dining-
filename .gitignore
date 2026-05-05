@@ -26,7 +26,6 @@ dist-ssr
 node_modules
 .env
 dist
-src/components
 src/firebase
 src/components/Home
 src/components/Others
