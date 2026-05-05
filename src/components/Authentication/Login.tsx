@@ -1,34 +1,18 @@
 import { Link } from "react-router";
 import LoginLeftPanel from "./LoginLeftPanel";
-import React, { useState } from "react";
-import { LoginSchema } from "./ZodLoginSchema";
+import { LoginSchema, type LoginFormData } from "./ZodLoginSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function LoginPage() {
-  const [error, setError] = useState<any>({})
-  const [loading, setLoading] = useState<boolean>(false)
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) =>{
-    e.preventDefault()
+  const {register, handleSubmit, 
+    formState: {errors, isSubmitting},} = useForm<LoginFormData>({
+      resolver: zodResolver(LoginSchema)
+    })
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string
-    }
-
-    const result = LoginSchema.safeParse(data)
-    if(!result.success){
-      const fielderrors = result.error.flatten().fieldErrors;
-      setError(fielderrors)
-      return
-    }
-
-    setError({})
-
-    //api call
-    console.log(data)
-    console.log(result)
-    console.log(result.data)
-  }
+  const onsubmit = (data: LoginFormData) => {
+    console.log(data);
+  };
 
   return (
     <div className="min-h-screen h-screen flex flex-col md:flex-row overflow-hidden bg-[#fbf9f5] text-[#1b1c1a] font-['Inter',sans-serif]">
@@ -56,7 +40,7 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-2 lg:space-y-3">
+          <form onSubmit={handleSubmit(onsubmit)} className="space-y-2 lg:space-y-3">
             {/* Email */}
             <div className="space-y-2">
               <label
@@ -65,17 +49,12 @@ export default function LoginPage() {
                 Email Address
               </label>
               <input
-                name="email"
-                id="email"
+                {...register("email")}
                 type="email"
                 placeholder="name@domain.com"
                 className="w-full bg-surface-container-low border-none rounded-lg px-3 py-2 lg:py-2.5 focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-high transition-all outline-none text-sm lg:text-sm text-[#1b1c1a] placeholder:text-outline/50"
               />
-              {error.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {error.email[0]}
-                </p>
-              )}
+
             </div>
 
             {/* Password */}
@@ -93,15 +72,14 @@ export default function LoginPage() {
                 </Link>
               </div>
               <input
-                name="password"
-                id="password"
+                {...register("password")}
                 type="password"
                 placeholder="••••••••"
                 className="w-full bg-surface-container-low border-none rounded-lg px-3 py-2 lg:py-2.5 focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-high transition-all outline-none text-sm lg:text-sm text-[#1b1c1a] placeholder:text-outline/50"
               />
-              {error.password && (
+              {errors.password && (
                 <p className="text-red-500 text-xs mt-1">
-                  {error.password[0]}
+                  {errors.password.message}
                 </p>
               )}
             </div>
@@ -109,10 +87,11 @@ export default function LoginPage() {
             {/* Submit */}
             <div className="pt-1">
               <button
+                disabled={isSubmitting}
                 type="submit"
                 className="w-full bg-primary text-white font-['Inter',sans-serif] uppercase tracking-widest text-xs lg:text-sm py-3 lg:py-3.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all"
                 style={{ boxShadow: "0 12px 32px -4px rgba(27,28,26,0.04)" }}>
-                Sign In
+                {isSubmitting ? "Logging in..." : "Login"}
               </button>
             </div>
           </form>
