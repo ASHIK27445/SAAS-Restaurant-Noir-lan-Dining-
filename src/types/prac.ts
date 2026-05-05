@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import { Banknote, CreditCard, type LucideIcon } from "lucide-react";
 
 export type MenuItem = {
     img: string;
@@ -14,7 +14,7 @@ export type NavLinksProps = {
 }
 
 export type CategoryButtonProps = {
-    icon: string;
+    icon: LucideIcon;
     label: string;
     active?: boolean;
     onClick?: () => void;
@@ -44,17 +44,17 @@ export interface OrderItem {
 }
 
 export type OrderType = 'dine-in' | 'takeaway' | 'delivery'
-export type PaymentType = 'cash' | 'card' | 'bkash' | 'nagad'
+export type PaymentType = 'cash' | 'card' | 'bkash' | 'rocket'
 export const paymentMethods: {
   id: PaymentType;
   label: string;
-  icon: string;
+  icon: LucideIcon | string ;
   custom?: boolean;
 }[] = [
-  { id: 'cash', label: 'CASH', icon: 'payments' },
-  { id: 'card', label: 'CARD', icon: 'credit_card' },
-  { id: 'bkash', label: 'bKash', icon: 'bK', custom: true },
-  { id: 'nagad', label: 'Nagad', icon: 'N', custom: true },
+  { id: 'cash', label: 'CASH', icon: Banknote },
+  { id: 'card', label: 'CARD', icon: CreditCard },
+  { id: 'bkash', label: 'bKash', icon: 'https://play-lh.googleusercontent.com/1CRcUfmtwvWxT2g-xJF8s9_btha42TLi6Lo-qVkVomXBb_citzakZX9BbeY51iholWs', custom: true },
+  { id: 'rocket', label: 'Rocket', icon: 'https://iconape.com/wp-content/png_logo_vector/dutch-bangla-rocket-logo.png', custom: true },
 ]
 
 

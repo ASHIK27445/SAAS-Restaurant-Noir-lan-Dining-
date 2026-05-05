@@ -12,11 +12,11 @@ import EmployeeManagementPage from "../components/Others/EmployeeManagementPage"
 import OrderManagementPage from "../components/Others/OrderManagementPage";
 import CulinaryPOS from "../components/POS/CulinaryPOS";
 import FloorPlan from "../components/POS/FloorPlan";
-import FloorPlanLive from "../components/POS/FloorDistribution";
 import PosDashboard from "../components/POS/PosDashboard";
 import PosHome from "../components/POS/PosHome";
 import StaffDirectory from "../components/POS/StaffDirectory";
 import PosOrderManagement from "../components/POS/PosOrderManagement";
+import FloorDistribution from "../components/POS/FloorDistribution";
 
 export const router = createBrowserRouter([
     {
@@ -45,7 +45,8 @@ export const router = createBrowserRouter([
             {path: 'menu', Component: CulinaryPOS},
             {path: 'floor-plan', Component: FloorPlan},
             {path: 'staff-view', Component: StaffDirectory},
-            {path: 'order', Component: PosOrderManagement}
+            {path: 'order', Component: PosOrderManagement},
+            {path: 'floor-live', Component: FloorDistribution}
         ]
     },
     {
@@ -75,10 +76,6 @@ export const router = createBrowserRouter([
     {
         path: '/order-management',
         Component: OrderManagementPage
-    },
-    {
-        path: '/floor', 
-        Component: FloorPlanLive
     },
     {
         path: '/pos-dashboard',

@@ -28,3 +28,7 @@ node_modules
 dist
 src/components
 src/firebase
+src/components/Home
+src/components/Others
+src/components/POS
+src/components/products
