@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { use } from "react";
 import { AuthContext } from "./AuthContext";
 import type { AuthContextType } from "./auth";
+import { sendEmailVerification } from "firebase/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -18,12 +19,6 @@ export default function LoginPage() {
 
   const onsubmit = async(data: LoginFormData) => {
     console.log(data);
-    if (user && !user.emailVerified) {
-      
-      navigate("/test");
-      return;
-    }
-
     if (user) {
       alert("Already logged in!");
       return;
@@ -32,6 +27,14 @@ export default function LoginPage() {
     //firebase
     try {
       const res = await loginUser(data.email, data.password)
+
+      //sent user verfication mail
+      if(!res.user.emailVerified){
+        await sendEmailVerification(res.user)
+        alert('verified email please!')
+        navigate('/test')
+        return
+      }
       console.log(res.user)
       navigate('/')
     } catch (err) {
