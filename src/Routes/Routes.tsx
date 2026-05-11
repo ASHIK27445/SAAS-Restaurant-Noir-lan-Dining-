@@ -21,6 +21,7 @@ import CreateAccount from "../components/Authentication/Registration";
 import ResetPassword from "../components/Authentication/ResetPassword";
 import EmailVerificationSuccess from "../components/Authentication/EmailVerificationSuccess";
 import EmailVerificationSent from "../components/Authentication/EmailVerificationSent";
+import ResendVerification from "../components/Authentication/ResendVerification";
 
 export const router = createBrowserRouter([
     {
@@ -66,12 +67,20 @@ export const router = createBrowserRouter([
         Component: CreateAccount
     },
     {
-        path: 'test',
+        path: 'sent-email-verfication',
         Component: EmailVerificationSent
     },
     {
-        path: '/t',
-        Component: Pos
+        path: 'resent-verification', 
+        Component: ResendVerification
+    },
+    {
+        path: 'test',
+        Component: ResendVerification
+    },
+    {
+        path: '/email-verification-success',
+        Component: EmailVerificationSuccess
     },
     {
         path: '/add-menu-item',

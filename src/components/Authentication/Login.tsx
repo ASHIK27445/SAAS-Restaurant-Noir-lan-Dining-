@@ -15,7 +15,7 @@ export default function LoginPage() {
       resolver: zodResolver(LoginSchema)
     })
   
-  const {loginUser, user} = use(AuthContext) as AuthContextType
+  const {loginUser, user, logoutUser} = use(AuthContext) as AuthContextType
 
   const onsubmit = async(data: LoginFormData) => {
     console.log(data);
@@ -31,8 +31,12 @@ export default function LoginPage() {
       //sent user verfication mail
       if(!res.user.emailVerified){
         await sendEmailVerification(res.user)
+        await logoutUser()
+        console.log(res.user.email)
         alert('verified email please!')
-        navigate('/test')
+        navigate('/sent-email-verfication', {
+          state: res.user.email
+        })
         return
       }
       console.log(res.user)

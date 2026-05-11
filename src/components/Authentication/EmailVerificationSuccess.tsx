@@ -1,4 +1,5 @@
 import { CheckCircle } from "lucide-react";
+import { Link } from "react-router";
 
 export default function EmailVerificationSuccess() {
   return (
@@ -60,12 +61,12 @@ export default function EmailVerificationSuccess() {
 
             {/* CTA + Quote */}
             <div className="w-full space-y-4 pt-4">
-              <a
-                href="#"
+              <Link
+                to='/'
                 className="inline-flex items-center justify-center w-full md:w-auto px-10 py-5 bg-primary text-white font-semibold text-lg rounded-xl hover:opacity-90 transition-all duration-300 active:scale-[0.98]"
               >
                 Start Dining
-              </a>
+              </Link>
 
               <div className="pt-6 border-t border-outline-variant/20 w-full">
                 <p className="text-sm text-on-secondary-container/60 italic font-serif">
