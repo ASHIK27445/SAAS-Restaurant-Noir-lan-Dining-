@@ -17,6 +17,10 @@ import PosHome from "../components/POS/PosHome";
 import StaffDirectory from "../components/POS/StaffDirectory";
 import PosOrderManagement from "../components/POS/PosOrderManagement";
 import FloorDistribution from "../components/POS/FloorDistribution";
+import CreateAccount from "../components/Authentication/Registration";
+import ResetPassword from "../components/Authentication/ResetPassword";
+import EmailVerificationSuccess from "../components/Authentication/EmailVerificationSuccess";
+import EmailVerificationSent from "../components/Authentication/EmailVerificationSent";
 
 export const router = createBrowserRouter([
     {
@@ -58,8 +62,12 @@ export const router = createBrowserRouter([
         Component: Login
     },
     {
+        path: 'registration', 
+        Component: CreateAccount
+    },
+    {
         path: 'test',
-        Component: Test
+        Component: EmailVerificationSent
     },
     {
         path: '/t',

@@ -1,17 +1,43 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import LoginLeftPanel from "./LoginLeftPanel";
 import { LoginSchema, type LoginFormData } from "./ZodLoginSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { use } from "react";
+import { AuthContext } from "./AuthContext";
+import type { AuthContextType } from "./auth";
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const {register, handleSubmit, 
     formState: {errors, isSubmitting},} = useForm<LoginFormData>({
       resolver: zodResolver(LoginSchema)
     })
+  
+  const {loginUser, user} = use(AuthContext) as AuthContextType
 
-  const onsubmit = (data: LoginFormData) => {
+  const onsubmit = async(data: LoginFormData) => {
     console.log(data);
+    if (user && !user.emailVerified) {
+      
+      navigate("/test");
+      return;
+    }
+
+    if (user) {
+      alert("Already logged in!");
+      return;
+    }
+
+    //firebase
+    try {
+      const res = await loginUser(data.email, data.password)
+      console.log(res.user)
+      navigate('/')
+    } catch (err) {
+      console.log(err)
+    }
+
   };
 
   return (
@@ -89,7 +115,7 @@ export default function LoginPage() {
               <button
                 disabled={isSubmitting}
                 type="submit"
-                className="w-full bg-primary text-white font-['Inter',sans-serif] uppercase tracking-widest text-xs lg:text-sm py-3 lg:py-3.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all"
+                className="w-full bg-primary text-white font-['Inter',sans-serif] uppercase tracking-widest text-xs lg:text-sm py-2 lg:py-2.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all"
                 style={{ boxShadow: "0 12px 32px -4px rgba(27,28,26,0.04)" }}>
                 {isSubmitting ? "Logging in..." : "Login"}
               </button>
@@ -115,9 +141,9 @@ export default function LoginPage() {
               <p className="text-xs lg:text-sm text-on-surface-variant mb-4 leading-relaxed">
                 Join for exclusive reservations, chef's journals, and tailored culinary experiences.
               </p>
-              <button className="w-full bg-surface-container-high text-primary font-['Inter',sans-serif] uppercase tracking-widest text-[10px] lg:text-xs py-2.5 lg:py-3 rounded-xl border border-primary/5 hover:bg-surface-variant transition-colors">
+              <Link to='/registration' className="w-full bg-surface-container-high text-primary font-['Inter',sans-serif] uppercase tracking-widest text-[10px] lg:text-xs px-2 py-2 lg:py-2.5 rounded-xl border border-primary/5 hover:bg-surface-variant transition-colors">
                 Register Now
-              </button>
+              </Link>
             </div>
           </div>
 

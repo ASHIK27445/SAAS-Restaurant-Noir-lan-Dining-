@@ -1,6 +1,6 @@
 import type { User, UserCredential } from "firebase/auth";
-import type { ReactNode, Dispatch, SetStateAction } from "react";
-
+// import type { ReactNode, Dispatch, SetStateAction } from "react";
+import type { ReactNode } from "react";
 export type Props = {
     children: ReactNode;
 }
@@ -9,9 +9,9 @@ export type AuthContextType = {
     user: User | null;
     loading: boolean;
     loginUser: (email: string, password: string) => Promise<UserCredential>;
-    createUserEP: (email: string, password: string) => Promise<any>;
+    createUserEP: (email: string, password: string) => Promise<UserCredential>;
     logoutUser: () => Promise<void>;
     profileUpdate: (name: string, photoURL: string) => Promise<void>;
-    signInWithGoogle: () => Promise<any>;
-    setUser: Dispatch<SetStateAction<User | null>>;
+    signInWithGoogle: () => Promise<UserCredential>;
+    // setUser: Dispatch<SetStateAction<User | null>>;
 }

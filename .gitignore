@@ -23,11 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-node_modules
 .env
-dist
-src/firebase
-src/components/Home
+src/Firebase
+src/data
 src/components/Others
 src/components/POS
 src/components/products
+src/components/Home/Pos.tsx
+src/components/Home
