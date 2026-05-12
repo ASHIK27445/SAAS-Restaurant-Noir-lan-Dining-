@@ -22,6 +22,7 @@ import ResetPassword from "../components/Authentication/ResetPassword";
 import EmailVerificationSuccess from "../components/Authentication/EmailVerificationSuccess";
 import EmailVerificationSent from "../components/Authentication/EmailVerificationSent";
 import ResendVerification from "../components/Authentication/ResendVerification";
+import AddMenuItem from "../components/Admin/AddMenuItem";
 
 export const router = createBrowserRouter([
     {
@@ -76,7 +77,7 @@ export const router = createBrowserRouter([
     },
     {
         path: 'test',
-        Component: ResendVerification
+        Component: AddMenuItem
     },
     {
         path: '/email-verification-success',
