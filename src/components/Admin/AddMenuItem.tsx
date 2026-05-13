@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Bell, ChevronRight, ImageUp, LogOut, Menu, Search } from "lucide-react";
 import { MenuItemSchema, type MenuItemFormData } from "../../Schemas/menu.schema";
 import { useForm, useWatch } from "react-hook-form";
+import { Link } from "react-router";
 
 const CATEGORIES = [
   "Starter",
@@ -93,7 +94,7 @@ export default function AddMenuItem() {
               </button>
               <nav className="hidden md:flex gap-6 items-center">
                 <a className="text-sm uppercase tracking-widest text-primary border-b-2 border-primary pb-1">Catalog</a>
-                <a href="#" className="text-sm uppercase tracking-widest text-secondary hover:opacity-80 transition-opacity">Categories</a>
+                <Link to="/menu/category-manage" className="text-sm uppercase tracking-widest text-secondary hover:opacity-80 transition-opacity">Categories</Link>
                 <a href="#" className="text-sm uppercase tracking-widest text-secondary hover:opacity-80 transition-opacity">Inventory</a>
               </nav>
             </div>

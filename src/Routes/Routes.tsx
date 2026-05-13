@@ -23,6 +23,7 @@ import EmailVerificationSuccess from "../components/Authentication/EmailVerifica
 import EmailVerificationSent from "../components/Authentication/EmailVerificationSent";
 import ResendVerification from "../components/Authentication/ResendVerification";
 import AddMenuItem from "../components/Admin/AddMenuItem";
+import CategoryManagement from "../components/Admin/CategoryManagement";
 
 export const router = createBrowserRouter([
     {
@@ -66,6 +67,10 @@ export const router = createBrowserRouter([
     {
         path: 'registration', 
         Component: CreateAccount
+    },
+    {
+        path: 'menu/category-manage',
+        Component: CategoryManagement
     },
     {
         path: 'sent-email-verfication',
