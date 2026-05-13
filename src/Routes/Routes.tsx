@@ -58,14 +58,21 @@ export const router = createBrowserRouter([
             {path: 'floor-live', Component: FloorDistribution}
         ]
     },
+{
+  path: "admin",
+  Component: AdminHome,
+  children: [
+    { index: true, Component: AdminDashboardDefault },
+
     {
-        path: 'admin',
-        Component: AdminHome,
-        children:[
-            {index: true, Component: AdminDashboardDefault},
-            {path: 'menu', Component: AddMenuItem}
-        ]
-    },
+      path: "menu",
+      children: [
+        { index: true, Component: AddMenuItem },
+        { path: "category-manage", Component: CategoryManagement }
+      ]
+    }
+  ]
+},
     {
         path: 'ed',
         Component: CulinaryEditorial
@@ -78,10 +85,10 @@ export const router = createBrowserRouter([
         path: 'registration', 
         Component: CreateAccount
     },
-    {
-        path: 'menu/category-manage',
-        Component: CategoryManagement
-    },
+    // {
+    //     path: 'menu/category-manage',
+    //     Component: CategoryManagement
+    // },
     {
         path: 'sent-email-verfication',
         Component: EmailVerificationSent

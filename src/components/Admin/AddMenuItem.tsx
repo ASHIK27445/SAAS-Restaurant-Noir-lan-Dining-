@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bell, ChevronRight, ImageUp, LogOut, Menu, Search } from "lucide-react";
+import { ImageUp} from "lucide-react";
 import { MenuItemSchema, type MenuItemFormData } from "../../Schemas/menu.schema";
 import { useForm, useWatch } from "react-hook-form";
-import { Link } from "react-router";
 
 const CATEGORIES = [
   "Starter",
@@ -86,55 +85,12 @@ export default function AddMenuItem() {
         {/* ── Main ── */}
         <main className="flex-1 min-w-0 bg-surface">
 
-          {/* Top App Bar */}
-          <header className="flex justify-between items-center w-full px-8 h-20 sticky top-0 z-40 bg-surface/70 backdrop-blur-xl">
-            <div className="flex items-center gap-4">
-              <button className="md:hidden p-2 text-primary">
-                <Menu />
-              </button>
-              <nav className="hidden md:flex gap-6 items-center">
-                <a className="text-sm uppercase tracking-widest text-primary border-b-2 border-primary pb-1">Catalog</a>
-                <Link to="/menu/category-manage" className="text-sm uppercase tracking-widest text-secondary hover:opacity-80 transition-opacity">Categories</Link>
-                <a href="#" className="text-sm uppercase tracking-widest text-secondary hover:opacity-80 transition-opacity">Inventory</a>
-              </nav>
-            </div>
-
-            <div className="flex items-center gap-6">
-              <div className="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full w-64 focus-within:ring-1 ring-primary/20">
-                <Search size={15}/>
-                <input
-                  className="bg-transparent border-none text-sm focus:ring-0 w-full placeholder:text-secondary/50"
-                  placeholder="Search menu items..."
-                  type="text"
-                />
-              </div>
-              <div className="flex items-center gap-4">
-                <button className="text-secondary hover:opacity-80">
-                  <Bell size={18} />
-                </button>
-                <div className="h-10 w-10 rounded-full overflow-hidden bg-surface-container-high ring-1 ring-outline-variant/20">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLObpXipzaA4qABg6S_Q-RL6llLB7cdmPnQfyg3Y7J6lflDMU5PFHIeMyVvgxLDjY6AstseIqF-CPTccQ2Ba4VGzgOqFaPh7qke7NDrwuV_13IOUObyInwN6FRGjNrzSbv8WYlkSaO0i3O5Kpz8a86LR71RzG1Upw7iUwmZNnoLrZ4fCCp1hECA5U5lBY2uEgivyKzL1WC9XN8zULTrI_g-XXQOvRTlpgCc_DBWit3EPaEgtsHwb_UEpXJBxrFSeZ72n52sM8HjGY"
-                    alt="Chef portrait"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <LogOut size={18} className="cursor-pointer"/>
-              </div>
-            </div>
-          </header>
-
           {/* Page Content */}
-          <div className="max-w-6xl mx-auto px-8 py-12">
+          <div className="max-w-6xl mx-auto px-8 pb-12 pt-2">
 
             {/* Page Header */}
             <div className="flex justify-between items-end mb-12">
               <div>
-                <nav className="flex items-center gap-2 text-xs uppercase tracking-widest text-secondary mb-4">
-                  <span>Menu Management</span>
-                  <ChevronRight size={20}/>
-                  <span className="text-primary font-bold">Add New Item</span>
-                </nav>
                 <h2 className="text-5xl font-headline font-bold text-primary tracking-tight">
                   Curation Details
                 </h2>

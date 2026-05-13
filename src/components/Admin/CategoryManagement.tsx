@@ -38,17 +38,17 @@ export default function CategoryManagement() {
     <div className="bg-surface text-on-surface min-h-screen flex font-body">
 
       {/* ── Main ── */}
-      <main className="flex-1 ml-64 flex flex-col min-h-screen">
+      <main className="flex-1 flex flex-col min-h-screen">
 
-        <section className="p-12 space-y-12">
+        <section className="px-12 pt-3 pb-12 space-y-12">
 
           {/* Page Header */}
           <div className="flex justify-between items-end">
             <div className="max-w-2xl">
-              <h2 className="text-5xl font-headline text-on-surface tracking-tight mb-4">
+              <h2 className="text-5xl font-headline font-bold text-primary tracking-tight mb-4">
                 Refine Your Editorial Canvas
               </h2>
-              <p className="text-on-surface-variant text-lg leading-relaxed">
+              <p className="text-secondary leading-relaxed">
                 Organize your offerings into curated collections that guide guests through their
                 dining journey. Use these categories to structure the digital menu experience.
               </p>
