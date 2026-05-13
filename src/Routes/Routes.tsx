@@ -24,6 +24,8 @@ import EmailVerificationSent from "../components/Authentication/EmailVerificatio
 import ResendVerification from "../components/Authentication/ResendVerification";
 import AddMenuItem from "../components/Admin/AddMenuItem";
 import CategoryManagement from "../components/Admin/CategoryManagement";
+import AdminHome from "../components/Admin/AdminHome";
+import AdminDashboardDefault from "../components/Admin/AdminDashboardDefault";
 
 export const router = createBrowserRouter([
     {
@@ -54,6 +56,14 @@ export const router = createBrowserRouter([
             {path: 'staff-view', Component: StaffDirectory},
             {path: 'order', Component: PosOrderManagement},
             {path: 'floor-live', Component: FloorDistribution}
+        ]
+    },
+    {
+        path: 'admin',
+        Component: AdminHome,
+        children:[
+            {index: true, Component: AdminDashboardDefault},
+            {path: 'menu', Component: AddMenuItem}
         ]
     },
     {
