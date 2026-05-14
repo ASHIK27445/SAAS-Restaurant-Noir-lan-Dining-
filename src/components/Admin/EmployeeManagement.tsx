@@ -1,7 +1,6 @@
-import { Bell, Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Search, SquarePen, UserPlus } from "lucide-react";
+import { Bell, Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
 import { useState } from "react";
-
-
+import AddEmployeeModal from "./AddEmployeeModal";
 
 const TABS = ["All Staff", "Kitchen (Chef)", "Service (Waiters)", "Front Desk", "Administration"];
 
@@ -61,63 +60,63 @@ function EmployeeCard({ emp }: { emp: Employee }) {
   const roleStyle = ROLE_STYLES[emp.role] ?? { bg: "bg-secondary/10", text: "text-secondary" };
 
   return (
-    <div className="group bg-surface-container-lowest rounded-xl p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5">
+    <div className="group bg-surface-container-lowest rounded-xl p-4 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5">
       {/* Header row */}
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex justify-between items-start mb-3">
         <div className="relative">
           <img
             src={emp.img}
             alt={emp.name}
-            className="w-20 h-20 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+            className="w-14 h-14 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
           />
           <span
-            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+            className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
               emp.online ? "bg-emerald-500" : "bg-slate-300"
             }`}
           />
         </div>
-        <div className="flex gap-1">
-          <button className="p-2 text-secondary/40 hover:text-primary transition-colors">
-            <SquarePen />
+        <div className="flex gap-0.5">
+          <button className="p-1.5 text-secondary/40 hover:text-primary transition-colors">
+            <SquarePen size={15} />
           </button>
-          <button className="p-2 text-secondary/40 hover:text-tertiary transition-colors">
-            <EllipsisVertical />
+          <button className="p-1.5 text-secondary/40 hover:text-tertiary transition-colors">
+            <EllipsisVertical size={15} />
           </button>
         </div>
       </div>
 
       {/* Name & role */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <h4 className="text-xl font-headline text-on-surface">{emp.name}</h4>
-          <span className={`${roleStyle.bg} ${roleStyle.text} text-[10px] font-bold uppercase tracking-tighter px-2 py-0.5 rounded`}>
+      <div className="mb-3">
+        <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+          <h4 className="text-sm font-headline font-bold text-on-surface">{emp.name}</h4>
+          <span className={`${roleStyle.bg} ${roleStyle.text} text-[9px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded`}>
             {emp.role}
           </span>
         </div>
-        <p className="text-sm text-secondary italic">{emp.title}</p>
+        <p className="text-xs text-secondary italic">{emp.title}</p>
       </div>
 
       {/* Contact */}
-      <div className="space-y-3 py-4 border-t border-outline-variant/10">
-          <div className="flex items-center gap-3 text-sm text-on-surface-variant">
-            <Mail />
-            <span>{emp.email}</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm text-on-surface-variant">
-            <Phone />
-            <span>{emp.phone}</span>
-          </div>
+      <div className="space-y-1.5 py-3 border-t border-outline-variant/10">
+        <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+          <Mail size={13} />
+          <span className="truncate">{emp.email}</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+          <Phone size={13} />
+          <span>{emp.phone}</span>
+        </div>
       </div>
 
       {/* Status */}
-      <div className="mt-4 pt-4 flex justify-between items-center border-t border-outline-variant/10">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-secondary/60 uppercase font-bold tracking-widest">Status</span>
-          <span className={`text-xs font-medium ${emp.online ? "text-emerald-600" : "text-secondary/70"}`}>
+      <div className="mt-3 pt-3 flex flex-col border-t border-outline-variant/10">
+        <div className="flex flex-col mb-4">
+          <span className="text-[9px] text-secondary/60 uppercase font-bold tracking-widest">Status</span>
+          <span className={`text-[11px] font-medium ${emp.online ? "text-emerald-600" : "text-secondary/70"}`}>
             {emp.online ? `Online • ${emp.location}` : `Off-duty • ${emp.location}`}
           </span>
         </div>
-        <button className="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+        <button className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline">
           View Schedule
         </button>
       </div>
@@ -127,7 +126,15 @@ function EmployeeCard({ emp }: { emp: Employee }) {
 
 export default function EmployeeManagement() {
   const [activeTab, setActiveTab] = useState("All Staff");
+  const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
+  const [systemAccess, setSystemAccess] = useState(true);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setAvatarPreview(URL.createObjectURL(file));
+  };
 
   const filtered = EMPLOYEES.filter((e) =>
     e.name.toLowerCase().includes(search.toLowerCase())
@@ -135,41 +142,40 @@ export default function EmployeeManagement() {
 
   return (
     <div className="flex min-h-screen bg-surface text-on-surface font-body">
-      {/* ── Main ── */}
       <main className="flex-1 flex flex-col min-h-screen">
 
         {/* Top Bar */}
-        <header className="bg-surface/70 backdrop-blur-xl flex justify-between items-center w-full px-8 sticky top-0 z-40 h-20">
-          <h2 className="text-xl font-headline font-bold text-on-surface">Staff Directory</h2>
+        <header className="bg-surface/70 backdrop-blur-xl flex justify-between items-center w-full px-6 sticky top-0 z-40 h-14">
+          <h2 className="text-base font-headline font-bold text-on-surface">Staff Directory</h2>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <div className="relative hidden lg:block">
               <input
-                className="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 w-64 text-sm focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-secondary/50"
+                className="bg-surface-container-low border-none rounded-full py-1.5 pl-9 pr-4 w-52 text-xs focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-secondary/50"
                 placeholder="Search staff members..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/60" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/60" />
             </div>
 
-            <div className="flex items-center gap-4">
-              <button className="relative p-2 text-secondary hover:opacity-80 transition-opacity">
-                <Bell />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-tertiary rounded-full" />
+            <div className="flex items-center gap-3">
+              <button className="relative p-1.5 text-secondary hover:opacity-80 transition-opacity">
+                <Bell size={18} />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-tertiary rounded-full" />
               </button>
 
-              <div className="flex items-center gap-3 border-l border-outline-variant/20 pl-4">
+              <div className="flex items-center gap-2.5 border-l border-outline-variant/20 pl-3">
                 <div className="text-right hidden sm:block">
-                  <p className="text-xs font-label uppercase tracking-widest font-bold text-on-surface">
+                  <p className="text-[10px] font-label uppercase tracking-widest font-bold text-on-surface">
                     Julian Rossi
                   </p>
-                  <p className="text-[10px] text-secondary">General Manager</p>
+                  <p className="text-[9px] text-secondary">General Manager</p>
                 </div>
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIlvIw0JJ3lsnhoxNunHLxXSg1TZKIZXb6uCPopTEXwdug4WstWPxs2nNMRJmEweKJZ1EJ02VO50nrz6o3uILGoePDAkV56i3rkk_wx4WcBhJihaJqGUgR5newJBOsE8ZiXW6ce52tAANR87izqc31rUfUDxO7lLBdeqvTn5XfxZlYVcsmoHG-EL34zzdhfFv8mrpYPF8LDzy60M4ruv8MSgd4ienKEmiDROFpmPiSJWw6KVCLnkFv-qK7rjfBCz54UdrUCliu4Lk"
                   alt="Manager avatar"
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="w-8 h-8 rounded-full object-cover"
                 />
               </div>
             </div>
@@ -177,42 +183,53 @@ export default function EmployeeManagement() {
         </header>
 
         {/* Page Content */}
-        <div className="p-8 max-w-7xl mx-auto w-full">
+        <div className="p-5 max-w-7xl mx-auto w-full">
 
           {/* Page header + stat */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-4xl font-headline text-on-surface tracking-tight mb-2">
+              <h3 className="text-2xl font-headline text-on-surface tracking-tight mb-1">
                 Our Culinary Team
               </h3>
-              <p className="text-on-surface-variant max-w-md">
+              <p className="text-sm text-on-surface-variant max-w-md">
                 Managing 24 dedicated professionals who bring the Editorial experience to life every day.
               </p>
             </div>
-            <div className="flex gap-4">
-              <div className="bg-surface-container-lowest px-6 py-4 rounded-xl flex items-center gap-4 shadow-sm">
+            <div className="flex gap-3">
+              <div className="bg-surface-container-lowest px-2 py-1 rounded-xl flex items-center gap-3 shadow-sm">
                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-secondary font-bold">
+                  <p className="text-[9px] uppercase tracking-widest text-secondary font-bold">
                     Currently Active
                   </p>
-                  <p className="text-xl font-headline text-primary">12 Staff</p>
+                  <p className="text-base font-headline text-primary">12 Staff</p>
                 </div>
               </div>
-              <button className="bg-primary text-on-primary px-8 py-4 rounded-xl font-medium flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/10">
-                <UserPlus />
-                <span>Add New Employee</span>
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:opacity-90 transition-all">
+                <Plus size={15} />
+                Add New Staff
               </button>
+              <AddEmployeeModal
+                showModal={showModal}
+                setShowModal={setShowModal}
+                systemAccess={systemAccess}
+                setSystemAccess={setSystemAccess}
+                avatarPreview={avatarPreview}
+                setAvatarPreview={setAvatarPreview}
+                handleAvatar={handleAvatar}
+              />
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-8 mb-8 overflow-x-auto pb-2 border-b border-outline-variant/10">
+          <div className="flex gap-6 mb-5 overflow-x-auto pb-1 border-b border-outline-variant/10">
             {TABS.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-4 border-b-2 text-sm uppercase tracking-widest whitespace-nowrap font-medium transition-colors ${
+                className={`pb-3 border-b-2 text-[11px] uppercase tracking-widest whitespace-nowrap font-medium transition-colors ${
                   activeTab === tab
                     ? "border-primary text-primary font-bold"
                     : "border-transparent text-secondary hover:text-primary"
@@ -223,50 +240,50 @@ export default function EmployeeManagement() {
             ))}
           </div>
 
-          {/* Employee Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Employee Grid — 4 columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {filtered.map((emp) => (
               <EmployeeCard key={emp.name} emp={emp} />
             ))}
 
             {/* Add placeholder */}
-            <button className="group bg-transparent border-2 border-dashed border-outline-variant/40 rounded-xl p-6 flex flex-col items-center justify-center text-secondary/40 hover:text-primary hover:border-primary/40 hover:bg-surface-container-low transition-all duration-300">
-              <CirclePlus />
-              <span className="font-headline text-lg">Onboard New Member</span>
-              <span className="text-xs mt-1">Start official onboarding process</span>
+            <button className="group bg-transparent border-2 border-dashed border-outline-variant/40 rounded-xl p-4 flex flex-col items-center justify-center gap-1 text-secondary/40 hover:text-primary hover:border-primary/40 hover:bg-surface-container-low transition-all duration-300">
+              <CirclePlus size={20} />
+              <span className="font-headline text-sm">Onboard New Member</span>
+              <span className="text-xs">Start official onboarding process</span>
             </button>
           </div>
 
-          {/* ── Management Tools Bento ── */}
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Management Tools Bento */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
 
             {/* Shift schedule card */}
-            <div className="md:col-span-2 bg-surface-container-low rounded-xl p-8 flex flex-col md:flex-row gap-8 items-center">
+            <div className="md:col-span-2 bg-surface-container-low rounded-xl p-5 flex flex-col md:flex-row gap-5 items-center">
               <div className="flex-1">
-                <h4 className="text-2xl font-headline mb-3">Weekly Shift Schedule</h4>
-                <p className="text-sm text-secondary mb-6 leading-relaxed">
+                <h4 className="text-lg font-headline mb-2">Weekly Shift Schedule</h4>
+                <p className="text-xs text-secondary mb-4 leading-relaxed">
                   The roster for next week is ready for final approval. Review team availability and
                   coverage for the upcoming holiday weekend events.
                 </p>
-                <div className="flex gap-3">
-                  <button className="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:opacity-90">
+                <div className="flex gap-2">
+                  <button className="bg-primary text-on-primary px-5 py-2 rounded-lg text-xs font-medium hover:opacity-90">
                     Review Roster
                   </button>
-                  <button className="bg-surface-container-high text-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-surface-container-highest">
+                  <button className="bg-surface-container-high text-primary px-5 py-2 rounded-lg text-xs font-medium hover:bg-surface-container-highest">
                     Export PDF
                   </button>
                 </div>
               </div>
-              <div className="w-full md:w-48 aspect-square rounded-xl bg-surface-container-highest p-4 flex flex-col justify-between">
+              <div className="w-full md:w-36 aspect-square rounded-xl bg-surface-container-highest p-3 flex flex-col justify-between">
                 <div className="flex justify-between items-start">
-                  <Calendar1 />
-                  <span className="bg-primary text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  <Calendar1 size={18} />
+                  <span className="bg-primary text-on-primary text-[9px] font-bold px-1.5 py-0.5 rounded">
                     NEW
                   </span>
                 </div>
                 <div>
-                  <p className="text-3xl font-headline text-primary">24</p>
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-secondary">
+                  <p className="text-2xl font-headline text-primary">24</p>
+                  <p className="text-[9px] uppercase tracking-widest font-bold text-secondary">
                     October Shifts
                   </p>
                 </div>
@@ -274,26 +291,25 @@ export default function EmployeeManagement() {
             </div>
 
             {/* Safety card */}
-            <div className="bg-tertiary-container text-on-tertiary rounded-xl p-8 flex flex-col justify-between relative overflow-hidden">
+            <div className="bg-tertiary-container text-on-tertiary rounded-xl p-5 flex flex-col justify-between relative overflow-hidden">
               <div className="relative z-10">
-                <h4 className="text-2xl font-headline text-white mb-3">Staff Safety & Hygiene</h4>
-                <p className="text-sm text-white/70">
+                <h4 className="text-lg font-headline text-white mb-2">Staff Safety & Hygiene</h4>
+                <p className="text-xs text-white/70">
                   Mandatory certifications expire in 12 days for 3 kitchen staff members.
                 </p>
               </div>
-              <div className="relative z-10 mt-6">
-                <button className="bg-white/10 hover:bg-white/20 text-white w-full py-3 rounded-lg text-xs font-bold uppercase tracking-widest border border-white/20 transition-colors">
+              <div className="relative z-10 mt-4">
+                <button className="bg-white/10 hover:bg-white/20 text-white w-full py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-white/20 transition-colors">
                   Alert Team
                 </button>
               </div>
-              <HeartPlus className="absolute right-4 bottom-4 text-9xl text-white/5 rotate-12" size={35} />
+              <HeartPlus className="absolute right-4 bottom-4 text-white/5 rotate-12" size={32} />
             </div>
           </div>
         </div>
 
-        <div className="h-16" />
+        <div className="h-12" />
       </main>
-
     </div>
   );
 }
