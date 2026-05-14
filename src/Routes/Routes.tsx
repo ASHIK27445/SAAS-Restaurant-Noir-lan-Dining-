@@ -26,6 +26,7 @@ import AddMenuItem from "../components/Admin/AddMenuItem";
 import CategoryManagement from "../components/Admin/CategoryManagement";
 import AdminHome from "../components/Admin/AdminHome";
 import AdminDashboardDefault from "../components/Admin/AdminDashboardDefault";
+import InventoryManagement from "../components/Admin/InventoryManagement";
 
 export const router = createBrowserRouter([
     {
@@ -68,7 +69,8 @@ export const router = createBrowserRouter([
       path: "menu",
       children: [
         { index: true, Component: AddMenuItem },
-        { path: "category-manage", Component: CategoryManagement }
+        { path: "category-manage", Component: CategoryManagement },
+        {path: "inventory-manage", Component: InventoryManagement}
       ]
     }
   ]

@@ -16,6 +16,10 @@ const HEADER_CONFIG: Record<
   "menu/category-manage": {
     active: "categories",
   },
+
+  "menu/inventory-manage": {
+    active: "inventory"
+  }
 };
 
 export default function AdminHome() {
@@ -72,7 +76,7 @@ export default function AdminHome() {
 
           {/* Inventory */}
           <Link
-            to="/admin/menu/inventory"
+            to="/admin/menu/inventory-manage"
             className={`text-sm uppercase tracking-widest transition-all pb-1
               ${
                 config.active === "inventory"
