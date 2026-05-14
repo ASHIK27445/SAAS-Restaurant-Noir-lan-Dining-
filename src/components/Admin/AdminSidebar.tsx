@@ -8,6 +8,7 @@ import {
   FileClock,
   Settings,
   HelpCircle,
+  AlarmClockCheck,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -30,6 +31,11 @@ const NAV_ITEMS = [
     icon: Users,
     label: "Employee Management",
     to: "/admin/employee",
+  },
+  {
+    icon: AlarmClockCheck,
+    label: "Staff Schedule",
+    to: "/admin/staff-schedule",
   },
   {
     icon: BarChart3,
