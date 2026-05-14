@@ -29,7 +29,7 @@ const NAV_ITEMS = [
   {
     icon: Users,
     label: "Employee Management",
-    to: "/admin/employees",
+    to: "/admin/employee",
   },
   {
     icon: BarChart3,

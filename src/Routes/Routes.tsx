@@ -27,6 +27,7 @@ import CategoryManagement from "../components/Admin/CategoryManagement";
 import AdminHome from "../components/Admin/AdminHome";
 import AdminDashboardDefault from "../components/Admin/AdminDashboardDefault";
 import InventoryManagement from "../components/Admin/InventoryManagement";
+import EmployeeManagement from "../components/Admin/EmployeeManagement";
 
 export const router = createBrowserRouter([
     {
@@ -72,6 +73,11 @@ export const router = createBrowserRouter([
         { path: "category-manage", Component: CategoryManagement },
         {path: "inventory-manage", Component: InventoryManagement}
       ]
+    },
+
+    {
+        path: "employee",
+        Component: EmployeeManagement
     }
   ]
 },
