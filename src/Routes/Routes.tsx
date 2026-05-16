@@ -30,6 +30,7 @@ import InventoryManagement from "../components/Admin/InventoryManagement";
 import EmployeeManagement from "../components/Admin/EmployeeManagement";
 import AddEmployeeModal from "../components/Admin/AddEmployeeModal";
 import StaffSchedule from "../components/Admin/StaffSchedule";
+import EmployeeViewSchedule from "../components/Admin/EmployeeViewSchedule";
 
 export const router = createBrowserRouter([
     {
@@ -85,6 +86,11 @@ export const router = createBrowserRouter([
     {
         path: 'staff-schedule',
         Component: StaffSchedule
+    },
+
+    {
+        path: 'staff-view-schedule',
+        Component: EmployeeViewSchedule
     }
   ]
 },

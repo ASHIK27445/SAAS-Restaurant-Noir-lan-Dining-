@@ -38,6 +38,11 @@ const NAV_ITEMS = [
     to: "/admin/staff-schedule",
   },
   {
+    icon: AlarmClockCheck,
+    label: "Staff View Schedule",
+    to: "/admin/staff-view-schedule",
+  },
+  {
     icon: BarChart3,
     label: "Reports",
     to: "/admin/reports",
