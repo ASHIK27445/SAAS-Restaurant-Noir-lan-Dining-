@@ -32,6 +32,7 @@ import AddEmployeeModal from "../components/Admin/AddEmployeeModal";
 import StaffSchedule from "../components/Admin/StaffSchedule";
 import EmployeeViewSchedule from "../components/Admin/EmployeeViewSchedule";
 import OrderManagement from "../components/Admin/OrderManagement";
+import Reports from "../components/Admin/Reports";
 
 export const router = createBrowserRouter([
     {
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
     {
         path: 'orders',
         Component: OrderManagement
+    },
+    {
+        path: 'reports',
+        Component: Reports
     }
   ]
 },

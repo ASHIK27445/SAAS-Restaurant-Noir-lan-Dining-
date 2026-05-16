@@ -112,7 +112,7 @@ export default function OrderManagement() {
       <main className="flex-1 flex flex-col min-w-0 bg-surface overflow-hidden">
 
         {/* Top Bar */}
-        {/* <header className="flex justify-between items-center w-full px-8 sticky top-0 z-40 bg-surface/70 backdrop-blur-xl h-20 border-b border-outline-variant/10">
+        <header className="flex justify-between items-center w-full px-8 sticky top-0 z-40 bg-surface/70 backdrop-blur-xl h-20 border-b border-outline-variant/10">
           <h2 className="font-headline text-2xl text-primary font-bold tracking-tight">
             Order Management
           </h2>
@@ -149,7 +149,7 @@ export default function OrderManagement() {
               </div>
             </div>
           </div>
-        </header> */}
+        </header>
 
         <section className="flex-1 overflow-y-auto p-8 space-y-8">
 
