@@ -22,47 +22,44 @@ const ALLERGENS = [
 
 
 export default function AddMenuItem() {
-  const { register, control,  handleSubmit, setValue,
+  const { register, control, handleSubmit, setValue,
   formState: { errors },} = useForm<MenuItemFormData>({
     resolver: zodResolver(MenuItemSchema),
     defaultValues: {
-    name: "",
-    description: "",
-    category: "Starter",
-    price: 0,
-    sku: "",
-    calories: 0,
-    allergens: [],
-    dietary: {
-      vegan: false,
-      vegetarian: true,
-      glutenFree: false,
+      name: "",
+      description: "",
+      category: "Starter",
+      price: 0,
+      sku: "",
+      calories: 0,
+      allergens: [],
+      dietary: {
+        vegan: false,
+        vegetarian: true,
+        glutenFree: false,
+      },
+      kitchenNotes: "",
+      isActive: true,
     },
-    kitchenNotes: "",
-    isActive: true,
-    },
-  })
+  });
 
   const activeCategory = useWatch({ control, name: "category" });
   const activeAllergens = useWatch({ control, name: "allergens", defaultValue: [] });
-  // const dietary = useWatch({ control, name: "dietary" });
   const isActive = useWatch({ control, name: "isActive" });
 
   const toggleAllergen = (id: string) => {
     const current = activeAllergens || [];
-
     setValue(
       "allergens",
       current.includes(id)
         ? current.filter((x) => x !== id)
         : [...current, id]
     );
-  }
+  };
 
   const onSubmit = async (data: MenuItemFormData) => {
     console.log(data);
-
-    // try {
+        // try {
     //   const res = await fetch("http://localhost:3000/menu/create", {
     //     method: "POST",
     //     headers: {
@@ -76,58 +73,57 @@ export default function AddMenuItem() {
     // } catch (error) {
     //   console.log(error)
     // }
-  }
+  };
 
   return (
     <div className="flex min-h-screen bg-surface text-on-surface font-body">
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* ── Main ── */}
         <main className="flex-1 min-w-0 bg-surface">
 
           {/* Page Content */}
-          <div className="max-w-6xl mx-auto px-8 pb-12 pt-2">
+          <div className="max-w-6xl mx-auto px-6 pb-8 pt-2">
 
             {/* Page Header */}
-            <div className="flex justify-between items-end mb-12">
+            <div className="flex justify-between items-end mb-6">
               <div>
-                <h2 className="text-5xl font-headline font-bold text-primary tracking-tight">
+                <h2 className="text-3xl font-headline font-bold text-primary tracking-tight">
                   Curation Details
                 </h2>
-                <p className="text-secondary mt-2 max-w-lg">
+                <p className="text-sm text-secondary mt-1 max-w-lg">
                   Define the essence of your new culinary offering. All entries will be
                   formatted for the guest-facing digital editorial.
                 </p>
               </div>
-              <div className="hidden md:flex gap-4">
-                <button className="px-8 py-3 bg-surface-container-high text-primary text-sm font-bold rounded-xl hover:opacity-80 transition-all">
+              <div className="hidden md:flex gap-3">
+                <button className="px-5 py-2 bg-surface-container-high text-primary text-xs font-bold rounded-xl hover:opacity-80 transition-all">
                   Save Draft
                 </button>
-                <button 
-                type="submit"                
-                className="px-8 py-3 bg-primary text-on-primary text-sm font-bold rounded-xl hover:opacity-90 transition-all shadow-lg">
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-primary text-on-primary text-xs font-bold rounded-xl hover:opacity-90 transition-all shadow-lg">
                   Publish to Menu
                 </button>
               </div>
             </div>
 
             {/* Form Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
               {/* ── Left Column ── */}
-              <div className="lg:col-span-5 space-y-12">
+              <div className="lg:col-span-5 space-y-6">
 
                 {/* Image Upload */}
                 <section>
-                  <h3 className="font-headline text-xl text-primary mb-6">Editorial Photography</h3>
+                  <h3 className="font-headline text-base text-primary mb-3">Editorial Photography</h3>
                   <div className="relative group aspect-4/5 bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all hover:bg-surface-container-high">
-                    <div className="flex flex-col justify-center items-center p-8">
-                      <ImageUp size={30} className="text-primary/40 mb-4"/>
-                      <p className="text-sm text-secondary font-medium">Drag and drop dish image</p>
-                      <p className="text-xs text-secondary/60 mt-2">Recommended: High-resolution portrait, minimum 1200×1500px</p>
+                    <div className="flex flex-col justify-center items-center p-6">
+                      <ImageUp size={24} className="text-primary/40 mb-3"/>
+                      <p className="text-xs text-secondary font-medium">Drag and drop dish image</p>
+                      <p className="text-[11px] text-secondary/60 mt-1">Recommended: High-resolution portrait, minimum 1200×1500px</p>
                     </div>
                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold text-primary shadow-sm uppercase tracking-widest">
+                      <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold text-primary shadow-sm uppercase tracking-widest">
                         Select File
                       </div>
                     </div>
@@ -135,24 +131,24 @@ export default function AddMenuItem() {
                 </section>
 
                 {/* Status & Category */}
-                <section className="bg-surface-container-lowest p-8 rounded-xl ring-1 ring-outline-variant/10 shadow-sm space-y-8">
+                <section className="bg-surface-container-lowest p-5 rounded-xl ring-1 ring-outline-variant/10 shadow-sm space-y-5">
 
                   {/* Toggle */}
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-secondary mb-4">Item Status</label>
+                    <label className="block text-[10px] uppercase tracking-widest text-secondary mb-3">Item Status</label>
                     <div className="flex items-center justify-between">
-                      <span className="text-primary font-medium">Active on digital menu</span>
+                      <span className="text-sm text-primary font-medium">Active on digital menu</span>
                       <button
                         type="button"
                         onClick={() => setValue("isActive", !isActive)}
                         role="switch"
                         aria-checked={isActive}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                        className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
                           isActive ? "bg-primary" : "bg-surface-container-high"
                         }`}
                       >
                         <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
                             isActive ? "translate-x-5" : "translate-x-0"
                           }`}
                         />
@@ -161,15 +157,15 @@ export default function AddMenuItem() {
                   </div>
 
                   {/* Categories */}
-                  <div className="pt-6 border-t border-outline-variant/10">
-                    <label className="block text-xs uppercase tracking-widest text-secondary mb-4">Menu Category</label>
-                    <div className="grid grid-cols-2 gap-3">
+                  <div className="pt-4 border-t border-outline-variant/10">
+                    <label className="block text-[10px] uppercase tracking-widest text-secondary mb-3">Menu Category</label>
+                    <div className="grid grid-cols-2 gap-2">
                       {CATEGORIES.map((cat) => (
                         <button
-                        type="button"
+                          type="button"
                           key={cat}
                           onClick={() => setValue("category", cat)}
-                          className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                             activeCategory === cat
                               ? "bg-primary text-on-primary"
                               : "bg-surface-container-low text-secondary hover:bg-surface-container-high"
@@ -184,74 +180,66 @@ export default function AddMenuItem() {
               </div>
 
               {/* ── Right Column ── */}
-              <div className="lg:col-span-7 space-y-12">
+              <div className="lg:col-span-7 space-y-6">
 
                 {/* Plate Information */}
-                <section className="space-y-8">
-                  <h3 className="font-headline text-xl text-primary pb-2 border-b border-outline-variant/20">
+                <section className="space-y-5">
+                  <h3 className="font-headline text-base text-primary pb-2 border-b border-outline-variant/20">
                     Plate Information
                   </h3>
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     <div className="group">
-                      <label className="block text-xs uppercase tracking-widest text-secondary mb-2 group-focus-within:text-primary transition-colors">
+                      <label className="block text-[10px] uppercase tracking-widest text-secondary mb-1.5 group-focus-within:text-primary transition-colors">
                         Item Nomenclature
                       </label>
                       <input
                         {...register("name")}
-                        className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 transition-all text-xl font-headline py-4 px-0 placeholder:text-secondary/30 rounded-none border-b"
+                        className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 transition-all text-base font-headline py-3 px-0 placeholder:text-secondary/30 rounded-none border-b"
                         placeholder="e.g. Wild Forest Mushroom Risotto"
                         type="text"/>
                         {errors.name && (
-                            <p className="text-red-500 text-sm mt-2">
-                              {errors.name.message}
-                            </p>
+                          <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
                         )}
                     </div>
 
                     <div className="group">
-                      <label className="block text-xs uppercase tracking-widest text-secondary mb-2 group-focus-within:text-primary transition-colors">
+                      <label className="block text-[10px] uppercase tracking-widest text-secondary mb-1.5 group-focus-within:text-primary transition-colors">
                         Chef's Narrative (Description)
                       </label>
                       <textarea
                         {...register("description")}
-                        className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all text-base py-4 px-4 placeholder:text-secondary/30 resize-none"
+                        className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all text-sm py-3 px-4 placeholder:text-secondary/30 resize-none"
                         placeholder="Describe the textures, origins, and preparation method..."
-                        rows={6}/>
+                        rows={4}/>
                         {errors.description && (
-                            <p className="text-red-500 text-sm mt-2">
-                              {errors.description.message}
-                            </p>
+                          <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>
                         )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-2 gap-5">
                       <div className="group">
-                        <label className="block text-xs uppercase tracking-widest text-secondary mb-2">Price Point</label>
+                        <label className="block text-[10px] uppercase tracking-widest text-secondary mb-1.5">Price Point</label>
                         <div className="relative flex items-center">
-                          <span className="absolute left-4 font-headline text-primary">$</span>
+                          <span className="absolute left-4 font-headline text-primary text-sm">$</span>
                           <input
-                              {...register("price", {valueAsNumber: true,})}
-                            className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all font-headline text-lg py-3 pl-8"
+                            {...register("price", { valueAsNumber: true })}
+                            className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all font-headline text-sm py-2.5 pl-8"
                             placeholder="0.00"
                             type="number"/>
                             {errors.price && (
-                                <p className="text-red-500 text-sm mt-2">
-                                  {errors.price.message}
-                                </p>
+                              <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>
                             )}
                         </div>
                       </div>
                       <div className="group">
-                        <label className="block text-xs uppercase tracking-widest text-secondary mb-2">Internal SKU</label>
+                        <label className="block text-[10px] uppercase tracking-widest text-secondary mb-1.5">Internal SKU</label>
                         <input
                           {...register("sku")}
-                          className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all py-3 px-4"
+                          className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all py-2.5 px-4 text-sm"
                           placeholder="MEN-001"
                           type="text"/>
                           {errors.sku && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors.sku.message}
-                              </p>
+                            <p className="text-red-500 text-xs mt-1">{errors.sku.message}</p>
                           )}
                       </div>
                     </div>
@@ -259,38 +247,36 @@ export default function AddMenuItem() {
                 </section>
 
                 {/* Nutritional Profile */}
-                <section className="space-y-8">
-                  <h3 className="font-headline text-xl text-primary pb-2 border-b border-outline-variant/20">
+                <section className="space-y-5">
+                  <h3 className="font-headline text-base text-primary pb-2 border-b border-outline-variant/20">
                     Nutritional Profile
                   </h3>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <label className="block text-xs uppercase tracking-widest text-secondary">Caloric Count</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] uppercase tracking-widest text-secondary">Caloric Count</label>
                       <div className="relative flex items-center">
                         <input
-                          {...register("calories", {valueAsNumber: true,})}
-                          className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all py-3 px-4"
+                          {...register("calories", { valueAsNumber: true })}
+                          className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all py-2.5 px-4 text-sm"
                           placeholder="450"
                           type="number"/>
                           {errors.calories && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors.calories.message}
-                              </p>
+                            <p className="text-red-500 text-xs mt-1">{errors.calories.message}</p>
                           )}
-                        <span className="absolute right-4 text-xs text-secondary uppercase">kcal</span>
+                        <span className="absolute right-4 text-[10px] text-secondary uppercase">kcal</span>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <label className="block text-xs uppercase tracking-widest text-secondary">Allergen Registry</label>
-                      <div className="flex flex-wrap gap-2">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] uppercase tracking-widest text-secondary">Allergen Registry</label>
+                      <div className="flex flex-wrap gap-1.5">
                         {ALLERGENS.map((a) => (
                           <button
                             type="button"
                             key={a.id}
                             onClick={() => toggleAllergen(a.id)}
-                            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                            className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all ${
                               activeAllergens?.includes(a.id)
                                 ? "bg-tertiary-fixed text-on-tertiary-fixed"
                                 : "bg-surface-container-high text-secondary hover:bg-primary-fixed"
@@ -299,10 +285,9 @@ export default function AddMenuItem() {
                             {a.name}
                           </button>
                         ))}
-
                         <button
                           type="button"
-                          className="px-3 py-1 rounded-full bg-surface-container-low text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20 hover:bg-primary/5"
+                          className="px-2.5 py-1 rounded-full bg-surface-container-low text-primary text-[9px] font-bold uppercase tracking-wider border border-primary/20 hover:bg-primary/5"
                         >
                           + Add
                         </button>
@@ -311,11 +296,11 @@ export default function AddMenuItem() {
                   </div>
 
                   {/* Dietary checkboxes */}
-                  <div className="bg-surface-container-low/50 p-6 rounded-xl space-y-4">
-                    <label className="block text-xs uppercase tracking-widest text-secondary">
+                  <div className="bg-surface-container-low/50 p-4 rounded-xl space-y-3">
+                    <label className="block text-[10px] uppercase tracking-widest text-secondary">
                       Dietary Accommodations
                     </label>
-                    <div className="flex gap-8">
+                    <div className="flex gap-6">
                       {(
                         [
                           { key: "vegan", label: "Vegan" },
@@ -323,38 +308,33 @@ export default function AddMenuItem() {
                           { key: "glutenFree", label: "Gluten-Free" },
                         ] as const
                       ).map(({ key, label }) => (
-                        <label key={key} className="flex items-center gap-3 cursor-pointer">
+                        <label key={key} className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             {...register(`dietary.${key}`)}
                             className="rounded text-primary focus:ring-primary border-outline-variant"/>
-                          <span className="text-sm font-medium text-primary">{label}</span>
+                          <span className="text-xs font-medium text-primary">{label}</span>
                         </label>
                       ))}
-
                       {errors.dietary && (
-                        <p className="text-red-500 text-sm mt-2">
-                          Please check dietary selections
-                        </p>
+                        <p className="text-red-500 text-xs mt-1">Please check dietary selections</p>
                       )}
                     </div>
                   </div>
                 </section>
 
                 {/* Kitchen Notes */}
-                <section className="space-y-4">
-                  <label className="block text-xs uppercase tracking-widest text-secondary">
+                <section className="space-y-2">
+                  <label className="block text-[10px] uppercase tracking-widest text-secondary">
                     Private Kitchen Notes (Hidden from Menu)
                   </label>
                   <textarea
                     {...register("kitchenNotes")}
-                    className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all text-sm py-4 px-4 placeholder:text-secondary/30 resize-none italic"
+                    className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all text-xs py-3 px-4 placeholder:text-secondary/30 resize-none italic"
                     placeholder="Preparation tips or specific supplier requests..."
                     rows={3}/>
                     {errors.kitchenNotes && (
-                        <p className="text-red-500 text-sm mt-2">
-                          {errors.kitchenNotes.message}
-                        </p>
+                      <p className="text-red-500 text-xs mt-1">{errors.kitchenNotes.message}</p>
                     )}
                 </section>
               </div>
@@ -362,23 +342,19 @@ export default function AddMenuItem() {
           </div>
 
           {/* Mobile sticky actions */}
-          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl p-4 flex gap-4 border-t border-outline-variant/10 z-50">
-            <button className="flex-1 py-4 bg-surface-container-high text-primary font-bold rounded-xl text-sm uppercase tracking-widest">
+          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl p-3 flex gap-3 border-t border-outline-variant/10 z-50">
+            <button className="flex-1 py-3 bg-surface-container-high text-primary font-bold rounded-xl text-xs uppercase tracking-widest">
               Discard
             </button>
-            <button className="flex-1 py-4 bg-primary text-on-primary font-bold rounded-xl text-sm uppercase tracking-widest">
+            <button className="flex-1 py-3 bg-primary text-on-primary font-bold rounded-xl text-xs uppercase tracking-widest">
               Save Item
             </button>
           </div>
         </main>
-
       </form>
-
-
 
       {/* Decorative background gradient */}
       <div className="fixed top-0 right-0 -z-10 w-1/3 h-screen bg-linear-to-l from-primary-fixed/20 to-transparent pointer-events-none" />
-
     </div>
   );
 }

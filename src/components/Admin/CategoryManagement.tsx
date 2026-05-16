@@ -27,8 +27,8 @@ const TABLE_ROWS = [
 ];
 
 export default function CategoryManagement() {
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
-  const [search, setSearch] = useState("")
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const filtered = TABLE_ROWS.filter((r) =>
     r.title.toLowerCase().includes(search.toLowerCase())
@@ -37,66 +37,65 @@ export default function CategoryManagement() {
   return (
     <div className="bg-surface text-on-surface min-h-screen flex font-body">
 
-      {/* ── Main ── */}
       <main className="flex-1 flex flex-col min-h-screen">
 
-        <section className="px-12 pt-3 pb-12 space-y-12">
+        <section className="px-8 pt-3 pb-8 space-y-6">
 
           {/* Page Header */}
           <div className="flex justify-between items-end">
             <div className="max-w-2xl">
-              <h2 className="text-5xl font-headline font-bold text-primary tracking-tight mb-4">
+              <h2 className="text-3xl font-headline font-bold text-primary tracking-tight mb-2">
                 Refine Your Editorial Canvas
               </h2>
-              <p className="text-secondary leading-relaxed">
+              <p className="text-sm text-secondary leading-relaxed">
                 Organize your offerings into curated collections that guide guests through their
                 dining journey. Use these categories to structure the digital menu experience.
               </p>
             </div>
-            <button 
+            <button
               onClick={() => setIsCategoryModalOpen(true)}
-              className="flex items-center gap-3 bg-primary text-on-primary px-8 py-4 rounded-xl font-medium shadow-md hover:shadow-xl transition-all active:scale-95">
-              <Plus />
+              className="flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-medium shadow-md hover:shadow-xl transition-all active:scale-95">
+              <Plus size={16} />
               <span>Add New Category</span>
             </button>
-            
+
             <CategoryAddModal
-                isOpen={isCategoryModalOpen}
-                onClose={() => setIsCategoryModalOpen(false)}
+              isOpen={isCategoryModalOpen}
+              onClose={() => setIsCategoryModalOpen(false)}
             />
           </div>
 
           {/* ── Bento Grid ── */}
-          <div className="grid grid-cols-12 gap-6">
+          <div className="grid grid-cols-12 gap-4">
 
             {/* Starters — wide card */}
             <div className="col-span-12 md:col-span-8 group relative overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex h-80">
-                <div className="w-1/2 p-8 flex flex-col justify-between">
+              <div className="flex h-60">
+                <div className="w-1/2 p-5 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-bold uppercase tracking-widest">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[9px] font-bold uppercase tracking-widest">
                         Active
                       </span>
-                      <span className="text-on-surface-variant text-xs font-medium">
+                      <span className="text-on-surface-variant text-[11px] font-medium">
                         Updated 2 days ago
                       </span>
                     </div>
-                    <h3 className="text-4xl font-headline text-on-surface mb-2">Starters</h3>
-                    <p className="text-on-surface-variant line-clamp-3">
+                    <h3 className="text-2xl font-headline text-on-surface mb-1.5">Starters</h3>
+                    <p className="text-sm text-on-surface-variant line-clamp-3">
                       Light, evocative beginnings to pique interest. Includes seasonal amuse-bouche
                       and cold-pressed garden selections.
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full border-2 border-surface-container-lowest bg-surface-container-low flex items-center justify-center text-xs font-bold text-primary">
+                      <div className="w-8 h-8 rounded-full border-2 border-surface-container-lowest bg-surface-container-low flex items-center justify-center text-xs font-bold text-primary">
                         12
                       </div>
-                      <span className="text-sm text-on-surface-variant">Menu Items</span>
+                      <span className="text-xs text-on-surface-variant">Menu Items</span>
                     </div>
-                    <button className="p-3 text-primary hover:bg-surface-container-low rounded-full transition-colors">
-                      <ChevronRight />
+                    <button className="p-2 text-primary hover:bg-surface-container-low rounded-full transition-colors">
+                      <ChevronRight size={16} />
                     </button>
                   </div>
                 </div>
@@ -111,48 +110,48 @@ export default function CategoryManagement() {
             </div>
 
             {/* Wine Cellar */}
-            <div className="col-span-12 md:col-span-4 group bg-surface-container-lowest rounded-xl shadow-sm p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="col-span-12 md:col-span-4 group bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
               <div>
-                <div className="flex justify-between items-start mb-6">
-                  <div className="p-4 rounded-xl bg-surface-container-low text-primary">
-                    <Martini />
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 rounded-xl bg-surface-container-low text-primary">
+                    <Martini size={18} />
                   </div>
-                  <span className="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-bold uppercase tracking-widest">
+                  <span className="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[9px] font-bold uppercase tracking-widest">
                     Active
                   </span>
                 </div>
-                <h3 className="text-3xl font-headline text-on-surface mb-2">Wine Cellar</h3>
-                <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
+                <h3 className="text-xl font-headline text-on-surface mb-1.5">Wine Cellar</h3>
+                <p className="text-on-surface-variant text-xs leading-relaxed mb-4">
                   A curated selection of vintages and contemporary pairings from our private estate.
                 </p>
               </div>
-              <div className="pt-6 border-t border-outline-variant/10 flex justify-between items-center">
-                <span className="text-sm font-bold text-on-surface">48 Select Vintages</span>
-                <button className="text-primary hover:underline font-medium text-sm">
+              <div className="pt-4 border-t border-outline-variant/10 flex justify-between items-center">
+                <span className="text-xs font-bold text-on-surface">48 Select Vintages</span>
+                <button className="text-primary hover:underline font-medium text-xs">
                   Manage List
                 </button>
               </div>
             </div>
 
             {/* Main Course */}
-            <div className="col-span-12 md:col-span-4 group bg-surface-container-lowest rounded-xl shadow-sm p-8 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
+            <div className="col-span-12 md:col-span-4 group bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
               <div className="relative z-10">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="p-4 rounded-xl bg-primary text-on-primary shadow-lg">
-                    <CookingPot />
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 rounded-xl bg-primary text-on-primary shadow-lg">
+                    <CookingPot size={18} />
                   </div>
-                  <span className="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-bold uppercase tracking-widest">
+                  <span className="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[9px] font-bold uppercase tracking-widest">
                     Active
                   </span>
                 </div>
-                <h3 className="text-3xl font-headline text-on-surface mb-2">Main Course</h3>
-                <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
+                <h3 className="text-xl font-headline text-on-surface mb-1.5">Main Course</h3>
+                <p className="text-on-surface-variant text-xs leading-relaxed mb-4">
                   The heart of the editorial. Robust, chef-curated entries that define our season.
                 </p>
               </div>
-              <div className="pt-6 relative z-10 border-t border-outline-variant/10 flex justify-between items-center">
-                <span className="text-sm font-bold text-on-surface">18 Signature Dishes</span>
-                <button className="text-primary hover:underline font-medium text-sm">
+              <div className="pt-4 relative z-10 border-t border-outline-variant/10 flex justify-between items-center">
+                <span className="text-xs font-bold text-on-surface">18 Signature Dishes</span>
+                <button className="text-primary hover:underline font-medium text-xs">
                   View Details
                 </button>
               </div>
@@ -160,28 +159,28 @@ export default function CategoryManagement() {
 
             {/* Seasonal Specials — wide card reversed */}
             <div className="col-span-12 md:col-span-8 group relative overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex h-80 flex-row-reverse">
-                <div className="w-1/2 p-8 flex flex-col justify-between bg-primary-container text-on-primary-container">
+              <div className="flex h-60 flex-row-reverse">
+                <div className="w-1/2 p-5 flex flex-col justify-between bg-primary-container text-on-primary-container">
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="px-2 py-0.5 rounded bg-tertiary text-on-tertiary text-[10px] font-bold uppercase tracking-widest">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="px-2 py-0.5 rounded bg-tertiary text-on-tertiary text-[9px] font-bold uppercase tracking-widest">
                         Inactive
                       </span>
-                      <span className="text-on-primary-container/70 text-xs font-medium italic">
+                      <span className="text-on-primary-container/70 text-[11px] font-medium italic">
                         Launching Autumn 2024
                       </span>
                     </div>
-                    <h3 className="text-4xl font-headline text-on-primary mb-2">
+                    <h3 className="text-2xl font-headline text-on-primary mb-1.5">
                       Seasonal Specials
                     </h3>
-                    <p className="text-on-primary-container/80 line-clamp-3">
+                    <p className="text-sm text-on-primary-container/80 line-clamp-3">
                       Limited-time explorations of rare ingredients and harvesting techniques. A
                       dialogue with nature.
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">6 Draft Items</span>
-                    <button className="px-6 py-2 bg-on-primary-container text-primary rounded-lg font-bold text-sm hover:bg-white transition-colors">
+                    <span className="text-xs font-medium">6 Draft Items</span>
+                    <button className="px-4 py-1.5 bg-on-primary-container text-primary rounded-lg font-bold text-xs hover:bg-white transition-colors">
                       Enable Now
                     </button>
                   </div>
@@ -198,32 +197,32 @@ export default function CategoryManagement() {
           </div>
 
           {/* ── Management Table ── */}
-          <div className="bg-surface-container-low rounded-3xl p-10">
-            <div className="flex items-center justify-between mb-8">
+          <div className="bg-surface-container-low rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-5">
               <div>
-                <h4 className="text-2xl font-headline text-on-surface">All Categories</h4>
-                <p className="text-on-surface-variant text-sm mt-1">
+                <h4 className="text-lg font-headline text-on-surface">All Categories</h4>
+                <p className="text-on-surface-variant text-xs mt-0.5">
                   Direct management and ordering of your menu sections.
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="bg-surface-container-lowest px-4 py-2 rounded-xl flex items-center gap-3">
-                  <Search />
+              <div className="flex items-center gap-3">
+                <div className="bg-surface-container-lowest px-3 py-1.5 rounded-xl flex items-center gap-2">
+                  <Search size={14} />
                   <input
-                    className="bg-transparent border-none focus:ring-0 text-sm w-48"
+                    className="bg-transparent border-none focus:ring-0 text-xs w-40"
                     placeholder="Filter categories..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
-                <button className="p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant">
-                  <ListFilterPlus />
+                <button className="p-1.5 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant">
+                  <ListFilterPlus size={16} />
                 </button>
               </div>
             </div>
 
             {/* Column headers */}
-            <div className="grid grid-cols-12 px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
+            <div className="grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
               <div className="col-span-5">Category Title</div>
               <div className="col-span-2 text-center">Items</div>
               <div className="col-span-3 text-center">Status</div>
@@ -231,17 +230,17 @@ export default function CategoryManagement() {
             </div>
 
             {/* Rows */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {filtered.map((row) => (
                 <div
                   key={row.title}
-                  className={`grid grid-cols-12 px-6 py-6 items-center bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-md transition-all ${
+                  className={`grid grid-cols-12 px-4 py-3.5 items-center bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all ${
                     !row.active ? "opacity-60" : ""
                   }`}
                 >
-                  <div className="col-span-5 flex items-center gap-4">
+                  <div className="col-span-5 flex items-center gap-3">
                     <div
-                      className={`w-12 h-12 rounded-lg bg-surface-container-low overflow-hidden ${
+                      className={`w-9 h-9 rounded-lg bg-surface-container-low overflow-hidden ${
                         !row.active ? "grayscale" : ""
                       }`}
                     >
@@ -252,18 +251,18 @@ export default function CategoryManagement() {
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-on-surface">{row.title}</p>
-                      <p className="text-xs text-on-surface-variant">{row.subtitle}</p>
+                      <p className="text-sm font-bold text-on-surface">{row.title}</p>
+                      <p className="text-[11px] text-on-surface-variant">{row.subtitle}</p>
                     </div>
                   </div>
 
-                  <div className="col-span-2 text-center font-medium text-on-surface">
+                  <div className="col-span-2 text-center text-sm font-medium text-on-surface">
                     {row.count}
                   </div>
 
                   <div className="col-span-3 flex justify-center">
                     <span
-                      className={`px-3 py-1 rounded-full text-[11px] font-bold ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         row.active
                           ? "bg-primary-fixed text-on-primary-fixed"
                           : "bg-surface-container-highest text-on-surface-variant"
@@ -273,15 +272,13 @@ export default function CategoryManagement() {
                     </span>
                   </div>
 
-                  <div className="col-span-2 flex justify-end gap-2">
-                      <button
-                        className="p-2 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors">
-                            <SquarePen size={16}/>
-                      </button>
-                      <button
-                        className="p-2 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors">
-                            <GripHorizontal size={16} />
-                      </button>
+                  <div className="col-span-2 flex justify-end gap-1.5">
+                    <button className="p-1.5 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors">
+                      <SquarePen size={14} />
+                    </button>
+                    <button className="p-1.5 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors">
+                      <GripHorizontal size={14} />
+                    </button>
                   </div>
                 </div>
               ))}

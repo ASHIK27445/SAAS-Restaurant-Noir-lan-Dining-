@@ -33,6 +33,7 @@ import StaffSchedule from "../components/Admin/StaffSchedule";
 import EmployeeViewSchedule from "../components/Admin/EmployeeViewSchedule";
 import OrderManagement from "../components/Admin/OrderManagement";
 import Reports from "../components/Admin/Reports";
+import InvoiceHistory from "../components/Admin/InvoiceHistory";
 
 export const router = createBrowserRouter([
     {
@@ -101,6 +102,10 @@ export const router = createBrowserRouter([
     {
         path: 'reports',
         Component: Reports
+    },
+    {
+        path: 'invoice-history',
+        Component: InvoiceHistory
     }
   ]
 },

@@ -50,7 +50,7 @@ const NAV_ITEMS = [
   {
     icon: FileClock,
     label: "Invoice History",
-    to: "/admin/invoices",
+    to: "/admin/invoice-history",
   },
 ];
 
