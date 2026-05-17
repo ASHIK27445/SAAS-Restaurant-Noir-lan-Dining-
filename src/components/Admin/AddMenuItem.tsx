@@ -1,7 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageUp} from "lucide-react";
+import { ImageUp, Loader2} from "lucide-react";
 import { MenuItemSchema, type MenuItemFormData } from "../../Schemas/menu.schema";
 import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useState } from "react";
+
+
+type Category = {
+  id: string;
+  name: string;
+  isActive: boolean;
+};
 
 const CATEGORIES = [
   "Starter",
@@ -43,6 +51,8 @@ export default function AddMenuItem() {
     },
   });
 
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const activeCategory = useWatch({ control, name: "category" });
   const activeAllergens = useWatch({ control, name: "allergens", defaultValue: [] });
   const isActive = useWatch({ control, name: "isActive" });
@@ -57,6 +67,48 @@ export default function AddMenuItem() {
     );
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch categories
+        const categoriesRes = await fetch("http://localhost:3000/menu/categories");
+        const categoriesResult = await categoriesRes.json();
+        if (categoriesResult.success) {
+          setCategories(categoriesResult.data);
+        }
+
+        // Fetch allergens
+        // const allergensRes = await fetch("http://localhost:3000/menu/allergens");
+        // const allergensResult = await allergensRes.json();
+        // if (allergensResult.success) {
+        //   setAllergens(allergensResult.data);
+        // }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Fallback to hardcoded data if API fails
+        setCategories([
+          { id: "1", name: "Starter", isActive: true },
+          { id: "2", name: "Main Course", isActive: true },
+          { id: "3", name: "Side Dish", isActive: true },
+          { id: "4", name: "Dessert", isActive: true },
+          { id: "5", name: "Wine & Spirits", isActive: true },
+          { id: "6", name: "Specials", isActive: true },
+        ]);
+        // setAllergens([
+        //   { id: "a1", name: "Dairy" },
+        //   { id: "a2", name: "Gluten" },
+        //   { id: "a3", name: "Nuts" },
+        //   { id: "a4", name: "Soy" },
+        //   { id: "a5", name: "Shellfish" },
+        // ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
   const onSubmit = async (data: MenuItemFormData) => {
     console.log(data);
         // try {
@@ -75,6 +127,7 @@ export default function AddMenuItem() {
     // }
   };
 
+
   return (
     <div className="flex min-h-screen bg-surface text-on-surface font-body">
 
@@ -83,7 +136,7 @@ export default function AddMenuItem() {
 
           {/* Page Content */}
           <div className="max-w-6xl mx-auto px-6 pb-8 pt-2">
-
+            
             {/* Page Header */}
             <div className="flex justify-between items-end mb-6">
               <div>
@@ -158,22 +211,36 @@ export default function AddMenuItem() {
 
                   {/* Categories */}
                   <div className="pt-4 border-t border-outline-variant/10">
-                    <label className="block text-[10px] uppercase tracking-widest text-secondary mb-3">Menu Category</label>
+                    <label className="block text-[10px] uppercase tracking-widest text-secondary mb-3">
+                      Menu Category
+                    </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {CATEGORIES.map((cat) => (
-                        <button
-                          type="button"
-                          key={cat}
-                          onClick={() => setValue("category", cat)}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                            activeCategory === cat
-                              ? "bg-primary text-on-primary"
-                              : "bg-surface-container-low text-secondary hover:bg-surface-container-high"
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
+                      {isLoading ? (
+                        // Dynamic Skeleton - 6 items for 2-column grid
+                        Array.from({ length: 6 }).map((_, index) => (
+                          <div 
+                            key={index}
+                            className="px-3 py-2 rounded-lg bg-surface-container-low animate-pulse"
+                          >
+                            <div className="h-4 w-3/4 bg-outline-variant/30 rounded"></div>
+                          </div>
+                        ))
+                      ) : (
+                        categories.map((cat) => (
+                          <button
+                            type="button"
+                            key={cat.id}
+                            onClick={() => setValue("category", cat.name)}
+                            className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              activeCategory === cat.name
+                                ? "bg-primary text-on-primary"
+                                : "bg-surface-container-low text-secondary hover:bg-surface-container-high"
+                            }`}
+                          >
+                            {cat.name}
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
                 </section>

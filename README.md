@@ -24,3 +24,8 @@ and then do migration :
 ```bash
 npx prisma migrate dev --name add_menu_item
 ```
+
+### seed run:
+```bash
+npx ts-node prisma/seed/seed.ts
+```
