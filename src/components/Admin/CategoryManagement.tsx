@@ -1,10 +1,29 @@
-import { ChevronRight, CookingPot, GripHorizontal, ListFilterPlus, Martini, Plus, Search, SquarePen, Loader2, X, Camera } from "lucide-react";
+import { ChevronRight, CookingPot, GripHorizontal, ListFilterPlus, Martini, Plus, Search, SquarePen, X, Camera } from "lucide-react";
 import { useEffect, useState } from "react";
 import CategoryAddModal from "./CategoryAddModal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CategoryManagementSkeletonLoading from "./SkeletonLoading/CategoryManageLoading";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Category = {
   id: string;
@@ -29,20 +48,117 @@ const editCategorySchema = z.object({
 
 type EditCategoryInput = z.infer<typeof editCategorySchema>;
 
+// Sortable Row Component
+function SortableCategoryRow({ category, onEdit }: { 
+  category: Category; 
+  onEdit: (cat: Category) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      className={`grid grid-cols-12 px-4 py-3.5 items-center bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all ${
+        !category.isActive ? "opacity-60" : ""
+      } ${isDragging ? "shadow-lg ring-2 ring-primary" : ""}`}
+    >
+      <div className="col-span-5 flex items-center gap-3">
+        <div
+          className={`w-9 h-9 rounded-lg bg-surface-container-low overflow-hidden ${
+            !category.isActive ? "grayscale" : ""
+          }`}
+        >
+          {category.image ? (
+            <img
+              src={category.image}
+              alt={category.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-secondary">
+              <CookingPot size={16} />
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="text-sm font-bold text-on-surface">{category.name}</p>
+          <p className="text-[11px] text-on-surface-variant line-clamp-1">
+            {category.description || "No description"}
+          </p>
+        </div>
+      </div>
+
+      <div className="col-span-2 text-center text-sm font-medium text-on-surface">
+        {category._count?.menuItems || 0}
+      </div>
+
+      <div className="col-span-2 text-center text-sm font-medium text-on-surface">
+        {category.sortOrder}
+      </div>
+
+      <div className="col-span-2 flex justify-center">
+        <span
+          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+            category.isActive
+              ? "bg-primary-fixed text-on-primary-fixed"
+              : "bg-surface-container-highest text-on-surface-variant"
+          }`}
+        >
+          {category.isActive ? "ACTIVE" : "INACTIVE"}
+        </span>
+      </div>
+
+      <div className="col-span-1 flex justify-end gap-1.5">
+        <button 
+          onClick={() => onEdit(category)}
+          className="p-1.5 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors"
+          title="Edit Category"
+        >
+          <SquarePen size={14} />
+        </button>
+        <button 
+          {...listeners}
+          className="p-1.5 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors cursor-grab active:cursor-grabbing"
+          title="Drag to reorder"
+        >
+          <GripHorizontal size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // Edit Modal Component
+// Edit Modal Component - Updated with auto-reorder
 function EditCategoryModal({ 
   isOpen, 
   onClose, 
   category, 
-  onSuccess 
+  onSuccess,
+  categories  // Add this prop
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   category: Category | null;
   onSuccess: () => void;
+  categories: Category[];  // New prop
 }) {
-const [imagePreview, setImagePreview] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -78,24 +194,73 @@ const [imagePreview, setImagePreview] = useState<string>("");
     setError("");
     
     try {
-      const response = await fetch(`http://localhost:3000/menu/category/${category.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const oldSortOrder = category.sortOrder;
+      const newSortOrder = data.sortOrder;
       
-      const result = await response.json();
-      
-      if (response.ok && result.success) {
-        onSuccess();
-        onClose();
-        reset();
-        setImagePreview("");
+      // If sort order changed, reorder all categories
+      if (oldSortOrder !== newSortOrder) {
+        // Get all categories except current one
+        const otherCategories = categories.filter(c => c.id !== category.id);
+        
+        // Create new sorted list
+        let reorderedCategories = [...otherCategories];
+        
+        if (newSortOrder > oldSortOrder) {
+          // Moving down: shift items between old+1 to new up by 1
+          reorderedCategories = otherCategories.map(c => {
+            if (c.sortOrder > oldSortOrder && c.sortOrder <= newSortOrder) {
+              return { ...c, sortOrder: c.sortOrder - 1 };
+            }
+            return c;
+          });
+        } else if (newSortOrder < oldSortOrder) {
+          // Moving up: shift items between new to old-1 down by 1
+          reorderedCategories = otherCategories.map(c => {
+            if (c.sortOrder >= newSortOrder && c.sortOrder < oldSortOrder) {
+              return { ...c, sortOrder: c.sortOrder + 1 };
+            }
+            return c;
+          });
+        }
+        
+        // Add current category with new sort order
+        const finalReorder = [...reorderedCategories, { ...category, sortOrder: newSortOrder }];
+        
+        // Sort by new sortOrder
+        finalReorder.sort((a, b) => a.sortOrder - b.sortOrder);
+        
+        // Update all categories in backend
+        for (let i = 0; i < finalReorder.length; i++) {
+          const cat = finalReorder[i];
+          await fetch(`http://localhost:3000/menu/category/${cat.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: cat.name,
+              description: cat.description,
+              isActive: cat.isActive,
+              image: cat.image,
+              sortOrder: cat.sortOrder,
+            }),
+          });
+        }
       } else {
-        setError(result.message || "Failed to update category");
+        // Only update current category if sort order didn't change
+        await fetch(`http://localhost:3000/menu/category/${category.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
       }
+      
+      onSuccess();
+      onClose();
+      reset();
+      setImagePreview("");
     } catch (error) {
       console.error("Error updating category:", error);
       setError("Network error. Please try again.");
@@ -104,150 +269,151 @@ const [imagePreview, setImagePreview] = useState<string>("");
     }
   };
 
-
-
   if (!isOpen || !category) return null;
 
-return (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-    <div className="w-full max-w-150 overflow-hidden rounded-xl bg-surface-container-lowest border border-outline-variant/10 shadow-xl">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-150 overflow-hidden rounded-xl bg-surface-container-lowest border border-outline-variant/10 shadow-xl">
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant/10">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-secondary mb-0.5">Menu management</p>
-          <h2 className="text-[15px] font-medium text-primary">Edit category</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant/10">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-secondary mb-0.5">Menu management</p>
+            <h2 className="text-[15px] font-medium text-primary">Edit category</h2>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-full border border-outline-variant/20 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition">
+            <X size={13} />
+          </button>
         </div>
-        <button onClick={onClose} className="w-7 h-7 rounded-full border border-outline-variant/20 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition">
-          <X size={13} />
-        </button>
-      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-[1fr_180px]">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-[1fr_180px]">
 
-          {/* LEFT */}
-          <div className="flex flex-col gap-2.75 p-4 border-r border-outline-variant/10">
+            {/* LEFT */}
+            <div className="flex flex-col gap-2.75 p-4 border-r border-outline-variant/10">
 
-            {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-[11px] text-red-600">{error}</div>}
+              {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-[11px] text-red-600">{error}</div>}
 
-            {/* Name */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-medium text-on-surface-variant">Category title *</label>
-              <input type="text" {...register("name")} placeholder="e.g., Artisanal Starters"
-                className="h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs focus:outline-none focus:border-primary/30 transition" />
-              {errors.name && <p className="text-[10px] text-red-500">{errors.name.message}</p>}
-            </div>
-
-            {/* Description */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-medium text-on-surface-variant">Description</label>
-              <textarea rows={2} {...register("description")} placeholder="A brief narrative..."
-                className="resize-none rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 py-1.5 text-xs focus:outline-none focus:border-primary/30 transition" />
-            </div>
-
-            {/* Sort + Status */}
-            <div className="grid grid-cols-2 gap-2.5">
+              {/* Name */}
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium text-on-surface-variant">Sort order</label>
-                <input type="number" {...register("sortOrder", { valueAsNumber: true })}
-                  className="h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs focus:outline-none transition" />
-                <p className="text-[10px] text-on-surface-variant">Lower = appears first</p>
+                <label className="text-[11px] font-medium text-on-surface-variant">Category title *</label>
+                <input type="text" {...register("name")} placeholder="e.g., Artisanal Starters"
+                  className="h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs focus:outline-none focus:border-primary/30 transition" />
+                {errors.name && <p className="text-[10px] text-red-500">{errors.name.message}</p>}
               </div>
+
+              {/* Description */}
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium text-on-surface-variant">Status</label>
-                <div className="flex gap-3 pt-1">
-                  <label className="cursor-pointer flex items-center gap-1.5 text-xs">
-                    <input type="radio" checked={watch("isActive")} onChange={() => setValue("isActive", true)} /> Active
-                  </label>
-                  <label className="cursor-pointer flex items-center gap-1.5 text-xs text-on-surface-variant">
-                    <input type="radio" checked={!watch("isActive")} onChange={() => setValue("isActive", false)} /> Draft
-                  </label>
+                <label className="text-[11px] font-medium text-on-surface-variant">Description</label>
+                <textarea rows={2} {...register("description")} placeholder="A brief narrative..."
+                  className="resize-none rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 py-1.5 text-xs focus:outline-none focus:border-primary/30 transition" />
+              </div>
+
+              {/* Sort + Status */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-medium text-on-surface-variant">Sort order</label>
+                  <input 
+                    type="number" 
+                    {...register("sortOrder", { valueAsNumber: true })}
+                    className="h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs focus:outline-none transition" 
+                  />
+                  <p className="text-[10px] text-on-surface-variant">
+                    Current: {category.sortOrder} → New: will auto-reorder others
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-medium text-on-surface-variant">Status</label>
+                  <div className="flex gap-3 pt-1">
+                    <label className="cursor-pointer flex items-center gap-1.5 text-xs">
+                      <input type="radio" checked={watch("isActive")} onChange={() => setValue("isActive", true)} /> Active
+                    </label>
+                    <label className="cursor-pointer flex items-center gap-1.5 text-xs text-on-surface-variant">
+                      <input type="radio" checked={!watch("isActive")} onChange={() => setValue("isActive", false)} /> Draft
+                    </label>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Image URL */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-medium text-on-surface-variant">Image URL</label>
-              <div className="flex gap-1.5">
-                <input type="text" {...register("image")} placeholder="https://..."
-                  onChange={(e) => { register("image").onChange(e); setImagePreview(e.target.value); }}
-                  className="flex-1 h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs focus:outline-none transition" />
-                <button type="button" onClick={() => { setValue("image", ""); setImagePreview(""); }}
-                  className="h-7.5 px-2.5 rounded-lg border border-outline-variant/20 text-[11px] text-on-surface-variant hover:bg-surface-container-low transition">
-                  Clear
+              {/* Image URL */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-on-surface-variant">Image URL</label>
+                <div className="flex gap-1.5">
+                  <input type="text" {...register("image")} placeholder="https://..."
+                    onChange={(e) => { register("image").onChange(e); setImagePreview(e.target.value); }}
+                    className="flex-1 h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs focus:outline-none transition" />
+                  <button type="button" onClick={() => { setValue("image", ""); setImagePreview(""); }}
+                    className="h-7.5 px-2.5 rounded-lg border border-outline-variant/20 text-[11px] text-on-surface-variant hover:bg-surface-container-low transition">
+                    Clear
+                  </button>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="mt-auto pt-3 border-t border-outline-variant/10 flex justify-end gap-2">
+                <button type="button" onClick={onClose}
+                  className="h-7.5 px-3.5 rounded-lg text-[11px] font-medium border border-outline-variant/20 text-on-surface-variant hover:bg-surface-container-low transition">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSubmitting}
+                  className="h-7.5 px-3.5 rounded-lg bg-primary text-[11px] font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50 transition">
+                  {isSubmitting ? "Saving..." : "Save changes"}
                 </button>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="mt-auto pt-3 border-t border-outline-variant/10 flex justify-end gap-2">
-              <button type="button" onClick={onClose}
-                className="h-7.5 px-3.5 rounded-lg text-[11px] font-medium border border-outline-variant/20 text-on-surface-variant hover:bg-surface-container-low transition">
-                Cancel
-              </button>
-              <button type="submit" disabled={isSubmitting}
-                className="h-7.5 px-3.5 rounded-lg bg-primary text-[11px] font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50 transition">
-                {isSubmitting ? "Saving..." : "Save changes"}
-              </button>
-            </div>
-          </div>
+            {/* RIGHT */}
+            <div className="flex flex-col gap-2.5 p-3.5">
+              <p className="text-[10px] uppercase tracking-widest text-secondary">Cover image</p>
 
-          {/* RIGHT */}
-          <div className="flex flex-col gap-2.5 p-3.5">
-            <p className="text-[10px] uppercase tracking-widest text-secondary">Cover image</p>
+              <div className="aspect-4/3 rounded-lg overflow-hidden border border-outline-variant/10 bg-surface-container-low flex items-center justify-center">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center gap-1.5 text-on-surface-variant/30">
+                    <Camera size={22} />
+                    <span className="text-[10px]">No image</span>
+                  </div>
+                )}
+              </div>
 
-            <div className="aspect-4/3 rounded-lg overflow-hidden border border-outline-variant/10 bg-surface-container-low flex items-center justify-center">
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-              ) : (
-                <div className="flex flex-col items-center gap-1.5 text-on-surface-variant/30">
-                  <Camera size={22} />
-                  <span className="text-[10px]">No image</span>
+              <label className="cursor-pointer">
+                <div className="flex items-center justify-center gap-1.5 h-7 rounded-lg border border-outline-variant/20 bg-surface-container-low text-[11px] text-on-surface-variant hover:bg-surface-container-high transition">
+                  <Camera size={12} /> Upload file
                 </div>
-              )}
+                <input type="file" accept="image/*" className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const b64 = reader.result as string;
+                      setImagePreview(b64);
+                      setValue("image", b64);
+                    };
+                    reader.readAsDataURL(file);
+                  }} />
+              </label>
+
+              <div className="rounded-lg border border-outline-variant/10 p-3 flex flex-col gap-2">
+                <p className="text-[10px] uppercase tracking-widest text-secondary">Stats</p>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-on-surface-variant">Menu items</span>
+                  <span className="font-medium">{category._count?.menuItems || 0}</span>
+                </div>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-on-surface-variant">Sort position</span>
+                  <span className="font-medium">#{category.sortOrder}</span>
+                </div>
+              </div>
             </div>
 
-            <label className="cursor-pointer">
-              <div className="flex items-center justify-center gap-1.5 h-7 rounded-lg border border-outline-variant/20 bg-surface-container-low text-[11px] text-on-surface-variant hover:bg-surface-container-high transition">
-                <Camera size={12} /> Upload file
-              </div>
-              <input type="file" accept="image/*" className="sr-only"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    const b64 = reader.result as string;
-                    setImagePreview(b64);
-                    setValue("image", b64);
-                  };
-                  reader.readAsDataURL(file);
-                }} />
-            </label>
-
-            <div className="rounded-lg border border-outline-variant/10 p-3 flex flex-col gap-2">
-              <p className="text-[10px] uppercase tracking-widest text-secondary">Stats</p>
-              <div className="flex justify-between text-[11px]">
-                <span className="text-on-surface-variant">Menu items</span>
-                <span className="font-medium">{category._count?.menuItems || 0}</span>
-              </div>
-              <div className="flex justify-between text-[11px]">
-                <span className="text-on-surface-variant">Sort position</span>
-                <span className="font-medium">#{category.sortOrder}</span>
-              </div>
-            </div>
           </div>
-
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
-);
+  );
 }
-
-
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -258,6 +424,18 @@ export default function CategoryManagement() {
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   // Fetch categories from API
   const fetchCategories = async () => {
     setIsLoading(true);
@@ -267,7 +445,9 @@ export default function CategoryManagement() {
       const result = await response.json();
       
       if (result.success) {
-        setCategories(result.data);
+        // Sort by sortOrder
+        const sorted = result.data.sort((a: Category, b: Category) => a.sortOrder - b.sortOrder);
+        setCategories(sorted);
       } else {
         setError(result.message || "Failed to fetch categories");
       }
@@ -282,6 +462,48 @@ export default function CategoryManagement() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Update sort order in backend
+  const updateSortOrder = async (updatedCategories: Category[]) => {
+    try {
+      for (let i = 0; i < updatedCategories.length; i++) {
+        const category = updatedCategories[i];
+        const newSortOrder = i;
+        
+        if (category.sortOrder !== newSortOrder) {
+          await fetch(`http://localhost:3000/menu/category/${category.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...category,
+              sortOrder: newSortOrder,
+            }),
+          });
+        }
+      }
+      // Refresh after update
+      fetchCategories();
+    } catch (error) {
+      console.error("Error updating sort order:", error);
+    }
+  };
+
+  // Handle drag end
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (active.id !== over?.id) {
+      const oldIndex = filteredCategories.findIndex((item) => item.id === active.id);
+      const newIndex = filteredCategories.findIndex((item) => item.id === over?.id);
+      
+      const newOrder = arrayMove(filteredCategories, oldIndex, newIndex);
+      // Optimistic update
+      setCategories(newOrder);
+      updateSortOrder(newOrder);
+    }
+  };
 
   // Toggle category active status
   const toggleCategoryStatus = async (id: string, currentStatus: boolean) => {
@@ -323,7 +545,7 @@ export default function CategoryManagement() {
   const featuredInactiveCategory = inactiveCategories[0];
 
   if (isLoading) {
-    return <CategoryManagementSkeletonLoading/>
+    return <CategoryManagementSkeletonLoading />
   }
 
   if (error) {
@@ -353,6 +575,7 @@ export default function CategoryManagement() {
         }}
         category={selectedCategory}
         onSuccess={fetchCategories}
+        categories={categories} 
       />
 
       {/* Add Modal */}
@@ -443,7 +666,7 @@ export default function CategoryManagement() {
               </div>
             )}
 
-            {/* Card 2: Second Active Category (Small Card - Martini/Wine type) */}
+            {/* Card 2: Second Active Category (Small Card) */}
             {featuredActiveCategories[1] && (
               <div className="col-span-12 md:col-span-4 group bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
                 <div>
@@ -473,7 +696,7 @@ export default function CategoryManagement() {
               </div>
             )}
 
-            {/* Card 3: Third Active Category (Small Card - Main Course type) */}
+            {/* Card 3: Third Active Category (Small Card) */}
             {featuredActiveCategories[2] && (
               <div className="col-span-12 md:col-span-4 group bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
                 <div className="relative z-10">
@@ -503,7 +726,7 @@ export default function CategoryManagement() {
               </div>
             )}
 
-            {/* Card 4: Inactive Category (Wide Reversed Card - ALWAYS INACTIVE) */}
+            {/* Card 4: Inactive Category (Wide Reversed Card) */}
             {featuredInactiveCategory ? (
               <div className="col-span-12 md:col-span-8 group relative overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex h-60 flex-row-reverse">
@@ -552,7 +775,6 @@ export default function CategoryManagement() {
                 </div>
               </div>
             ) : (
-              // Fallback if no inactive category exists
               <div className="col-span-12 md:col-span-8 group relative overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm">
                 <div className="flex h-60 flex-row-reverse">
                   <div className="w-1/2 p-5 flex flex-col justify-between bg-surface-container-high">
@@ -583,13 +805,13 @@ export default function CategoryManagement() {
             )}
           </div>
 
-          {/* Management Table */}
+          {/* Management Table with Drag & Drop */}
           <div className="bg-surface-container-low rounded-2xl p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h4 className="text-lg font-headline text-on-surface">All Categories</h4>
                 <p className="text-on-surface-variant text-xs mt-0.5">
-                  Direct management and ordering of your menu sections.
+                  Drag the <GripHorizontal size={12} className="inline" /> icon to reorder categories
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -617,83 +839,33 @@ export default function CategoryManagement() {
               <div className="col-span-1 text-right">Actions</div>
             </div>
 
-            {/* Dynamic Rows */}
-            <div className="space-y-2">
-              {filteredCategories.length === 0 ? (
-                <div className="text-center py-8 text-secondary">
-                  No categories found
+            {/* Drag & Drop Context */}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={filteredCategories.map(cat => cat.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {filteredCategories.length === 0 ? (
+                    <div className="text-center py-8 text-secondary">
+                      No categories found
+                    </div>
+                  ) : (
+                    filteredCategories.map((category) => (
+                      <SortableCategoryRow
+                        key={category.id}
+                        category={category}
+                        onEdit={handleEditClick}
+                      />
+                    ))
+                  )}
                 </div>
-              ) : (
-                filteredCategories.map((category) => (
-                  <div
-                    key={category.id}
-                    className={`grid grid-cols-12 px-4 py-3.5 items-center bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-all ${
-                      !category.isActive ? "opacity-60" : ""
-                    }`}
-                  >
-                    <div className="col-span-5 flex items-center gap-3">
-                      <div
-                        className={`w-9 h-9 rounded-lg bg-surface-container-low overflow-hidden ${
-                          !category.isActive ? "grayscale" : ""
-                        }`}
-                      >
-                        {category.image ? (
-                          <img
-                            src={category.image}
-                            alt={category.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-secondary">
-                            <CookingPot size={16} />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-on-surface">{category.name}</p>
-                        <p className="text-[11px] text-on-surface-variant line-clamp-1">
-                          {category.description || "No description"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="col-span-2 text-center text-sm font-medium text-on-surface">
-                      {category._count?.menuItems || 0}
-                    </div>
-
-                    <div className="col-span-2 text-center text-sm font-medium text-on-surface">
-                      {category.sortOrder}
-                    </div>
-
-                    <div className="col-span-2 flex justify-center">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          category.isActive
-                            ? "bg-primary-fixed text-on-primary-fixed"
-                            : "bg-surface-container-highest text-on-surface-variant"
-                        }`}
-                      >
-                        {category.isActive ? "ACTIVE" : "INACTIVE"}
-                      </span>
-                    </div>
-
-                    <div className="col-span-1 flex justify-end gap-1.5">
-                      {/* Edit Button - Now opens modal */}
-                      <button 
-                        onClick={() => handleEditClick(category)}
-                        className="p-1.5 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors"
-                        title="Edit Category"
-                      >
-                        <SquarePen size={14} />
-                      </button>
-                      <button className="p-1.5 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors cursor-move">
-                        <GripHorizontal size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+              </SortableContext>
+            </DndContext>
           </div>
         </section>
       </main>
