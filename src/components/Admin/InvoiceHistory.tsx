@@ -1,8 +1,6 @@
 import { useState } from "react";
 import {
   Search,
-  Bell,
-  LogOut,
   ArrowRight,
   ListFilter,
   Printer,
@@ -57,6 +55,9 @@ export default function InvoiceHistory() {
 
         {/* Top Bar */}
         <header className="bg-surface/70 backdrop-blur-xl flex justify-between items-center w-full px-6 sticky top-0 h-14 z-40 border-b border-outline-variant/10">
+          <h2 className="font-headline text-2xl text-primary font-bold tracking-tight">
+            Invoice History
+          </h2>
           <div className="relative group">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
             <input
@@ -65,30 +66,6 @@ export default function InvoiceHistory() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <button className="text-secondary hover:opacity-80 transition-opacity">
-                <Bell size={17} />
-              </button>
-              <div className="flex items-center gap-2.5 pl-3 border-l border-outline-variant/20">
-                <div className="text-right">
-                  <p className="text-[9px] uppercase tracking-widest text-secondary font-bold">
-                    Administrator
-                  </p>
-                  <p className="text-[11px] font-medium text-primary">JULIAN VASSEUR</p>
-                </div>
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDU0sIThi3kbuf1ioMgW7iBmjtXDz_5i4djM6lD9DQjPslOvxp0nFMM8KUgkxNNj8N8YJbOtL33L162LvwU32kIvxkr1yJGAc1vh1NMRy7PE0SR985FREgxk_KZo4nM9Dljh6wmMB2W7u5sc3cX9wTp9fWAbRToXjFBTu6XiVNMgN5comIigNVxm8MsnHezHVRBpVzW_jU6euB6fe-WThWASLsgMOdQUoIGom0nxtH_VOQyKTUM9J5jhoy2Z0qHoaf3hrnTLOkx-b0"
-                  alt="Admin avatar"
-                  className="w-8 h-8 rounded-full object-cover grayscale"
-                />
-              </div>
-            </div>
-            <button className="text-[11px] uppercase tracking-widest text-primary border-b-2 border-primary pb-0.5 hover:opacity-80 transition-opacity flex items-center gap-1">
-              <LogOut size={12} /> Logout
-            </button>
           </div>
         </header>
 

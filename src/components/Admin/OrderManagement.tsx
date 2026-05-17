@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Search,
-  Bell,
   TrendingUp,
   Filter,
   Download,
@@ -126,27 +125,6 @@ export default function OrderManagement() {
                 onChange={(e) => setSearch(e.target.value)}
               />
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/60" />
-            </div>
-
-            <div className="flex items-center gap-6">
-              <button className="text-primary hover:opacity-80 transition-opacity relative">
-                <Bell size={20} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-tertiary rounded-full" />
-              </button>
-
-              <div className="flex items-center gap-3 pl-6 border-l border-outline-variant/20">
-                <div className="text-right">
-                  <p className="text-[10px] font-label uppercase tracking-widest text-secondary">
-                    Administrator
-                  </p>
-                  <p className="text-xs font-bold text-primary">Julian V.</p>
-                </div>
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjstZps80Z4sRqai19sFM0_fPuHjHQSSdnx1WOfeZk_ZohOTqIaajSXxZnjQkd6Y8vDyGLhAyp9L0ctv86uDoQ1ynvb0cKhRhvUG06wf3OmbxRal6N1jb1qYC62nwh0uQRHRHW-n0RyJ32TGdZfgP6skYTDDIUqcRjAue2UaUI7yiQtmOx01oD0SnE27X5XlRbifkg5chUTIKTLugl2r4W7SeXyyZ3heGyR5pfs-tFEqUZ1j_vAcIiWrmh7EjKafETvk03IPOhBds"
-                  alt="Admin avatar"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              </div>
             </div>
           </div>
         </header>

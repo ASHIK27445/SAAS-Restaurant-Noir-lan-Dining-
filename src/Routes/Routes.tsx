@@ -34,6 +34,7 @@ import EmployeeViewSchedule from "../components/Admin/EmployeeViewSchedule";
 import OrderManagement from "../components/Admin/OrderManagement";
 import Reports from "../components/Admin/Reports";
 import InvoiceHistory from "../components/Admin/InvoiceHistory";
+import OrderTracking from "../components/POS/OrderTracking";
 
 export const router = createBrowserRouter([
     {
@@ -139,7 +140,7 @@ export const router = createBrowserRouter([
     },
     {
         path: 'test',
-        Component: AddMenuItem
+        Component: OrderTracking
     },
     {
         path: '/email-verification-success',

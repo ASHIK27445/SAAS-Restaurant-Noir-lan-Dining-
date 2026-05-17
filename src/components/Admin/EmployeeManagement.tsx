@@ -1,4 +1,4 @@
-import { Bell, Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
+import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
 import { useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
 
@@ -157,27 +157,6 @@ export default function EmployeeManagement() {
                 onChange={(e) => setSearch(e.target.value)}
               />
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/60" />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button className="relative p-1.5 text-secondary hover:opacity-80 transition-opacity">
-                <Bell size={18} />
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-tertiary rounded-full" />
-              </button>
-
-              <div className="flex items-center gap-2.5 border-l border-outline-variant/20 pl-3">
-                <div className="text-right hidden sm:block">
-                  <p className="text-[10px] font-label uppercase tracking-widest font-bold text-on-surface">
-                    Julian Rossi
-                  </p>
-                  <p className="text-[9px] text-secondary">General Manager</p>
-                </div>
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIlvIw0JJ3lsnhoxNunHLxXSg1TZKIZXb6uCPopTEXwdug4WstWPxs2nNMRJmEweKJZ1EJ02VO50nrz6o3uILGoePDAkV56i3rkk_wx4WcBhJihaJqGUgR5newJBOsE8ZiXW6ce52tAANR87izqc31rUfUDxO7lLBdeqvTn5XfxZlYVcsmoHG-EL34zzdhfFv8mrpYPF8LDzy60M4ruv8MSgd4ienKEmiDROFpmPiSJWw6KVCLnkFv-qK7rjfBCz54UdrUCliu4Lk"
-                  alt="Manager avatar"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              </div>
             </div>
           </div>
         </header>
