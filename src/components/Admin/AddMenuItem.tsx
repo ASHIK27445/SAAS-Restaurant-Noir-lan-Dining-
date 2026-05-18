@@ -11,14 +11,11 @@ type Category = {
   isActive: boolean;
 };
 
+type Allergens = {
+  id: string;
+  name: string;
+}
 
-const ALLERGENS = [
-  { id: "a1", name: "Dairy" },
-  { id: "a2", name: "Gluten" },
-  { id: "a3", name: "Nuts" },
-  { id: "a4", name: "Soy" },
-  { id: "a5", name: "Shellfish" },
-];
 
 
 export default function AddMenuItem() {
@@ -44,6 +41,7 @@ export default function AddMenuItem() {
   });
 
   const [categories, setCategories] = useState<Category[]>([])
+  const [allergens, setAllergens] = useState<Allergens[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const activeCategory = useWatch({ control, name: "category" });
   const activeAllergens = useWatch({ control, name: "allergens", defaultValue: [] });
@@ -71,11 +69,12 @@ export default function AddMenuItem() {
         }
 
         // Fetch allergens
-        // const allergensRes = await fetch("http://localhost:3000/menu/allergens");
-        // const allergensResult = await allergensRes.json();
-        // if (allergensResult.success) {
-        //   setAllergens(allergensResult.data);
-        // }
+        const allergensRes = await fetch("http://localhost:3000/menu/allergens");
+        const allergensResult = await allergensRes.json();
+        if (allergensResult.success) {
+          setAllergens(allergensResult.data);
+          // console.log(allergensResult.data)
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         // Fallback to hardcoded data if API fails
@@ -87,13 +86,13 @@ export default function AddMenuItem() {
           { id: "5", name: "Wine & Spirits", isActive: true },
           { id: "6", name: "Specials", isActive: true },
         ]);
-        // setAllergens([
-        //   { id: "a1", name: "Dairy" },
-        //   { id: "a2", name: "Gluten" },
-        //   { id: "a3", name: "Nuts" },
-        //   { id: "a4", name: "Soy" },
-        //   { id: "a5", name: "Shellfish" },
-        // ]);
+        setAllergens([
+          { id: "a1", name: "Dairy" },
+          { id: "a2", name: "Gluten" },
+          { id: "a3", name: "Nuts" },
+          { id: "a4", name: "Soy" },
+          { id: "a5", name: "Shellfish" },
+        ]);
       } finally {
         setIsLoading(false);
       }
@@ -356,7 +355,17 @@ export default function AddMenuItem() {
                     <div className="space-y-2">
                       <label className="block text-[10px] uppercase tracking-widest text-secondary">Allergen Registry</label>
                       <div className="flex flex-wrap gap-1.5">
-                        {ALLERGENS.map((a) => (
+                        {isLoading ? (
+                        // Skeleton loaders for allergens
+                        Array.from({ length: 5 }).map((_, index) => (
+                          <div
+                            key={index}
+                            className="px-2.5 py-1 rounded-full bg-surface-container-high animate-pulse"
+                          >
+                            <div className="w-12 h-3 rounded bg-outline-variant/30"></div>
+                          </div>
+                        ))): (
+                        allergens.map((a) => (
                           <button
                             type="button"
                             key={a.id}
@@ -365,11 +374,10 @@ export default function AddMenuItem() {
                               activeAllergens?.includes(a.id)
                                 ? "bg-tertiary-fixed text-on-tertiary-fixed"
                                 : "bg-surface-container-high text-secondary hover:bg-primary-fixed"
-                            }`}
-                          >
+                            }`}>
                             {a.name}
                           </button>
-                        ))}
+                        ))) }
                         <button
                           type="button"
                           className="px-2.5 py-1 rounded-full bg-surface-container-low text-primary text-[9px] font-bold uppercase tracking-wider border border-primary/20 hover:bg-primary/5"
@@ -441,5 +449,5 @@ export default function AddMenuItem() {
       {/* Decorative background gradient */}
       <div className="fixed top-0 right-0 -z-10 w-1/3 h-screen bg-linear-to-l from-primary-fixed/20 to-transparent pointer-events-none" />
     </div>
-  );
+  )
 }
