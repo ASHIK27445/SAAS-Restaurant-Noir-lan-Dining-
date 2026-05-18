@@ -14,6 +14,10 @@ export const MenuItemSchema = z.object({
 
     category: z.string(),
 
+    categoryId: z
+        .string()
+        .min(1, "Category is required"),
+
     price: z
         .number()
         .min(0),

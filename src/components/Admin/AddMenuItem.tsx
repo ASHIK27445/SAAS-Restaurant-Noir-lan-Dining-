@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageUp} from "lucide-react";
+import { ImageUp, Loader2} from "lucide-react";
 import { MenuItemSchema, type MenuItemFormData } from "../../Schemas/menu.schema";
 import { useForm, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -20,12 +20,13 @@ type Allergens = {
 
 export default function AddMenuItem() {
   const { register, control, handleSubmit, setValue,
-  formState: { errors },} = useForm<MenuItemFormData>({
+  formState: { errors, isSubmitting },} = useForm<MenuItemFormData>({
     resolver: zodResolver(MenuItemSchema),
     defaultValues: {
       name: "",
       description: "",
       category: "Starter",
+      categoryId: "",
       price: 0,
       sku: "",
       calories: 0,
@@ -43,7 +44,7 @@ export default function AddMenuItem() {
   const [categories, setCategories] = useState<Category[]>([])
   const [allergens, setAllergens] = useState<Allergens[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const activeCategory = useWatch({ control, name: "category" });
+  const activeCategory = useWatch({ control, name: "categoryId" });
   const activeAllergens = useWatch({ control, name: "allergens", defaultValue: [] });
   const isActive = useWatch({ control, name: "isActive" });
 
@@ -102,20 +103,20 @@ export default function AddMenuItem() {
   }, []);
   const onSubmit = async (data: MenuItemFormData) => {
     console.log(data);
-        // try {
-    //   const res = await fetch("http://localhost:3000/menu/create", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data)
-    //   })
+    try {
+      const res = await fetch("http://localhost:3000/menu/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+      })
 
-    //   const result = await res.json()
-    //   console.log(result)
-    // } catch (error) {
-    //   console.log(error)
-    // }
+      const result = await res.json()
+      console.log(result)
+    } catch (error) {
+      console.log(error)
+    }
   };
 
 
@@ -145,8 +146,18 @@ export default function AddMenuItem() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-primary text-on-primary text-xs font-bold rounded-xl hover:opacity-90 transition-all shadow-lg">
-                  Publish to Menu
+                  disabled={isSubmitting}
+                  className={`px-5 py-2 text-on-primary text-xs font-bold rounded-xl transition-all shadow-lg flex items-center gap-2 ${
+                    isSubmitting
+                      ? "bg-primary/60 cursor-not-allowed"
+                      : "bg-primary hover:opacity-90"
+                  }`}
+                >
+                  {isSubmitting && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+
+                  {isSubmitting ? "Publishing..." : "Publish to Menu"}
                 </button>
               </div>
             </div>
@@ -246,9 +257,9 @@ export default function AddMenuItem() {
                           <button
                             type="button"
                             key={cat.id}
-                            onClick={() => setValue("category", cat.name)}
+                            onClick={() => setValue("categoryId", cat.id)}
                             className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                              activeCategory === cat.name
+                              activeCategory === cat.id
                                 ? "bg-primary text-on-primary"
                                 : "bg-surface-container-low text-secondary hover:bg-surface-container-high"
                             }`}
