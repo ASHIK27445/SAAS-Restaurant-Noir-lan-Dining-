@@ -40,10 +40,15 @@ export const MenuItemSchema = z.object({
 
     isActive: z.boolean(),
 
-    image: z
+    imageFile: z
         .instanceof(File)
         .optional(),
-
+    
+    image: z
+        .string()
+        .url("Invalid image URL")
+        .optional()
+        .or(z.literal(''))
 })
 
 export type MenuItemFormData = z.infer<typeof MenuItemSchema>

@@ -200,7 +200,7 @@ return (
 
             <div className="aspect-4/3 rounded-lg overflow-hidden border border-outline-variant/10 bg-surface-container-low flex items-center justify-center">
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                <img src={imagePreview} loading="lazy" alt="Preview" className="w-full h-full object-cover" />
               ) : (
                 <div className="flex flex-col items-center gap-1.5 text-on-surface-variant/30">
                   <Camera size={22} />
@@ -439,6 +439,7 @@ export default function CategoryManagement() {
                   <div className="w-1/2 relative overflow-hidden bg-linear-to-br from-primary/20 to-secondary/20">
                     {featuredActiveCategories[0].image ? (
                       <img
+                        loading="lazy"
                         src={featuredActiveCategories[0].image}
                         alt={featuredActiveCategories[0].name}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -549,6 +550,7 @@ export default function CategoryManagement() {
                   <div className="w-1/2 relative overflow-hidden bg-linear-to-br from-surface-container-high to-surface-container-lowest grayscale opacity-60">
                     {featuredInactiveCategory.image ? (
                       <img
+                        loading="lazy"
                         src={featuredInactiveCategory.image}
                         alt={featuredInactiveCategory.name}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -649,6 +651,7 @@ export default function CategoryManagement() {
                       >
                         {category.image ? (
                           <img
+                            loading="lazy"
                             src={category.image}
                             alt={category.name}
                             className="w-full h-full object-cover"

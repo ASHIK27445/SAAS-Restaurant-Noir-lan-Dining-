@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageUp, Loader2} from "lucide-react";
+import { ImageUp} from "lucide-react";
 import { MenuItemSchema, type MenuItemFormData } from "../../Schemas/menu.schema";
 import { useForm, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -11,14 +11,6 @@ type Category = {
   isActive: boolean;
 };
 
-const CATEGORIES = [
-  "Starter",
-  "Main Course",
-  "Side Dish",
-  "Dessert",
-  "Wine & Spirits",
-  "Specials",
-];
 
 const ALLERGENS = [
   { id: "a1", name: "Dairy" },
@@ -169,7 +161,7 @@ export default function AddMenuItem() {
                 {/* Image Upload */}
                 <section>
                   <h3 className="font-headline text-base text-primary mb-3">Editorial Photography</h3>
-                  <div className="relative group aspect-4/5 bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all hover:bg-surface-container-high">
+                  <div className="relative group aspect-6/5 bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all hover:bg-surface-container-high">
                     <div className="flex flex-col justify-center items-center p-6">
                       <ImageUp size={24} className="text-primary/40 mb-3"/>
                       <p className="text-xs text-secondary font-medium">Drag and drop dish image</p>
@@ -180,6 +172,31 @@ export default function AddMenuItem() {
                         Select File
                       </div>
                     </div>
+                  </div>
+                  {/* Divider */}
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-outline-variant/30"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="px-2 bg-surface text-secondary">or</span>
+                    </div>
+                  </div>
+
+                  {/* Image URL Input */}
+                  <div className="group">
+                    <label className="block text-[10px] uppercase tracking-widest text-secondary mb-1.5 group-focus-within:text-primary transition-colors">
+                      Image URL
+                    </label>
+                    <input
+                      {...register("image")}
+                      className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all py-2.5 px-4 text-sm"
+                      placeholder="https://example.com/image.jpg"
+                      type="url"
+                    />
+                    {errors.image && (
+                      <p className="text-red-500 text-xs mt-1">{errors.image.message}</p>
+                    )}
                   </div>
                 </section>
 
@@ -292,7 +309,8 @@ export default function AddMenuItem() {
                             {...register("price", { valueAsNumber: true })}
                             className="w-full bg-surface-container-low border-transparent focus:bg-surface-container-high focus:ring-0 rounded-xl transition-all font-headline text-sm py-2.5 pl-8"
                             placeholder="0.00"
-                            type="number"/>
+                            type="number"
+                            step={0.01}/>
                             {errors.price && (
                               <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>
                             )}
