@@ -1,5 +1,5 @@
 import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
 
 const TABS = ["All Staff", "Kitchen (Chef)", "Service (Waiters)", "Front Desk", "Administration"];
@@ -13,6 +13,7 @@ const ROLE_STYLES: Record<string, RoleStyle> = {
 };
 
 type Employee = {
+  id: string;
   img: string;
   name: string;
   role: string;
@@ -23,38 +24,38 @@ type Employee = {
   location: string;
 };
 
-const EMPLOYEES: Employee[] = [
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAFhDTu9Nxhl62DVOj8hWmSvNSDp9D6X_60AzVcpsWIEKx4jhojwfqQLQe0uyVQrCH3ujfo0omNOlruRR0MsnmdhxP5wxC5OFYOXbbtFneUa-RQD2NrmwA3LE_j-CMvGhs0SMZXK-nPoObLObp7N0f3lRYyd_LcT9evOxU_loqm6hnBPMEBuhG8JgXMRIOQh643lRWUmOemonv0n1GtEeRf_qgoPfPRW1h59mtCz11V1FqcDLFa12mqIdPzSmMHPjZsqzuvVcdujTI",
-    name: "Elena Moretti", role: "Chef", title: "Executive Chef",
-    email: "e.moretti@editorial.com", phone: "+39 342 0981 22",
-    online: true, location: "In Kitchen",
-  },
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBbEkr95TrX_iJGHSY3SpT8HPpyIrP_c6dtawp738xyOqXgxf2AhP1bo_F-YeYCDEUqCmLVjoZ0_PJMX33moDB4GqmFTiqctibYqO3rL7o9asQyfAUhuK2Ba397W6SVetlPGyQgl9lcOu_1FtZcjDLAgxmMsjlWD7auG6YHWD_Zu7vGln2hnt9SmxdXIrHCHnhZgzpZGPbMcxT2qS51iD6HqQUileiTQ9OrXPn--43K2J1VWw9MfByQy8QXH3_wy36quWeI4Bm72lA",
-    name: "Lucas Vane", role: "Waiter", title: "Senior Server",
-    email: "l.vane@editorial.com", phone: "+39 331 4452 90",
-    online: false, location: "Returns 6PM",
-  },
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBg6tksxKr4cykmxjro-yOQnI_QzuDfVkoAuaLekmeF2o3hnqDlXZQ2tNj3YjIn04jTy4AnZkpX4XtUV1YFNFVbMi-vwL8y-7a3TjhdcUlxa3XFeLKOe6dZWXep57HaUZmHJJqjTPKiv0kvee0im9FkDp1Tvfm4R5snuwcMX2j485mdLKByUPVX8A7RwxS_DX5qXRTzCpjslgoMMEnNEKqb_-Uysx8L2MPWmcjyBcFr6Fd6i728QvyFDjjWl8i6GNrTkCY_Br2B8ws",
-    name: "Sofia Chen", role: "Cashier", title: "Front Desk Coordinator",
-    email: "s.chen@editorial.com", phone: "+39 311 0029 88",
-    online: true, location: "Reception",
-  },
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBng27TIYLzG4v0ORCeDsDUDloefkc4KI3egwDg-cMicZFom5Sn7Fe6SqQS-laeQZHRjqzEqxUXSrmVowToD0lFyj5UhbLw8IR2BoCMWV8lzDVhiuleCxXtscE450h4ihgAtOx9BAbTTlEGxgRSwVaX7FbT2D8eaEhAfb_RmpWO6x8PyuNogIkNU7yT9PRmyobzLTuFY1jXZ3GpUnwJRKjMeNABARaLf2xAGUGHBtTtORtS_k7UZZZNaFKi7D1JkYmME1M2yLPf1pY",
-    name: "Marco Santoro", role: "Chef", title: "Sous Chef",
-    email: "m.santoro@editorial.com", phone: "+39 321 0098 12",
-    online: true, location: "Pastry Station",
-  },
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAoV-rky5KlOcn9oPrvbnL29z4GQ5GQm4FLAWIkEa5KNir5mPDP4WqsdlnY6bKwXGzggDbDv_7-n0RlTd6EvTl1C88uwqro6NSJ_dzRtwA1y79r2vT0Vb96WwZQVdlNkjbd_V8DEcv8hf8ducZK0j2du-aIjpzAnlPyDmHyHQ7Ug6ejpVVf0ghFzwa-DPSlCo5nXjVX1pxldCK1BS4WBRRjR1bkR-5FFNs3m3ldi3m4I1raSviz8OQNmhyf_G-mW8S5TBoX5_bL71k",
-    name: "Julian Thorne", role: "Waiter", title: "Server",
-    email: "j.thorne@editorial.com", phone: "+39 312 8876 44",
-    online: false, location: "Return Monday",
-  },
-];
+// const EMPLOYEES: Employee[] = [
+//   {
+//     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAFhDTu9Nxhl62DVOj8hWmSvNSDp9D6X_60AzVcpsWIEKx4jhojwfqQLQe0uyVQrCH3ujfo0omNOlruRR0MsnmdhxP5wxC5OFYOXbbtFneUa-RQD2NrmwA3LE_j-CMvGhs0SMZXK-nPoObLObp7N0f3lRYyd_LcT9evOxU_loqm6hnBPMEBuhG8JgXMRIOQh643lRWUmOemonv0n1GtEeRf_qgoPfPRW1h59mtCz11V1FqcDLFa12mqIdPzSmMHPjZsqzuvVcdujTI",
+//     name: "Elena Moretti", role: "Chef", title: "Executive Chef",
+//     email: "e.moretti@editorial.com", phone: "+39 342 0981 22",
+//     online: true, location: "In Kitchen",
+//   },
+//   {
+//     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBbEkr95TrX_iJGHSY3SpT8HPpyIrP_c6dtawp738xyOqXgxf2AhP1bo_F-YeYCDEUqCmLVjoZ0_PJMX33moDB4GqmFTiqctibYqO3rL7o9asQyfAUhuK2Ba397W6SVetlPGyQgl9lcOu_1FtZcjDLAgxmMsjlWD7auG6YHWD_Zu7vGln2hnt9SmxdXIrHCHnhZgzpZGPbMcxT2qS51iD6HqQUileiTQ9OrXPn--43K2J1VWw9MfByQy8QXH3_wy36quWeI4Bm72lA",
+//     name: "Lucas Vane", role: "Waiter", title: "Senior Server",
+//     email: "l.vane@editorial.com", phone: "+39 331 4452 90",
+//     online: false, location: "Returns 6PM",
+//   },
+//   {
+//     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBg6tksxKr4cykmxjro-yOQnI_QzuDfVkoAuaLekmeF2o3hnqDlXZQ2tNj3YjIn04jTy4AnZkpX4XtUV1YFNFVbMi-vwL8y-7a3TjhdcUlxa3XFeLKOe6dZWXep57HaUZmHJJqjTPKiv0kvee0im9FkDp1Tvfm4R5snuwcMX2j485mdLKByUPVX8A7RwxS_DX5qXRTzCpjslgoMMEnNEKqb_-Uysx8L2MPWmcjyBcFr6Fd6i728QvyFDjjWl8i6GNrTkCY_Br2B8ws",
+//     name: "Sofia Chen", role: "Cashier", title: "Front Desk Coordinator",
+//     email: "s.chen@editorial.com", phone: "+39 311 0029 88",
+//     online: true, location: "Reception",
+//   },
+//   {
+//     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBng27TIYLzG4v0ORCeDsDUDloefkc4KI3egwDg-cMicZFom5Sn7Fe6SqQS-laeQZHRjqzEqxUXSrmVowToD0lFyj5UhbLw8IR2BoCMWV8lzDVhiuleCxXtscE450h4ihgAtOx9BAbTTlEGxgRSwVaX7FbT2D8eaEhAfb_RmpWO6x8PyuNogIkNU7yT9PRmyobzLTuFY1jXZ3GpUnwJRKjMeNABARaLf2xAGUGHBtTtORtS_k7UZZZNaFKi7D1JkYmME1M2yLPf1pY",
+//     name: "Marco Santoro", role: "Chef", title: "Sous Chef",
+//     email: "m.santoro@editorial.com", phone: "+39 321 0098 12",
+//     online: true, location: "Pastry Station",
+//   },
+//   {
+//     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAoV-rky5KlOcn9oPrvbnL29z4GQ5GQm4FLAWIkEa5KNir5mPDP4WqsdlnY6bKwXGzggDbDv_7-n0RlTd6EvTl1C88uwqro6NSJ_dzRtwA1y79r2vT0Vb96WwZQVdlNkjbd_V8DEcv8hf8ducZK0j2du-aIjpzAnlPyDmHyHQ7Ug6ejpVVf0ghFzwa-DPSlCo5nXjVX1pxldCK1BS4WBRRjR1bkR-5FFNs3m3ldi3m4I1raSviz8OQNmhyf_G-mW8S5TBoX5_bL71k",
+//     name: "Julian Thorne", role: "Waiter", title: "Server",
+//     email: "j.thorne@editorial.com", phone: "+39 312 8876 44",
+//     online: false, location: "Return Monday",
+//   },
+// ];
 
 function EmployeeCard({ emp }: { emp: Employee }) {
   const roleStyle = ROLE_STYLES[emp.role] ?? { bg: "bg-secondary/10", text: "text-secondary" };
@@ -128,11 +129,36 @@ export default function EmployeeManagement() {
   const [activeTab, setActiveTab] = useState("All Staff");
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(false)
 
+  const fetchEmployees = async() => {
+    try {
+      const response = await fetch('/api/employees')
+      const data = await response.json()
+      setEmployees(data)
+    } catch (error) {
+      console.error('Error fetching employees:', error)
+    } finally{
+      setLoading(false)
+    }
+  }
 
-  const filtered = EMPLOYEES.filter((e) =>
-    e.name.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(()=>{
+    fetchEmployees()
+  }, [])
+
+  const filtered = employees.filter((emp) => {
+    const matchesSearch = emp.name.toLowerCase().includes(search.toLowerCase());
+    
+    let matchesTab = true;
+    if (activeTab === "Kitchen (Chef)") matchesTab = emp.role === "Chef";
+    else if (activeTab === "Service (Waiters)") matchesTab = emp.role === "Waiter";
+    else if (activeTab === "Front Desk") matchesTab = emp.role === "Cashier";
+    else if (activeTab === "Administration") matchesTab = emp.role === "Admin";
+    
+    return matchesSearch && matchesTab;
+  });
 
   return (
     <div className="flex min-h-screen bg-surface text-on-surface font-body">
@@ -187,6 +213,7 @@ export default function EmployeeManagement() {
               <AddEmployeeModal
                 showModal={showModal}
                 setShowModal={setShowModal}
+                onSuccess={fetchEmployees}
               />
             </div>
           </div>
