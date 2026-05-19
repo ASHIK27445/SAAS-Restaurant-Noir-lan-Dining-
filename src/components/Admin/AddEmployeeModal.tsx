@@ -53,6 +53,28 @@ export default function AddEmployeeModal({
 
   const onSubmit = async (data: any) => {
     console.log(data)
+    try {
+      const response = await fetch("http://localhost:3000/admin/staff/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+
+      if (response.ok) {
+        const newEmployee = await response.json();
+        onSuccess?.(newEmployee);
+        console.log(newEmployee, onSuccess?.(newEmployee))
+        alert(newEmployee.message)
+        // setShowModal(false);
+        // reset();
+      } else {
+        const error = await response.json();
+        console.error("Validation error:", error);
+      }
+    } catch (error) {
+      console.error("Error creating employee:", error);
+    }
   };
 
   const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin"];
