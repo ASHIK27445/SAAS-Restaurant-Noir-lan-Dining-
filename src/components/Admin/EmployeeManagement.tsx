@@ -1,6 +1,7 @@
 import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
+import EmployeeCardSkeletonLoading from "./SkeletonLoading/EmployeeCardSkeletenLoading";
 
 const TABS = ["All Staff", "Kitchen (Chef)", "Service (Waiters)", "Front Desk", "Administration"];
 
@@ -133,10 +134,12 @@ export default function EmployeeManagement() {
   const [loading, setLoading] = useState(false)
 
   const fetchEmployees = async() => {
+    setLoading(true)
     try {
-      const response = await fetch('/api/employees')
+      const response = await fetch('http://localhost:3000/admin/staff/all')
       const data = await response.json()
-      setEmployees(data)
+      setEmployees(data.data)
+      console.log(data.data)
     } catch (error) {
       console.error('Error fetching employees:', error)
     } finally{
@@ -158,8 +161,9 @@ export default function EmployeeManagement() {
     else if (activeTab === "Administration") matchesTab = emp.role === "Admin";
     
     return matchesSearch && matchesTab;
-  });
+  })
 
+  const activeCount = employees.filter(e => e.online).length
   return (
     <div className="flex min-h-screen bg-surface text-on-surface font-body">
       <main className="flex-1 flex flex-col min-h-screen">
@@ -191,7 +195,7 @@ export default function EmployeeManagement() {
                 Our Culinary Team
               </h3>
               <p className="text-sm text-on-surface-variant max-w-md">
-                Managing 24 dedicated professionals who bring the Editorial experience to life every day.
+                Managing {employees?.length} dedicated professionals who bring the Editorial experience to life every day.
               </p>
             </div>
             <div className="flex gap-3">
@@ -201,7 +205,7 @@ export default function EmployeeManagement() {
                   <p className="text-[9px] uppercase tracking-widest text-secondary font-bold">
                     Currently Active
                   </p>
-                  <p className="text-base font-headline text-primary">12 Staff</p>
+                  <p className="text-base font-headline text-primary">{activeCount} Staff</p>
                 </div>
               </div>
               <button
@@ -237,9 +241,15 @@ export default function EmployeeManagement() {
 
           {/* Employee Grid — 4 columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {filtered.map((emp) => (
-              <EmployeeCard key={emp.name} emp={emp} />
-            ))}
+            {loading ? (
+              Array(7).fill(0).map((_, index) => (
+                <EmployeeCardSkeletonLoading key={`skeleton-${index}`} />
+              ))
+            ) : (
+              filtered.map((emp) => (
+                <EmployeeCard key={emp.name} emp={emp} />
+              ))
+            )}
 
             {/* Add placeholder */}
             <button className="group bg-transparent border-2 border-dashed border-outline-variant/40 rounded-xl p-4 flex flex-col items-center justify-center gap-1 text-secondary/40 hover:text-primary hover:border-primary/40 hover:bg-surface-container-low transition-all duration-300">
