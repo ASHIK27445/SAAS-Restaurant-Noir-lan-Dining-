@@ -1,5 +1,5 @@
 import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
 import EmployeeCardSkeletonLoading from "./SkeletonLoading/EmployeeCardSkeletenLoading";
 
@@ -58,7 +58,7 @@ type Employee = {
 //   },
 // ];
 
-function EmployeeCard({ emp }: { emp: Employee }) {
+const EmployeeCard = React.memo(function EmployeeCard({ emp }: { emp: Employee }) {
   const roleStyle = ROLE_STYLES[emp.role] ?? { bg: "bg-secondary/10", text: "text-secondary" };
 
   return (
@@ -124,7 +124,7 @@ function EmployeeCard({ emp }: { emp: Employee }) {
       </div>
     </div>
   );
-}
+})
 
 export default function EmployeeManagement() {
   const [activeTab, setActiveTab] = useState("All Staff");
@@ -249,7 +249,7 @@ export default function EmployeeManagement() {
               ))
             ) : (
               filtered.map((emp) => (
-                <EmployeeCard key={emp.name} emp={emp} />
+                <EmployeeCard key={emp.id} emp={emp} />
               ))
             )}
 
