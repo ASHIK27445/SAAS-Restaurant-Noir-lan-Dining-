@@ -1,5 +1,5 @@
 import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
 import EmployeeCardSkeletonLoading from "./SkeletonLoading/EmployeeCardSkeletenLoading";
 
@@ -151,7 +151,8 @@ export default function EmployeeManagement() {
     fetchEmployees()
   }, [])
 
-  const filtered = employees.filter((emp) => {
+  const filtered = useMemo(()=>{
+    return employees.filter((emp) => {
     const matchesSearch = emp.name.toLowerCase().includes(search.toLowerCase());
     
     let matchesTab = true;
@@ -162,6 +163,7 @@ export default function EmployeeManagement() {
     
     return matchesSearch && matchesTab;
   })
+  }, [employees, search, activeTab]) 
 
   const activeCount = employees.filter(e => e.online).length
   return (
