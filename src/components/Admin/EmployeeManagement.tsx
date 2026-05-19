@@ -128,13 +128,7 @@ export default function EmployeeManagement() {
   const [activeTab, setActiveTab] = useState("All Staff");
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
-  const [systemAccess, setSystemAccess] = useState(true);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setAvatarPreview(URL.createObjectURL(file));
-  };
 
   const filtered = EMPLOYEES.filter((e) =>
     e.name.toLowerCase().includes(search.toLowerCase())
@@ -193,11 +187,6 @@ export default function EmployeeManagement() {
               <AddEmployeeModal
                 showModal={showModal}
                 setShowModal={setShowModal}
-                systemAccess={systemAccess}
-                setSystemAccess={setSystemAccess}
-                avatarPreview={avatarPreview}
-                setAvatarPreview={setAvatarPreview}
-                handleAvatar={handleAvatar}
               />
             </div>
           </div>
