@@ -2,6 +2,7 @@ import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, 
 import React, { useEffect, useMemo, useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
 import EmployeeCardSkeletonLoading from "./SkeletonLoading/EmployeeCardSkeletenLoading";
+import { useQuery } from "@tanstack/react-query";
 
 const TABS = ["All Staff", "Kitchen (Chef)", "Service (Waiters)", "Front Desk", "Administration"];
 
@@ -126,30 +127,21 @@ const EmployeeCard = React.memo(function EmployeeCard({ emp }: { emp: Employee }
   );
 })
 
+const fetchEmployees = async()=>{
+  const res = await fetch("http://localhost:3000/admin/staff/all")
+  const data = await res.json()
+  return data.data
+}
+
 export default function EmployeeManagement() {
   const [activeTab, setActiveTab] = useState("All Staff");
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [loading, setLoading] = useState(false)
-
-  const fetchEmployees = async() => {
-    setLoading(true)
-    try {
-      const response = await fetch('http://localhost:3000/admin/staff/all')
-      const data = await response.json()
-      setEmployees(data.data)
-      console.log(data.data)
-    } catch (error) {
-      console.error('Error fetching employees:', error)
-    } finally{
-      setLoading(false)
-    }
-  }
-
-  useEffect(()=>{
-    fetchEmployees()
-  }, [])
+  const {data: employees = [], isLoading, refetch} = useQuery({
+    queryKey:['employees'],
+    queryFn: fetchEmployees,
+    staleTime: 1000 * 60 * 5
+  })
 
   const filtered = useMemo(()=>{
     return employees.filter((emp) => {
@@ -219,7 +211,7 @@ export default function EmployeeManagement() {
               <AddEmployeeModal
                 showModal={showModal}
                 setShowModal={setShowModal}
-                onSuccess={fetchEmployees}
+                onSuccess={refetch}
               />
             </div>
           </div>
@@ -243,7 +235,7 @@ export default function EmployeeManagement() {
 
           {/* Employee Grid — 4 columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {loading ? (
+            {isLoading ? (
               Array(7).fill(0).map((_, index) => (
                 <EmployeeCardSkeletonLoading key={`skeleton-${index}`} />
               ))
