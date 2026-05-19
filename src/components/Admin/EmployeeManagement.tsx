@@ -1,5 +1,5 @@
 import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
 import EmployeeCardSkeletonLoading from "./SkeletonLoading/EmployeeCardSkeletenLoading";
 import { useQuery } from "@tanstack/react-query";
@@ -127,7 +127,7 @@ const EmployeeCard = React.memo(function EmployeeCard({ emp }: { emp: Employee }
   );
 })
 
-const fetchEmployees = async()=>{
+const fetchEmployees = async(): Promise<Employee[]>=>{
   const res = await fetch("http://localhost:3000/admin/staff/all")
   const data = await res.json()
   return data.data
