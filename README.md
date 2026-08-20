@@ -1,84 +1,75 @@
-New Project Setup Again:
-```
-npm create vite@latest my-app -- --template react-ts
-```
+# React + TypeScript + Vite
 
-```bash
-npm install react-router tailwindcss @tailwindcss/vite firebase react-hook-form @hookform/resolvers zod lucide-react framer-motion
-```
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+Currently, two official plugins are available:
 
-server-run
-```bash
-npx nodemon --exec ts-node src/server.ts
-/
-npx nodemon src/server.ts
-```
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-when change model of postgreSQL:
-```bash
-npx prisma generate
-```
+## React Compiler
 
-and then do migration :
-```bash
-npx prisma migrate dev --name add_menu_item
-```
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### seed run:
-```bash
-npx ts-node prisma/seed/seed.ts
-```
+## Expanding the ESLint configuration
 
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 
-
-
-
-
-
-
-
-
-
-
-
-**Schema change** means making any modification in your `schema.prisma` file.
-
-## Examples of schema changes:
-
-1. Adding a new model (e.g. Staff, Shift, Attendance)
-2. Adding a new field to an existing model (e.g. adding `phone` to `User`)
-3. Changing a field type (e.g. `String` → `Int`)
-4. Updating relationships (adding or removing `@relation`)
-5. Adding or modifying enums
-6. Adding or removing indexes
-7. Changing constraints like `@unique` or `@default`
-
-## When a schema change happens:
-
-Run:
-
-```bash
-npx prisma migrate dev --name migration_name
 ```
 
-## When it is NOT a schema change:
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-If you only want to update the Prisma Client (without changing the database), run:
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-```bash
-npx prisma generate
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+
 ```
-
-## Important note:
-
-* `migrate dev` → updates the database (creates tables, columns, relations, etc.)
-* `generate` → only updates Prisma Client code, does NOT change the database
-
-In short:
-
-* Schema change → use `migrate dev`
-* Only client update → use `generate`

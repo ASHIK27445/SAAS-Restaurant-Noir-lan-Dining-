@@ -5,8 +5,6 @@ import CulinaryEditorialAbout from "../components/Home/CulinaryEditionalAbout";
 import Login from "../components/Authentication/Login";
 import ProductPage from "../components/Products/ProductPage";
 import HomePageM from "../components/Home/HomepageM";
-import Test from "../components/Home/Test";
-import Pos from "../components/Home/Pos"
 import AddMenuItemPage from "../components/Others/AddMenuItemPage";
 import EmployeeManagementPage from "../components/Others/EmployeeManagementPage";
 import OrderManagementPage from "../components/Others/OrderManagementPage";
@@ -18,7 +16,6 @@ import StaffDirectory from "../components/POS/StaffDirectory";
 import PosOrderManagement from "../components/POS/PosOrderManagement";
 import FloorDistribution from "../components/POS/FloorDistribution";
 import CreateAccount from "../components/Authentication/Registration";
-import ResetPassword from "../components/Authentication/ResetPassword";
 import EmailVerificationSuccess from "../components/Authentication/EmailVerificationSuccess";
 import EmailVerificationSent from "../components/Authentication/EmailVerificationSent";
 import ResendVerification from "../components/Authentication/ResendVerification";
@@ -35,6 +32,13 @@ import OrderManagement from "../components/Admin/OrderManagement";
 import Reports from "../components/Admin/Reports";
 import InvoiceHistory from "../components/Admin/InvoiceHistory";
 import OrderTracking from "../components/POS/OrderTracking";
+import SupplierProfile from "../components/supplier/SupplierProfile";
+import SupplierDirectory from "../components/supplier/SupplierDirectory";
+import SupplierPerformanceAnalysis from "../components/supplier/SupplierPerformanceAnalysis";
+import SupplierContactDirectory from "../components/supplier/SupplierContactDirectory";
+import SupplierCatalogManagement from "../components/supplier/SupplierCatelogManagement";
+import ProcurementPOTracking from "../components/supplier/ProcurementTracking";
+import SupplierLayout from "../components/supplier/SupplierLayout";
 
 export const router = createBrowserRouter([
     {
@@ -139,8 +143,16 @@ export const router = createBrowserRouter([
         Component: ResendVerification
     },
     {
-        path: 'test',
-        Component: OrderTracking
+        path: '/supplier',
+        Component: SupplierLayout,
+        children: [
+            { index: true, Component: SupplierDirectory },
+            { path: 'procurement', Component: ProcurementPOTracking },
+            { path: 'catalog', Component: SupplierCatalogManagement },
+            { path: 'performance', Component: SupplierPerformanceAnalysis },
+            { path: 'contacts', Component: SupplierContactDirectory },
+            { path: ':supplierId', Component: SupplierProfile },
+        ],
     },
     {
         path: '/email-verification-success',

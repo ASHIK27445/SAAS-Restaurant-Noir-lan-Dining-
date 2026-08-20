@@ -4,9 +4,11 @@ import './App.css'
 function App() {
 
   return (
-<div>
-  <h1 className='text-red-700'>hello</h1>
-</div>
+    <>
+      <h2 className='bg-red-700 h-30 text-white'>
+        Hi there
+      </h2>
+    </>
   )
 }
 

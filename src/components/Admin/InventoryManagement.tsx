@@ -1,46 +1,19 @@
-import { ChevronLeft, ChevronRight, Download, Leaf, ListFilterPlus, MessageCircleWarning, Plus, Search, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Leaf,
+  ListFilterPlus,
+  MessageCircleWarning,
+  Plus,
+  Search,
+  TrendingUp,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { getInventory, getLowStockItems } from "../../api/inventory";
+import type { InventoryItem, StockStatus } from "../../types/inventory";
 
-type StockStatus = "in-stock" | "low-stock" | "out-of-stock";
-
-const INVENTORY = [
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBQDDR7EW5adFIROOHd0mSA8syGx0C6PoRqPixd8H6jBeYHCUftyri24lC2pTp8CXVQCkxpzFnrZSBTIpSuHd0wzsYKG3uI-F2DuCmoVB0fih_roXRM2YdDCpwi0KOq1584WeTox_RGT_JzNjB25Wcu4-eMBHcz_-02yXN2etYr_dA3BR10uwV-A1mqsUiA7X20CVP4Jrwnyd74gzfqscqPDfUOAdQYpi7B7Pzayp1MUFg11yZ7RDUfUnVe2N7aPoBs54CuUrOKK_A",
-    name: "Wagyu Beef A5",
-    sub: "Japanese Prefecture Origin",
-    status: "in-stock" as StockStatus,
-    qty: "12.5",
-    unit: "kg",
-    supplier: "Kyoto Fine Meats",
-  },
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAjlGRYOXzLCEFnfYd_KHI4M3773PAEGZAgjAARwUzfDsyt3x1xwDeb02ywU8KuUkUKUr0ikUvZCaWfpLvUjowGUlFn3bcMpWsdLfA0Qtz3r0dCPvyp311c8bMT6DGHYHrOlBeb9bIkqgNbzz6AK67olZJzVsAtXyCRjjrNrdSRv5burKG2KcejMG6Wqp8_ON4F0DodVZEdfwO8VirhwlkRX21CCDAW2LCQ993hi0OQNaJnd3mCZdLX054f8W7qrm73Tb5eNO5vJhU",
-    name: "Organic Heirloom Tomatoes",
-    sub: "Heritage Variety Mix",
-    status: "low-stock" as StockStatus,
-    qty: "3.2",
-    unit: "boxes",
-    supplier: "Valley Green Farms",
-  },
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAb3dx5QtHhaOBF1yWgrYQlvxIbVx8smHLGwGrZdvlz0hwFOhaniliRWuV2eUWfjZD5WkWSuyTj-Qh2zWYNYeqIwF0Z48mJR7kGArElIMOP5gedHbLt0EX03Cnou49buj_o7mY915mUMMbs-xHaqJyEtjOhYXgGqsNs9IwoVO2SD03OARLQrUO7y3FVdK-B-8G0-S3rqluxGgZjoZmhq1QIRkocfmkYqR7V0PMmVB4cs5GBHcqLnCct91pBQMUNaBXsovts66eSeiA",
-    name: "White Truffle Oil",
-    sub: "Alba Essence Infusion",
-    status: "out-of-stock" as StockStatus,
-    qty: "0.0",
-    unit: "liters",
-    supplier: "Umbria Artisans",
-  },
-  {
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCJQII-t-50nB_0WxqxlD_v_sDKygETCIpMXnkwcZPFvjHIUUO9pNdRnyr89HM1yi75dTcaYgWohE6XbobtH7nnR_1wGIaacQUA1S0--AgI97JzGvghepuSKn0-3p4fRoUoDoxfCiBiMrtkKFxWw_MJotQ-tqz2oqN11AIZpjfF8ZV5s-A8uLQO5lIoFM16EWebfIYQSoNlyr1Vtuw8Pa0qmEYFkoeZYnxAyqnSaeAe9hmEUTXSGvU3fH9ADf_VKa5oasKceKF15l0",
-    name: "Madagascar Vanilla Beans",
-    sub: "Grade A Bourbon",
-    status: "in-stock" as StockStatus,
-    qty: "0.8",
-    unit: "kg",
-    supplier: "Spice Route Imports",
-  },
-];
+const PAGE_SIZE = 10;
 
 const STATUS_CONFIG: Record<StockStatus, { label: string; dot: string; pill: string; text: string }> = {
   "in-stock": {
@@ -65,27 +38,83 @@ const STATUS_CONFIG: Record<StockStatus, { label: string; dot: string; pill: str
 
 export default function InventoryManagement() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const filtered = INVENTORY.filter((i) =>
-    i.name.toLowerCase().includes(search.toLowerCase())
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [lowStockCount, setLowStockCount] = useState(0);
+  const [outOfStockCount, setOutOfStockCount] = useState(0);
+
+  // Debounce search input so we don't hit the API on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    getInventory({ search: debouncedSearch, page, pageSize: PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return;
+        setItems(res.data);
+        setTotal(res.pagination?.total ?? res.data.length);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err.message || "Failed to load inventory");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, page]);
+
+  // Alert card counts — separate call since it needs the full low/out-of-stock set, not just this page
+  useEffect(() => {
+    getLowStockItems()
+      .then((res) => {
+        setLowStockCount(res.data.filter((i) => i.status === "low-stock").length);
+        setOutOfStockCount(res.data.filter((i) => i.status === "out-of-stock").length);
+      })
+      .catch(() => {
+        // Non-critical for the page to function — silently skip the alert numbers
+      });
+  }, []);
+
+  const inventoryValue = useMemo(
+    () => items.reduce((sum, i) => sum + Number(i.currentStock) * Number(i.costPerUnit), 0),
+    [items]
   );
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="bg-surface text-on-surface min-h-screen flex font-body my-2">
-
       <main className="min-h-screen flex-1">
-
         {/* ── Content ── */}
         <section className="px-8 pb-8">
-
           {/* Alert bento */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="col-span-2 bg-primary text-on-primary p-5 rounded-xl flex items-center justify-between relative overflow-hidden">
               <div className="relative z-10">
                 <h3 className="text-lg font-headline mb-1">Critical Restock Required</h3>
                 <p className="text-on-primary-container text-xs max-w-md">
-                  3 luxury staples are currently 'Out of Stock'. Immediate reordering is recommended
-                  to maintain the tasting menu integrity.
+                  {outOfStockCount} item{outOfStockCount === 1 ? " is" : "s are"} currently &apos;Out of
+                  Stock&apos; and {lowStockCount} running low. Immediate reordering is recommended to
+                  maintain the tasting menu integrity.
                 </p>
                 <button className="mt-4 px-5 py-1.5 bg-surface-container-lowest text-primary rounded-full text-xs font-semibold hover:bg-white transition-colors">
                   Review Alerts
@@ -96,19 +125,20 @@ export default function InventoryManagement() {
 
             <div className="bg-surface-container-low p-5 rounded-xl flex flex-col justify-center">
               <p className="text-on-surface-variant text-[10px] font-medium uppercase tracking-widest mb-1">
-                Inventory Value
+                Inventory Value (this page)
               </p>
-              <p className="text-3xl font-headline text-primary">$42,850.20</p>
+              <p className="text-3xl font-headline text-primary">
+                ${inventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
               <div className="flex items-center gap-2 mt-1.5 text-tertiary">
                 <TrendingUp size={14} />
-                <span className="text-xs font-bold">+12% from last week</span>
+                <span className="text-xs font-bold">Based on current stock × cost/unit</span>
               </div>
             </div>
           </div>
 
           {/* Inventory Table */}
           <div className="bg-surface-container-low rounded-xl overflow-hidden">
-
             {/* Table toolbar */}
             <div className="px-5 py-4 flex items-center justify-between bg-surface-container-high/50">
               <div className="relative w-60">
@@ -152,82 +182,110 @@ export default function InventoryManagement() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/5">
-                  {filtered.map((row) => {
-                    const s = STATUS_CONFIG[row.status];
-                    return (
-                      <tr
-                        key={row.name}
-                        className="hover:bg-surface-container-high/30 transition-colors"
-                      >
-                        {/* Ingredient */}
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-surface-container-highest overflow-hidden shrink-0">
-                              <img
-                                src={row.img}
-                                alt={row.name}
-                                className="w-full h-full object-cover"
-                              />
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="px-5 py-10 text-center text-on-surface-variant text-sm">
+                        Loading inventory…
+                      </td>
+                    </tr>
+                  ) : error ? (
+                    <tr>
+                      <td colSpan={6} className="px-5 py-10 text-center text-error text-sm">
+                        {error}
+                      </td>
+                    </tr>
+                  ) : items.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-5 py-10 text-center text-on-surface-variant text-sm">
+                        No ingredients match your search.
+                      </td>
+                    </tr>
+                  ) : (
+                    items.map((row) => {
+                      const s = STATUS_CONFIG[row.status];
+                      return (
+                        <tr key={row.id} className="hover:bg-surface-container-high/30 transition-colors">
+                          {/* Ingredient */}
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-surface-container-highest overflow-hidden shrink-0">
+                                {row.image && (
+                                  <img src={row.image} alt={row.name} className="w-full h-full object-cover" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-sm font-headline text-on-surface">{row.name}</p>
+                                <p className="text-[11px] text-on-surface-variant">{row.category}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-sm font-headline text-on-surface">{row.name}</p>
-                              <p className="text-[11px] text-on-surface-variant">{row.sub}</p>
-                            </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* Status badge */}
-                        <td className="px-5 py-3.5">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${s.pill} ${s.text}`}
+                          {/* Status badge */}
+                          <td className="px-5 py-3.5">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${s.pill} ${s.text}`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+                              {s.label}
+                            </span>
+                          </td>
+
+                          {/* Qty */}
+                          <td
+                            className={`px-5 py-3.5 text-center text-sm font-bold ${
+                              row.status === "out-of-stock" ? "text-error" : "text-on-surface"
+                            }`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-                            {s.label}
-                          </span>
-                        </td>
+                            {Number(row.currentStock).toFixed(1)}
+                          </td>
 
-                        {/* Qty */}
-                        <td
-                          className={`px-5 py-3.5 text-center text-sm font-bold ${
-                            row.status === "out-of-stock" ? "text-error" : "text-on-surface"
-                          }`}
-                        >
-                          {row.qty}
-                        </td>
+                          {/* Unit */}
+                          <td className="px-5 py-3.5 text-on-surface-variant text-xs">{row.unit}</td>
 
-                        {/* Unit */}
-                        <td className="px-5 py-3.5 text-on-surface-variant text-xs">{row.unit}</td>
+                          {/* Supplier */}
+                          <td className="px-5 py-3.5 text-on-surface-variant text-xs">
+                            {row.supplier?.name ?? "—"}
+                          </td>
 
-                        {/* Supplier */}
-                        <td className="px-5 py-3.5 text-on-surface-variant text-xs">{row.supplier}</td>
-
-                        {/* Action */}
-                        <td className="px-5 py-3.5 text-right">
-                          {row.status === "out-of-stock" ? (
-                            <button className="bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold hover:shadow-lg transition-all">
-                              Reorder Now
-                            </button>
-                          ) : (
-                            <button className="text-primary hover:underline text-xs font-semibold">
-                              Reorder
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          {/* Action */}
+                          <td className="px-5 py-3.5 text-right">
+                            {row.status === "out-of-stock" ? (
+                              <button className="bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold hover:shadow-lg transition-all">
+                                Reorder Now
+                              </button>
+                            ) : (
+                              <button className="text-primary hover:underline text-xs font-semibold">
+                                Reorder
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
             <div className="px-5 py-4 flex items-center justify-between border-t border-outline-variant/5">
-              <p className="text-[11px] text-on-surface-variant">Showing 4 of 128 ingredients</p>
+              <p className="text-[11px] text-on-surface-variant">
+                Showing {items.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–
+                {(page - 1) * PAGE_SIZE + items.length} of {total} ingredients
+              </p>
               <div className="flex gap-1.5">
-                <button className="p-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface transition-colors">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="p-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
                   <ChevronLeft size={15} />
                 </button>
-                <button className="p-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface transition-colors">
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="p-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
                   <ChevronRight size={15} />
                 </button>
               </div>
@@ -237,7 +295,6 @@ export default function InventoryManagement() {
 
         {/* ── Secondary Insights ── */}
         <section className="px-8 pb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-
           {/* Vendor Performance */}
           <div className="bg-surface-container-low p-6 rounded-xl">
             <h3 className="text-base font-headline text-primary mb-4">Vendor Performance</h3>
@@ -255,9 +312,7 @@ export default function InventoryManagement() {
                     {Array.from({ length: 5 }).map((_, i) => (
                       <div
                         key={i}
-                        className={`w-1.5 h-5 rounded-full ${
-                          i < filled ? "bg-primary" : "bg-primary/20"
-                        }`}
+                        className={`w-1.5 h-5 rounded-full ${i < filled ? "bg-primary" : "bg-primary/20"}`}
                       />
                     ))}
                   </div>
