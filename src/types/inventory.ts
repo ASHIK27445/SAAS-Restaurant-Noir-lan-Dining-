@@ -77,8 +77,7 @@ export type PurchaseOrder = {
   purchaseAmount: number | null;
 };
 
-// Result shape of GET /suppliers/directory — aggregated from real PurchaseOrder data.
-// reliabilityScore / qualityAcceptance are null until a performance-tracking model exists.
+// Result shape of GET /suppliers/directory — aggregated from received purchase order data.
 export type SupplierDirectoryEntry = {
   id: string;
   name: string;
@@ -89,6 +88,10 @@ export type SupplierDirectoryEntry = {
   lastDelivery: string | null;
   reliabilityScore: number | null;
   qualityAcceptance: number | null;
+  onTimeTrackedCount: number;
+  qualityTrackedQuantity: number;
+  totalOrders: number;
+  ratedOrderCount: number;
 };
 
 export type SupplierDirectoryResponse = {
