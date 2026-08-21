@@ -67,6 +67,7 @@ export type PurchaseOrder = {
   issuedDate: string;
   expectedDate: string | null;
   totalAmount: string;
+  rating: number | null;
   items: PurchaseOrderItem[];
   createdAt: string;
   updatedAt: string;
