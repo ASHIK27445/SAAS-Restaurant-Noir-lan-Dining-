@@ -165,4 +165,6 @@ export type SupplierDetail = Supplier & {
   receivedOrderCount: number;
   qualityScore: number | null; 
   ratedOrderCount: number;
+  onTimeDeliveryRate: number | null;   // % on-time over the last 2 months, null if no trackable orders
+  onTimeTrackedCount: number;
 };

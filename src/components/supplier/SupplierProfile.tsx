@@ -196,22 +196,37 @@ export default function SupplierProfile() {
                 <h2 className="font-headline text-2xl text-on-surface mb-8">
                   Performance Dashboard
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                   <div className="space-y-2">
                     <p className="font-body text-sm text-on-surface-variant uppercase tracking-wider">
                       Order Fulfillment
                     </p>
                     <div className="flex items-baseline space-x-2">
                       <span className="font-headline text-4xl text-primary">
-                        {supplier.fulfillmentRate !== null
-                          ? `${supplier.fulfillmentRate.toFixed(1)}%`
-                          : "—"}
+                        {supplier.fulfillmentRate !== null ? `${supplier.fulfillmentRate.toFixed(1)}%` : "—"}
                       </span>
                     </div>
                     <p className="font-body text-xs text-outline mt-1">
                       {supplier.receivedOrderCount} of {supplier.totalOrders} orders received
                     </p>
                   </div>
+
+                  <div className="space-y-2">
+                    <p className="font-body text-sm text-on-surface-variant uppercase tracking-wider">
+                      On-Time Delivery
+                    </p>
+                    <div className="flex items-baseline space-x-2">
+                      <span className="font-headline text-4xl text-primary">
+                        {supplier.onTimeDeliveryRate !== null ? `${supplier.onTimeDeliveryRate.toFixed(1)}%` : "—"}
+                      </span>
+                    </div>
+                    <p className="font-body text-xs text-outline mt-1">
+                      {supplier.onTimeTrackedCount > 0
+                        ? `${supplier.onTimeTrackedCount} tracked order${supplier.onTimeTrackedCount === 1 ? "" : "s"}, last 2 months`
+                        : "No trackable deliveries in the last 2 months"}
+                    </p>
+                  </div>
+
                   <div className="space-y-2">
                     <p className="font-body text-sm text-on-surface-variant uppercase tracking-wider">
                       Product Quality Score
@@ -231,18 +246,15 @@ export default function SupplierProfile() {
                         : "No orders rated yet"}
                     </p>
                   </div>
+
                   <div className="space-y-2">
                     <p className="font-body text-sm text-on-surface-variant uppercase tracking-wider">
                       Total Spend
                     </p>
                     <div className="flex items-baseline space-x-2">
-                      <span className="font-headline text-4xl text-primary">
-                        {currency(supplier.totalSpend)}
-                      </span>
+                      <span className="font-headline text-4xl text-primary">{currency(supplier.totalSpend)}</span>
                     </div>
-                    <p className="font-body text-xs text-outline mt-1">
-                      From received orders
-                    </p>
+                    <p className="font-body text-xs text-outline mt-1">From received orders</p>
                   </div>
                 </div>
 
