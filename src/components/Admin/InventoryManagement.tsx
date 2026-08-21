@@ -10,8 +10,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { getInventory, getLowStockItems } from "../../api/inventory";
-import type { InventoryItem, StockStatus } from "../../types/inventory";
+import { getInventory, getLowStockItems, getSupplierDirectory } from "../../api/inventory";
+import type { InventoryItem, StockStatus, SupplierDirectoryEntry } from "../../types/inventory";
 
 const PAGE_SIZE = 10;
 
@@ -48,6 +48,7 @@ export default function InventoryManagement() {
 
   const [lowStockCount, setLowStockCount] = useState(0);
   const [outOfStockCount, setOutOfStockCount] = useState(0);
+  const [vendorPerformance, setVendorPerformance] = useState<SupplierDirectoryEntry[]>([]);
 
   // Debounce search input so we don't hit the API on every keystroke
   useEffect(() => {
@@ -94,12 +95,32 @@ export default function InventoryManagement() {
       });
   }, []);
 
+  useEffect(() => {
+    getSupplierDirectory()
+      .then((res) => setVendorPerformance(res.data))
+      .catch(() => setVendorPerformance([]));
+  }, []);
+
   const inventoryValue = useMemo(
     () => items.reduce((sum, i) => sum + Number(i.currentStock) * Number(i.costPerUnit), 0),
     [items]
   );
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const uniqueVendorPerformance = useMemo(() => {
+    const vendorsByName = new Map<string, SupplierDirectoryEntry>();
+    for (const vendor of vendorPerformance) {
+      const nameKey = vendor.name.trim().toLowerCase();
+      const existing = vendorsByName.get(nameKey);
+      if (!existing || (vendor.reliabilityScore ?? -1) > (existing.reliabilityScore ?? -1)) {
+        vendorsByName.set(nameKey, vendor);
+      }
+    }
+    return [...vendorsByName.values()].sort(
+      (a, b) => (b.reliabilityScore ?? -1) - (a.reliabilityScore ?? -1)
+    );
+  }, [vendorPerformance]);
 
   return (
     <div className="bg-surface text-on-surface min-h-screen flex font-body my-2">
@@ -296,36 +317,47 @@ export default function InventoryManagement() {
         {/* ── Secondary Insights ── */}
         <section className="px-8 pb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Vendor Performance */}
-          <div className="bg-surface-container-low p-6 rounded-xl">
-            <h3 className="text-base font-headline text-primary mb-4">Vendor Performance</h3>
-            <div className="space-y-4">
-              {[
-                { name: "Kyoto Fine Meats", score: "98%", filled: 4 },
-                { name: "Valley Green Farms", score: "85%", filled: 3 },
-              ].map(({ name, score, filled }) => (
-                <div key={name} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-on-surface">{name}</p>
-                    <p className="text-[11px] text-on-surface-variant">Reliability Score: {score}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-1.5 h-5 rounded-full ${i < filled ? "bg-primary" : "bg-primary/20"}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
+          <div className="rounded-xl bg-surface-container-low p-6">
+            <div className="mb-5 flex items-end justify-between border-b border-outline-variant/10 pb-4">
+              <div>
+                <h3 className="font-headline text-base text-primary">Vendor Performance</h3>
+                <p className="mt-1 text-[11px] text-on-surface-variant">Reliability score · one stick per 20%</p>
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">
+                {uniqueVendorPerformance.length} vendor{uniqueVendorPerformance.length === 1 ? "" : "s"}
+              </span>
             </div>
-            <div className="mt-5 border-t border-outline-variant/10 pt-4 flex items-center justify-between">
-              <p className="text-[11px] text-on-surface-variant italic">
-                Next delivery scheduled: Tuesday, Oct 12
-              </p>
-              <button className="text-tertiary text-[10px] font-bold uppercase tracking-wider">
-                Manage Suppliers
-              </button>
+            <div className="divide-y divide-outline-variant/10">
+              {uniqueVendorPerformance.map((vendor) => {
+                  const score = vendor.reliabilityScore;
+                  const filledSticks = score === null ? 0 : Math.min(5, Math.floor(score / 20));
+                  return (
+                    <div key={vendor.id} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-on-surface">{vendor.name}</p>
+                        <p className="mt-1 text-[11px] text-on-surface-variant">
+                          {score === null ? "No reliability data" : `${score.toFixed(1)}% reliability`}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3">
+                        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${filledSticks >= 4 ? "bg-green-100 text-green-700" : "bg-surface-container-high text-on-surface-variant"}`}>
+                          {score === null ? "—" : `${score.toFixed(0)}%`}
+                        </span>
+                        <div className="flex gap-1" aria-label={`${score ?? "No"} reliability score`}>
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <span
+                              key={i}
+                              className={`h-6 w-1.5 rounded-full ${i < filledSticks ? "bg-green-500" : "bg-outline-variant/50"}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              {uniqueVendorPerformance.length === 0 && (
+                <p className="py-2 text-xs text-on-surface-variant">No supplier reliability data available.</p>
+              )}
             </div>
           </div>
 
