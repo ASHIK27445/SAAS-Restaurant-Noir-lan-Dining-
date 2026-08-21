@@ -139,23 +139,26 @@ export default function SupplierProfile() {
         <div className="flex-1 overflow-y-auto pb-24 md:pb-12">
           {/* Hero / Profile Header */}
           <section className="relative w-full h-115 min-h-100 mb-16 bg-surface-container-low">
-            <div className="absolute inset-0 w-full h-full">
-              {supplier.category && (
-                <div className="w-full h-full bg-surface-container-low" />
-              )}
+            <div
+              className="absolute inset-0 w-full h-full bg-cover bg-center"
+              style={{
+                backgroundImage:
+                  "url(https://www.trafalgar.com/real-word/wp-content/uploads//2018/01/Mount-Fuji-Japan-www.istockphoto.com_gb_photo_beautiful-cherry-blossoms-with-mount-fuji-japan-gm147914231-12967184-prasit_chansareekorn.jpg)",
+              }}
+            >
               <div className="absolute inset-0 bg-linear-to-t from-surface via-surface/40 to-transparent" />
             </div>
 
             <div className="absolute bottom-0 left-0 w-full px-6 md:px-12 transform translate-y-1/3">
               <div className="max-w-5xl mx-auto">
-                <div className="glass-panel rounded-xl p-8 md:p-10 ambient-shadow ghost-border flex flex-col md:flex-row md:items-end justify-between gap-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <span className="inline-block px-3 py-1 bg-tertiary/10 text-tertiary rounded-full font-body text-xs font-medium tracking-wide uppercase">
+                <div className="glass-panel rounded-xl p-6 md:p-8 ambient-shadow ghost-border flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-3 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-block px-2.5 py-1 bg-tertiary/10 text-tertiary rounded-full font-body text-[11px] font-medium tracking-wide uppercase">
                         {supplier.category}
                       </span>
                       <span
-                        className={`inline-block px-3 py-1 rounded-full font-body text-xs font-medium tracking-wide uppercase ${
+                        className={`inline-block px-2.5 py-1 rounded-full font-body text-[11px] font-medium tracking-wide uppercase ${
                           supplier.status === "ACTIVE"
                             ? "bg-primary/10 text-primary"
                             : "bg-surface-dim text-on-surface-variant"
@@ -164,19 +167,19 @@ export default function SupplierProfile() {
                         {supplier.status === "ACTIVE" ? "Active" : "Inactive"}
                       </span>
                     </div>
-                    <h1 className="font-headline text-4xl md:text-5xl text-primary font-bold tracking-tight">
+                    <h1 className="font-headline text-3xl md:text-4xl text-primary font-bold tracking-tight leading-tight">
                       {supplier.name}
                     </h1>
                     {supplier.lastDelivery && (
-                      <p className="font-body text-on-surface-variant max-w-xl text-lg">
+                      <p className="font-body text-on-surface-variant max-w-xl text-sm md:text-base leading-relaxed">
                         Last delivery received on {dateFmt(supplier.lastDelivery)}.
                       </p>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+                  <div className="flex flex-col sm:flex-row gap-3 shrink-0">
                     <a
                       href={supplier.email ? `mailto:${supplier.email}` : undefined}
-                      className={`px-6 py-3 bg-surface-container-high text-primary rounded-xl font-body font-medium hover:bg-surface-container-highest transition-colors text-center ${
+                      className={`px-5 py-2.5 bg-surface-container-high text-primary rounded-lg font-body text-sm font-medium hover:bg-surface-container-highest transition-colors text-center ${
                         !supplier.email ? "opacity-50 pointer-events-none" : ""
                       }`}
                     >
