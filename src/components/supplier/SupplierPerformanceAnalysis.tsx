@@ -93,7 +93,7 @@ export default function SupplierPerformanceAnalysis() {
   const onTimeOrders = trackedDeliveryOrders.filter(
     (order) => new Date(order.deliveredDate!).getTime() <= new Date(order.expectedDate!).getTime()
   );
-  const reliability = trackedDeliveryOrders.length ? (onTimeOrders.length / trackedDeliveryOrders.length) * 100 : null;
+  const onTimeDeliveryScore = trackedDeliveryOrders.length ? (onTimeOrders.length / trackedDeliveryOrders.length) * 100 : null;
   const qualityTotals = receivedOrders.reduce(
     (totals, order) => {
       order.items.forEach((item) => {
@@ -107,7 +107,15 @@ export default function SupplierPerformanceAnalysis() {
     { ordered: 0, received: 0 }
   );
   const qualityAcceptance = qualityTotals.ordered > 0
-    ? (qualityTotals.received / qualityTotals.ordered) * 100
+    ? Math.min((qualityTotals.received / qualityTotals.ordered) * 100, 100)
+    : null;
+  const productQualityScore = rating !== null ? (rating / 5) * 100 : null;
+  const orderFulfillmentScore = scopedOrders.length ? (receivedOrders.length / scopedOrders.length) * 100 : null;
+  const demandFulfillmentScore = qualityAcceptance;
+  const reliability = [productQualityScore, onTimeDeliveryScore, orderFulfillmentScore, demandFulfillmentScore].every(
+    (score) => score !== null
+  )
+    ? productQualityScore! * 0.3 + onTimeDeliveryScore! * 0.25 + orderFulfillmentScore! * 0.25 + demandFulfillmentScore! * 0.2
     : null;
   const monthlySpend = useMemo(() => buildMonthlySpend(scopedOrders, months), [scopedOrders, months]);
   const maxMonthlySpend = Math.max(1, ...monthlySpend.map((month) => month.value));
@@ -121,7 +129,10 @@ export default function SupplierPerformanceAnalysis() {
     receivedSpend: supplier.totalSpend,
     rating: supplier.rating ?? "No data",
     reliabilityScore: supplier.reliabilityScore ?? "No data",
-    qualityAcceptance: supplier.qualityAcceptance ?? "No data",
+    productQualityScore: supplier.productQualityScore ?? "No data",
+    onTimeDeliveryScore: supplier.onTimeDeliveryScore ?? "No data",
+    orderFulfillmentScore: supplier.orderFulfillmentScore ?? "No data",
+    demandFulfillmentScore: supplier.demandFulfillmentScore ?? "No data",
     lastDelivery: supplier.lastDelivery ?? "",
   }));
 
@@ -131,8 +142,10 @@ export default function SupplierPerformanceAnalysis() {
   const metrics = [
     { label: "Received spend", value: currency(spend), note: `${receivedOrders.length} received orders`, icon: CircleDollarSign, tone: "text-primary bg-primary-fixed" },
     { label: "Order fulfillment", value: fulfillment === null ? "No data" : `${fulfillment.toFixed(1)}%`, note: `${receivedOrders.length} of ${scopedOrders.length} orders received`, icon: CheckCircle2, tone: "text-primary bg-primary-fixed" },
-    { label: "Reliability score", value: reliability === null ? "No data" : `${reliability.toFixed(1)}%`, note: trackedDeliveryOrders.length ? `${onTimeOrders.length} of ${trackedDeliveryOrders.length} tracked deliveries on time` : "Needs expected and delivered dates", icon: Truck, tone: "text-primary bg-primary-fixed" },
-    { label: "Quality acceptance", value: qualityAcceptance === null ? "No data" : `${qualityAcceptance.toFixed(1)}%`, note: qualityTotals.ordered > 0 ? `${qualityTotals.received} of ${qualityTotals.ordered} units received` : "No received quantities recorded", icon: Package, tone: "text-primary bg-primary-fixed" },
+    { label: "Reliability score", value: reliability === null ? "No data" : `${reliability.toFixed(1)}%`, note: "Quality 30% · on-time 25% · fulfillment 25% · demand 20%", icon: Truck, tone: "text-primary bg-primary-fixed" },
+    { label: "Product quality", value: productQualityScore === null ? "No data" : `${productQualityScore.toFixed(1)}%`, note: rating === null ? "No product rating recorded" : `${rating.toFixed(1)} / 5 average rating`, icon: Star, tone: "text-tertiary bg-tertiary-fixed" },
+    { label: "On-time delivery", value: onTimeDeliveryScore === null ? "No data" : `${onTimeDeliveryScore.toFixed(1)}%`, note: trackedDeliveryOrders.length ? `${onTimeOrders.length} of ${trackedDeliveryOrders.length} tracked deliveries` : "Needs expected and delivered dates", icon: Truck, tone: "text-primary bg-primary-fixed" },
+    { label: "Demand fulfillment", value: demandFulfillmentScore === null ? "No data" : `${demandFulfillmentScore.toFixed(1)}%`, note: qualityTotals.ordered > 0 ? `${qualityTotals.received} of ${qualityTotals.ordered} units received` : "No received quantities recorded", icon: Package, tone: "text-primary bg-primary-fixed" },
     { label: "Supplier rating", value: rating === null ? "No rating" : `${rating.toFixed(1)} / 5`, note: ratedOrders.length ? `Average of ${ratedOrders.length} rated received orders` : selectedSupplier?.rating ? "Profile rating; no order ratings yet" : "No rating has been recorded", icon: Star, tone: "text-tertiary bg-tertiary-fixed" },
     { label: "Last delivery", value: dateFormat(latestDelivery), note: selectedSupplier ? "Selected supplier" : "Across the supplier network", icon: Truck, tone: "text-primary bg-primary-fixed" },
   ];

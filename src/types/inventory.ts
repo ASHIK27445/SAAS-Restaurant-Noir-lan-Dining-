@@ -87,10 +87,15 @@ export type SupplierDirectoryEntry = {
   totalSpend: number;
   lastDelivery: string | null;
   reliabilityScore: number | null;
+  productQualityScore: number | null;
+  onTimeDeliveryScore: number | null;
+  orderFulfillmentScore: number | null;
+  demandFulfillmentScore: number | null;
   qualityAcceptance: number | null;
   onTimeTrackedCount: number;
   qualityTrackedQuantity: number;
   totalOrders: number;
+  receivedOrderCount: number;
   ratedOrderCount: number;
 };
 

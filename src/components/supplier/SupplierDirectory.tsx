@@ -219,7 +219,7 @@ export default function SupplierDirectory() {
                     <div className="space-y-6">
                       <div>
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-primary-fixed-dim">On-Time Deliveries</span>
+                          <span className="text-primary-fixed-dim">Reliability score</span>
                           <span className="font-bold">{featured?.reliabilityScore != null ? `${featured.reliabilityScore.toFixed(1)}%` : "No data"}</span>
                         </div>
                         <div className="w-full bg-primary-container rounded-full h-1.5">
@@ -231,7 +231,7 @@ export default function SupplierDirectory() {
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-primary-fixed-dim">Quality Acceptance</span>
+                          <span className="text-primary-fixed-dim">Demand fulfillment</span>
                           <span className="font-bold">{featured?.qualityAcceptance != null ? `${featured.qualityAcceptance.toFixed(1)}%` : "No data"}</span>
                         </div>
                         <div className="w-full bg-primary-container rounded-full h-1.5">
