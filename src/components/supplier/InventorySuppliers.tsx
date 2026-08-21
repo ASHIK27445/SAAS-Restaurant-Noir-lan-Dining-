@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Search,
-  Package,
   Minus,
   X,
   TrendingDown,
@@ -9,8 +8,8 @@ import {
   BarChart3,
   Loader2,
 } from "lucide-react";
-import { getInventory, adjustStock, getInventoryUsage } from "../../api/inventory";
-import type { InventoryItem, InventoryUsageReport } from "../../types/inventory";
+import { getInventory, adjustStock, getInventoryUsage, getInventoryUsageOverview } from "../../api/inventory";
+import type { InventoryItem, InventoryUsageOverview, InventoryUsageReport } from "../../types/inventory";
 
 const STATUS_DOT: Record<string, string> = {
   "in-stock": "bg-primary",
@@ -291,6 +290,7 @@ export default function InventorySuppliers() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [usageOverview, setUsageOverview] = useState<Record<string, InventoryUsageOverview>>({});
 
   const [reducingItem, setReducingItem] = useState<InventoryItem | null>(null);
   const [reportItem, setReportItem] = useState<InventoryItem | null>(null);
@@ -299,7 +299,11 @@ export default function InventorySuppliers() {
     setLoading(true);
     setError(null);
     return getInventory({ pageSize: 200 })
-      .then((res) => setItems(res.data))
+      .then(async (res) => {
+        setItems(res.data);
+        const usage = await getInventoryUsageOverview();
+        setUsageOverview(Object.fromEntries(usage.data.map((entry) => [entry.itemId, entry])));
+      })
       .catch((err) => setError(err.message || "Failed to load inventory"))
       .finally(() => setLoading(false));
   }
@@ -373,44 +377,83 @@ export default function InventorySuppliers() {
             {items.length === 0 ? "No ingredients yet." : "No ingredients match your search or filter."}
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filtered.map((item) => (
-              <div
-                key={item.id}
-                className="bg-surface-container-lowest rounded-xl p-4 hover:bg-surface-container-low transition-colors"
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-secondary mb-0.5">
-                      {item.category}
-                    </p>
-                    <h3 className="font-headline text-base text-on-surface truncate">{item.name}</h3>
-                  </div>
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${STATUS_DOT[item.status]}`} />
-                </div>
-
-                <div className="flex items-baseline gap-1.5 mb-4">
-                  <span className="font-headline text-2xl text-primary">{Number(item.currentStock)}</span>
-                  <span className="text-sm text-on-surface-variant">{item.unit} in stock</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setReducingItem(item)}
-                    disabled={Number(item.currentStock) <= 0}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Minus size={13} /> Reduce Stock
-                  </button>
-                  <button
-                    onClick={() => setReportItem(item)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
-                  >
-                    <TrendingDown size={13} /> Usage
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-190 border-collapse text-left">
+                <caption className="sr-only">Ingredient inventory and stock usage actions</caption>
+                <thead className="bg-surface-container-low text-[11px] uppercase tracking-wider text-on-surface-variant">
+                  <tr>
+                    <th scope="col" className="px-5 py-3 font-semibold">Ingredient</th>
+                    <th scope="col" className="px-5 py-3 font-semibold">Category</th>
+                    <th scope="col" className="px-5 py-3 text-right font-semibold">In stock</th>
+                    <th scope="col" className="px-5 py-3 text-right font-semibold">Minimum</th>
+                    <th scope="col" className="px-5 py-3 text-right font-semibold">Used / 30 days</th>
+                    <th scope="col" className="px-5 py-3 text-right font-semibold">Avg. / day</th>
+                    <th scope="col" className="px-5 py-3 font-semibold">Status</th>
+                    <th scope="col" className="px-5 py-3 text-right font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/15">
+                  {filtered.map((item) => {
+                    const stock = Number(item.currentStock);
+                    const minimum = Number(item.minThreshold);
+                    const statusLabel = item.status === "in-stock" ? "In stock" : item.status === "low-stock" ? "Low stock" : "Out of stock";
+                    return (
+                      <tr key={item.id} className="group transition-colors hover:bg-surface-container-low/70">
+                        <th scope="row" className="px-5 py-4 font-normal">
+                          <div className="flex items-center gap-3">
+                            <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[item.status]}`} aria-hidden="true" />
+                            <div>
+                              <p className="font-medium text-on-surface">{item.name}</p>
+                              <p className="mt-0.5 text-xs text-on-surface-variant">{item.unit}</p>
+                            </div>
+                          </div>
+                        </th>
+                        <td className="px-5 py-4 text-sm text-on-surface-variant">{item.category}</td>
+                        <td className="px-5 py-4 text-right">
+                          <span className="font-headline text-lg text-primary">{stock}</span>
+                          <span className="ml-1 text-xs text-on-surface-variant">{item.unit}</span>
+                        </td>
+                        <td className="px-5 py-4 text-right text-sm text-on-surface-variant">
+                          {minimum} {item.unit}
+                        </td>
+                        <td className="px-5 py-4 text-right text-sm text-on-surface-variant">
+                          {usageOverview[item.id]?.totalUsage ?? 0} {item.unit}
+                        </td>
+                        <td className="px-5 py-4 text-right text-sm text-on-surface-variant">
+                          {(usageOverview[item.id]?.averageDailyUsage ?? 0).toFixed(2)} {item.unit}
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="inline-flex items-center rounded-full bg-surface-container-low px-2.5 py-1 text-xs font-medium text-on-surface-variant">
+                            {statusLabel}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex justify-end gap-1">
+                            <button
+                              onClick={() => setReducingItem(item)}
+                              disabled={stock <= 0}
+                              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-on-surface hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              <Minus size={13} /> Reduce
+                            </button>
+                            <button
+                              onClick={() => setReportItem(item)}
+                              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10"
+                            >
+                              <TrendingDown size={13} /> Usage
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="border-t border-outline-variant/15 px-5 py-3 text-xs text-on-surface-variant">
+              Showing {filtered.length} of {items.length} ingredients
+            </div>
           </div>
         )}
       </main>

@@ -197,3 +197,9 @@ export type InventoryUsageReport = {
   monthlyUsage: MonthlyUsagePoint[];
   averageDailyUsage: number | null;
 };
+
+export type InventoryUsageOverview = {
+  itemId: string;
+  totalUsage: number;
+  averageDailyUsage: number;
+};

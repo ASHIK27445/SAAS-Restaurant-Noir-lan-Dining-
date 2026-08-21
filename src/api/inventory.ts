@@ -5,6 +5,7 @@ import type {
   CreateInventoryItemInput,
   CreateSupplierContactInput,
   InventoryItem,
+  InventoryUsageOverview,
   InventoryUsageReport,
   PurchaseOrder,
   StockAdjustmentInput,
@@ -204,4 +205,10 @@ export function getInventoryUsage(id: string, params: { days?: number; months?: 
   if (params.months) p.set("months", String(params.months));
   const qs = p.toString();
   return request<ApiItemResponse<InventoryUsageReport>>(`/inventory/${id}/usage${qs ? `?${qs}` : ""}`);
+}
+
+export function getInventoryUsageOverview(days = 30) {
+  return request<{ success: true; days: number; data: InventoryUsageOverview[] }>(
+    `/inventory-usage-overview?days=${days}`
+  );
 }
