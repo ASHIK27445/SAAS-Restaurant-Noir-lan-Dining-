@@ -163,4 +163,6 @@ export type SupplierDetail = Supplier & {
   fulfillmentRate: number | null; // null = not enough order history yet
   totalOrders: number;
   receivedOrderCount: number;
+  qualityScore: number | null; 
+  ratedOrderCount: number;
 };

@@ -218,13 +218,18 @@ export default function SupplierProfile() {
                     </p>
                     <div className="flex items-baseline space-x-2">
                       <span className="font-headline text-4xl text-primary">
-                        {supplier.rating !== null ? supplier.rating.toFixed(1) : "—"}
+                        {supplier.qualityScore !== null ? supplier.qualityScore.toFixed(1) : "—"}
                       </span>
-                      {supplier.rating !== null && (
+                      {supplier.qualityScore !== null && (
                         <span className="text-xs text-on-surface-variant">/ 5.0</span>
                       )}
                     </div>
-                    <StarRating rating={supplier.rating} />
+                    <StarRating rating={supplier.qualityScore} />
+                    <p className="font-body text-xs text-outline mt-1">
+                      {supplier.ratedOrderCount > 0
+                        ? `From ${supplier.ratedOrderCount} rated order${supplier.ratedOrderCount === 1 ? "" : "s"}`
+                        : "No orders rated yet"}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <p className="font-body text-sm text-on-surface-variant uppercase tracking-wider">
