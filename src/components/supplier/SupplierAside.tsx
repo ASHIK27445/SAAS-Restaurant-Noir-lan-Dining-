@@ -4,12 +4,14 @@ import {
   FileText,
   LayoutDashboard,
   Package,
+  PaperBag,
   Users,
 } from "lucide-react";
 import { NavLink } from "react-router";
 
 const links = [
   { to: "/supplier", label: "Directory", icon: LayoutDashboard, end: true },
+  { to: "/supplier/usage", label: "Ingredients", icon: PaperBag },
   { to: "/supplier/procurement", label: "Procurement", icon: ClipboardList },
   { to: "/supplier/catalog", label: "Catalog", icon: Package },
   { to: "/supplier/performance", label: "Performance", icon: BarChart3 },

@@ -183,3 +183,17 @@ export type SupplierDetail = Supplier & {
   shortageCount: number;               // count of received line items where receivedQuantity < ordered quantity, YTD
   shortages: ShortageRecord[];         // the underlying records for shortageCount, most recent first
 };
+
+
+export type DailyUsagePoint = { date: string; quantity: number };
+export type MonthlyUsagePoint = { month: string; quantity: number };
+
+export type InventoryUsageReport = {
+  itemId: string;
+  itemName: string;
+  unit: string;
+  currentStock: string;
+  dailyUsage: DailyUsagePoint[];
+  monthlyUsage: MonthlyUsagePoint[];
+  averageDailyUsage: number | null;
+};

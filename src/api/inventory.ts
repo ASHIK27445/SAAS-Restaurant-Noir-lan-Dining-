@@ -5,6 +5,7 @@ import type {
   CreateInventoryItemInput,
   CreateSupplierContactInput,
   InventoryItem,
+  InventoryUsageReport,
   PurchaseOrder,
   StockAdjustmentInput,
   StockMovement,
@@ -193,8 +194,14 @@ export function deleteSupplierContact(id: string) {
   return request<ApiItemResponse<null>>(`/supplier-contacts/${id}`, { method: "DELETE" });
 }
 
-
-// NEW
 export function getSupplier(id: string) {
   return request<ApiItemResponse<SupplierDetail>>(`/suppliers/${id}`);
+}
+
+export function getInventoryUsage(id: string, params: { days?: number; months?: number } = {}) {
+  const p = new URLSearchParams();
+  if (params.days) p.set("days", String(params.days));
+  if (params.months) p.set("months", String(params.months));
+  const qs = p.toString();
+  return request<ApiItemResponse<InventoryUsageReport>>(`/inventory/${id}/usage${qs ? `?${qs}` : ""}`);
 }

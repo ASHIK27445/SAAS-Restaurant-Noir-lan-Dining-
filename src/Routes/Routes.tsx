@@ -39,6 +39,7 @@ import SupplierContactDirectory from "../components/supplier/SupplierContactDire
 import SupplierCatalogManagement from "../components/supplier/SupplierCatelogManagement";
 import ProcurementPOTracking from "../components/supplier/ProcurementTracking";
 import SupplierLayout from "../components/supplier/SupplierLayout";
+import InventorySuppliers from "../components/supplier/InventorySuppliers";
 
 export const router = createBrowserRouter([
     {
@@ -148,6 +149,7 @@ export const router = createBrowserRouter([
         children: [
             { index: true, Component: SupplierDirectory },
             { path: 'procurement', Component: ProcurementPOTracking },
+            { path: 'usage', Component: InventorySuppliers },
             { path: 'catalog', Component: SupplierCatalogManagement },
             { path: 'performance', Component: SupplierPerformanceAnalysis },
             { path: 'contacts', Component: SupplierContactDirectory },
