@@ -146,6 +146,13 @@ export function updatePurchaseOrderStatus(id: string, status: PurchaseOrder["sta
   });
 }
 
+export function ratePurchaseOrder(id: string, rating: number) {
+  return request<ApiItemResponse<PurchaseOrder>>(`/purchase-orders/${id}/rating`, {
+    method: "PATCH",
+    body: JSON.stringify({ rating }),
+  });
+}
+
 //supplier contact
 export function getSupplierContacts(filters: { search?: string; category?: string } = {}) {
   const params = new URLSearchParams();

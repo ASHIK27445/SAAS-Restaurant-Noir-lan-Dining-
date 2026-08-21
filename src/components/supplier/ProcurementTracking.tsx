@@ -10,6 +10,7 @@ import {
   Plus,
   X,
   Trash2,
+  Star,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -17,6 +18,7 @@ import {
   getInventory,
   getPurchaseOrders,
   getSuppliers,
+  ratePurchaseOrder,
   updatePurchaseOrderStatus,
 } from "../../api/inventory";
 import type { InventoryItem, PurchaseOrder, PurchaseOrderStatus, Supplier } from "../../types/inventory";
@@ -65,6 +67,69 @@ function formatCurrency(n: number) {
   return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function RatingCell({ row, onRate }: { row: PurchaseOrder; onRate: (id: string, rating: number) => void }) {
+  const [value, setValue] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  if (row.status !== "RECEIVED") {
+    return <span className="text-on-surface-variant text-xs">—</span>;
+  }
+
+  if (row.rating !== null) {
+    return (
+      <span className="inline-flex items-center justify-center gap-1 text-xs font-semibold text-tertiary">
+        <Star size={13} className="fill-tertiary text-tertiary" />
+        {row.rating.toFixed(1)}
+      </span>
+    );
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLocalError(null);
+
+    const n = Number(value);
+    if (value.trim() === "" || Number.isNaN(n) || n < 0 || n > 5) {
+      setLocalError("0–5");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await onRate(row.id, n);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center justify-center gap-1">
+      <input
+        type="number"
+        min={0}
+        max={5}
+        step={0.1}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="4.5"
+        disabled={submitting}
+        className="w-14 bg-surface-container-low rounded-md px-1.5 py-1 text-xs border border-outline-variant/20 focus:border-primary/30 focus:outline-none disabled:opacity-50"
+      />
+      <span className="flex flex-col items-start">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="text-primary hover:underline text-xs font-semibold disabled:opacity-50"
+        >
+          {submitting ? "…" : "Rate"}
+        </button>
+        {localError && <span className="text-error text-[10px]">{localError}</span>}
+      </span>
+    </form>
+  );
+}
+
 type ItemRow = { inventoryItemId: string; quantity: string; unitPrice: string };
 const EMPTY_ROW: ItemRow = { inventoryItemId: "", quantity: "1", unitPrice: "" };
 
@@ -87,7 +152,7 @@ export default function ProcurementPOTracking() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  function loadOrders() {
+  const loadOrders = async() => {
     setLoading(true);
     setError(null);
     return getPurchaseOrders()
@@ -95,6 +160,8 @@ export default function ProcurementPOTracking() {
       .catch((err) => setError(err.message || "Failed to load purchase orders"))
       .finally(() => setLoading(false));
   }
+
+  // console.log(orders)
 
   useEffect(() => {
     loadOrders();
@@ -189,6 +256,15 @@ export default function ProcurementPOTracking() {
     }
   }
 
+  async function handleRateOrder(id: string, rating: number) {
+    try {
+      await ratePurchaseOrder(id, rating);
+      await loadOrders();
+    } catch (err: any) {
+      setError(err.message || "Failed to submit rating");
+    }
+  }
+
   const filtered = orders.filter((o) => {
     if (tab === "pending" && o.status !== "PENDING") return false;
     if (tab === "completed" && o.status !== "RECEIVED") return false;
@@ -230,7 +306,7 @@ export default function ProcurementPOTracking() {
               <div className="flex items-center gap-1 bg-surface-container-low p-1.5 rounded-xl">
                 <button
                   onClick={() => setTab("all")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     tab === "all"
                       ? "bg-surface shadow-[0_2px_8px_rgba(27,28,26,0.04)] text-primary"
                       : "text-on-surface-variant hover:text-primary"
@@ -240,7 +316,7 @@ export default function ProcurementPOTracking() {
                 </button>
                 <button
                   onClick={() => setTab("pending")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     tab === "pending"
                       ? "bg-surface shadow-[0_2px_8px_rgba(27,28,26,0.04)] text-primary"
                       : "text-on-surface-variant hover:text-primary"
@@ -250,7 +326,7 @@ export default function ProcurementPOTracking() {
                 </button>
                 <button
                   onClick={() => setTab("completed")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     tab === "completed"
                       ? "bg-surface shadow-[0_2px_8px_rgba(27,28,26,0.04)] text-primary"
                       : "text-on-surface-variant hover:text-primary"
@@ -261,7 +337,7 @@ export default function ProcurementPOTracking() {
               </div>
               <button
                 onClick={() => (showForm ? setShowForm(false) : openForm())}
-                className="bg-primary text-on-primary rounded-xl px-5 py-3 font-medium flex items-center gap-2 hover:opacity-90 transition-opacity"
+                className="bg-primary text-on-primary rounded-xl px-3 py-2 font-medium flex items-center gap-2 hover:opacity-90 transition-opacity text-xs"
               >
                 {showForm ? <X size={18} /> : <Plus size={18} />}
                 {showForm ? "Close" : "New Purchase Order"}
@@ -272,7 +348,7 @@ export default function ProcurementPOTracking() {
           {/* Inline New Order Panel — sits right below the header/button, no modal */}
           {showForm && (
             <div className="max-w-6xl mx-auto mb-10 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/10">
-              <h3 className="font-headline text-xl text-on-surface mb-4">New Purchase Order</h3>
+              <h2 className="font-headline text-xl text-on-surface mb-4">New Purchase Order</h2>
               <form onSubmit={handleCreateOrder} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
@@ -459,34 +535,36 @@ export default function ProcurementPOTracking() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-61.25 table-fixed border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-surface-container-high/50 text-on-surface-variant text-xs uppercase tracking-wider font-medium">
-                    <th className="py-4 px-6 font-body">PO Number</th>
-                    <th className="py-4 px-6 font-body">Supplier</th>
-                    <th className="py-4 px-6 font-body">Date Issued</th>
-                    <th className="py-4 px-6 font-body">Expected</th>
-                    <th className="py-4 px-6 font-body text-right">Amount</th>
-                    <th className="py-4 px-6 font-body">Status</th>
-                    <th className="py-4 px-6 font-body text-right">Action</th>
+                  <tr className="border-b border-surface-container-high/50 text-[10px] uppercase tracking-wider text-on-surface-variant font-medium">
+                    <th className="w-[9%] px-3 py-2.5 font-body">PO Number</th>
+                    <th className="w-[10%] px-3 py-2.5 font-body">Supplier</th>
+                    <th className="w-[27%] px-3 py-2.5 font-body">Purchased Items</th>
+                    <th className="w-[9%] px-3 py-2.5 font-body">Date Issued</th>
+                    <th className="w-[9%] px-3 py-2.5 font-body">Expected</th>
+                    <th className="w-[9%] px-3 py-2.5 text-right font-body">Amount</th>
+                    <th className="w-[9%] px-3 py-2.5 font-body">Status</th>
+                    <th className="w-[9%] px-3 py-2.5 font-body">Rating</th>
+                    <th className="w-[9%] px-3 py-2.5 text-right font-body">Action</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   {loading ? (
                     <tr>
-                      <td colSpan={7} className="py-10 px-6 text-center text-on-surface-variant">
+                      <td colSpan={9} className="px-4 py-10 text-center text-on-surface-variant">
                         Loading purchase orders…
                       </td>
                     </tr>
                   ) : error ? (
                     <tr>
-                      <td colSpan={7} className="py-10 px-6 text-center text-error">
+                      <td colSpan={9} className="px-4 py-10 text-center text-error">
                         {error}
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-10 px-6 text-center text-on-surface-variant">
+                      <td colSpan={9} className="px-4 py-10 text-center text-on-surface-variant">
                         No purchase orders yet.
                       </td>
                     </tr>
@@ -497,12 +575,12 @@ export default function ProcurementPOTracking() {
                       return (
                         <tr
                           key={row.id}
-                          className={`group hover:bg-surface-container-low/50 transition-colors border-b border-surface-container-low last:border-0 ${
+                          className={`group align-top border-b border-surface-container-low last:border-0 transition-colors hover:bg-surface-container-low/50 ${
                             cancelled ? "opacity-70" : ""
                           }`}
                         >
                           <td
-                            className={`py-4 px-6 font-medium ${
+                            className={`px-3 py-2.5 align-top text-xs font-medium ${
                               cancelled
                                 ? "text-on-surface-variant line-through decoration-on-surface-variant/30"
                                 : "text-primary"
@@ -510,36 +588,88 @@ export default function ProcurementPOTracking() {
                           >
                             {row.poNumber}
                           </td>
-                          <td className="py-4 px-6 text-on-surface font-medium">
+                          <td className="px-3 py-2.5 align-top text-sm font-medium text-on-surface wrap-break-word">
                             {row.supplier?.name ?? "—"}
                           </td>
-                          <td className="py-4 px-6 text-on-surface-variant">{formatDate(row.issuedDate)}</td>
-                          <td className="py-4 px-6 text-on-surface-variant">{formatDate(row.expectedDate)}</td>
+                          <td className="px-3 py-2.5 align-top">
+                            <div className="space-y-1.5">
+                              {row.items?.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="rounded-md bg-surface-container-low px-2 py-1.5"
+                                >
+                                  <div className="truncate text-xs font-medium text-on-surface">
+                                    {item.inventoryItem?.name ?? "Unknown Item"}
+                                  </div>
+
+                                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-on-surface-variant">
+                                    <span>
+                                      Qty:{" "}
+                                      <strong className="text-on-surface">
+                                        {item.quantity} {item.inventoryItem?.unit ?? ""}
+                                      </strong>
+                                    </span>
+
+                                    <span>•</span>
+
+                                    <span>
+                                      Unit:{" "}
+                                      <strong className="text-on-surface">
+                                        {formatCurrency(Number(item.unitPrice))}
+                                      </strong>
+                                    </span>
+
+                                    <span>•</span>
+
+                                    <span>
+                                      Total:{" "}
+                                      <strong className="text-on-surface">
+                                        {formatCurrency(
+                                          Number(item.quantity) * Number(item.unitPrice)
+                                        )}
+                                      </strong>
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5 align-top text-xs whitespace-nowrap text-on-surface-variant">
+                            {formatDate(row.issuedDate)}
+                          </td>
+                          <td className="px-3 py-2.5 align-top text-xs whitespace-nowrap text-on-surface-variant">
+                            {formatDate(row.expectedDate)}
+                          </td>
                           <td
-                            className={`py-4 px-6 font-headline text-base text-right ${
+                            className={`px-3 py-2.5 align-top text-right text-sm font-headline whitespace-nowrap ${
                               cancelled ? "text-on-surface-variant" : "text-on-surface"
                             }`}
                           >
                             {formatCurrency(Number(row.totalAmount))}
                           </td>
-                          <td className="py-4 px-6">
-                            <StatusBadge status={row.status} />
+                          <td className="px-3 py-2.5 align-top">
+                            <div className="origin-left scale-90">
+                              <StatusBadge status={row.status} />
+                            </div>
                           </td>
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex items-center justify-end gap-2">
+                          <td className="px-3 py-2.5 align-top">
+                            <RatingCell row={row} onRate={handleRateOrder} />
+                          </td>
+                          <td className="px-3 py-2.5 align-top text-right">
+                            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
                               {row.status === "PENDING" && (
                                 <>
                                   <button
                                     disabled={busy}
                                     onClick={() => handleStatusChange(row.id, "SHIPPED")}
-                                    className="text-primary hover:underline text-xs font-semibold disabled:opacity-50"
+                                    className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
                                   >
                                     Mark Shipped
                                   </button>
                                   <button
                                     disabled={busy}
                                     onClick={() => handleStatusChange(row.id, "CANCELLED")}
-                                    className="text-error hover:underline text-xs font-semibold disabled:opacity-50"
+                                    className="text-xs font-semibold text-error hover:underline disabled:opacity-50"
                                   >
                                     Cancel
                                   </button>
@@ -550,21 +680,21 @@ export default function ProcurementPOTracking() {
                                   <button
                                     disabled={busy}
                                     onClick={() => handleStatusChange(row.id, "RECEIVED")}
-                                    className="text-primary hover:underline text-xs font-semibold disabled:opacity-50"
+                                    className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
                                   >
                                     Mark Received
                                   </button>
                                   <button
                                     disabled={busy}
                                     onClick={() => handleStatusChange(row.id, "CANCELLED")}
-                                    className="text-error hover:underline text-xs font-semibold disabled:opacity-50"
+                                    className="text-xs font-semibold text-error hover:underline disabled:opacity-50"
                                   >
                                     Cancel
                                   </button>
                                 </>
                               )}
                               {(row.status === "RECEIVED" || row.status === "CANCELLED") && (
-                                <span className="text-on-surface-variant text-xs">—</span>
+                                <span className="text-xs text-on-surface-variant">—</span>
                               )}
                             </div>
                           </td>
