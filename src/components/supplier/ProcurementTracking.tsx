@@ -130,6 +130,170 @@ function RatingCell({ row, onRate }: { row: PurchaseOrder; onRate: (id: string, 
   );
 }
 
+type ReceiveItemState = {
+  purchaseOrderItemId: string;
+  name: string;
+  unit: string;
+  orderedQuantity: number;
+  orderedPrice: number;
+  quantity: string;
+  unitPrice: string;
+};
+
+function ReceiveOrderModal({
+  order,
+  onClose,
+  onReceived,
+}: {
+  order: PurchaseOrder;
+  onClose: () => void;
+  onReceived: () => Promise<void>;
+}) {
+  const [receivedEverything, setReceivedEverything] = useState(true);
+  const [rows, setRows] = useState<ReceiveItemState[]>(() =>
+    order.items.map((it) => ({
+      purchaseOrderItemId: it.id,
+      name: it.inventoryItem?.name ?? "Item",
+      unit: it.inventoryItem?.unit ?? "",
+      orderedQuantity: Number(it.quantity),
+      orderedPrice: Number(it.unitPrice),
+      quantity: it.quantity,
+      unitPrice: it.unitPrice,
+    }))
+  );
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function updateRow(i: number, patch: Partial<ReceiveItemState>) {
+    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  }
+
+  async function handleSubmit() {
+    setError(null);
+    setSubmitting(true);
+    try {
+      if (receivedEverything) {
+        await updatePurchaseOrderStatus(order.id, { status: "RECEIVED", receivedEverything: true });
+      } else {
+        await updatePurchaseOrderStatus(order.id, {
+          status: "RECEIVED",
+          items: rows.map((r) => ({
+            purchaseOrderItemId: r.purchaseOrderItemId,
+            receivedQuantity: Number(r.quantity) || 0,
+            receivedUnitPrice: Number(r.unitPrice) || 0,
+          })),
+        });
+      }
+      await onReceived();
+      onClose();
+    } catch (err: any) {
+      setError(err.message || "Failed to receive order");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg bg-surface rounded-xl shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10 sticky top-0 bg-surface">
+          <h3 className="font-headline text-lg text-on-surface">Receive {order.poNumber}</h3>
+          <button
+            onClick={onClose}
+            className="text-on-surface-variant hover:text-primary transition-colors"
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="px-5 py-4 space-y-4 text-sm">
+          <label className="flex items-center gap-2 bg-surface-container-low rounded-lg px-3 py-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={receivedEverything}
+              onChange={(e) => setReceivedEverything(e.target.checked)}
+              className="accent-primary"
+            />
+            <span className="text-sm font-medium text-on-surface">Received everything as ordered</span>
+          </label>
+
+          {!receivedEverything && (
+            <div className="space-y-3">
+              {rows.map((row, i) => {
+                const shortQty = row.orderedQuantity - (Number(row.quantity) || 0);
+                return (
+                  <div key={row.purchaseOrderItemId} className="bg-surface-container-low rounded-lg p-3">
+                    <p className="text-xs font-medium text-on-surface mb-2">
+                      {row.name}{" "}
+                      <span className="text-on-surface-variant font-normal">
+                        (ordered {row.orderedQuantity} {row.unit} @ ${row.orderedPrice.toFixed(2)})
+                      </span>
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <label className="text-[10px] text-on-surface-variant uppercase tracking-wide">
+                          Received qty
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.1}
+                          value={row.quantity}
+                          onChange={(e) => updateRow(i, { quantity: e.target.value })}
+                          className="mt-0.5 w-full bg-surface rounded-lg px-2.5 py-1.5 text-sm border border-outline-variant/20 focus:border-primary/30 focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-[10px] text-on-surface-variant uppercase tracking-wide">
+                          Unit price
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.01}
+                          value={row.unitPrice}
+                          onChange={(e) => updateRow(i, { unitPrice: e.target.value })}
+                          className="mt-0.5 w-full bg-surface rounded-lg px-2.5 py-1.5 text-sm border border-outline-variant/20 focus:border-primary/30 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                    {shortQty > 0 && (
+                      <p className="mt-1.5 text-[11px] text-tertiary flex items-center gap-1">
+                        <AlertTriangle size={11} /> Shortage of {shortQty.toFixed(2)} {row.unit}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {error && <p className="text-error text-xs">{error}</p>}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg text-xs font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="px-5 py-2 rounded-lg text-xs font-semibold bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {submitting ? "Saving…" : "Mark Received"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type ItemRow = { inventoryItemId: string; quantity: string; unitPrice: string };
 const EMPTY_ROW: ItemRow = { inventoryItemId: "", quantity: "1", unitPrice: "" };
 
@@ -140,6 +304,7 @@ export default function ProcurementPOTracking() {
   const [tab, setTab] = useState<Tab>("all");
   const [search, setSearch] = useState("");
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [receivingOrder, setReceivingOrder] = useState<PurchaseOrder | null>(null);
 
   // New order inline panel
   const [showForm, setShowForm] = useState(false);
@@ -152,16 +317,14 @@ export default function ProcurementPOTracking() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const loadOrders = async() => {
+  const loadOrders = async () => {
     setLoading(true);
     setError(null);
     return getPurchaseOrders()
       .then((res) => setOrders(res.data))
       .catch((err) => setError(err.message || "Failed to load purchase orders"))
       .finally(() => setLoading(false));
-  }
-
-  // console.log(orders)
+  };
 
   useEffect(() => {
     loadOrders();
@@ -208,8 +371,7 @@ export default function ProcurementPOTracking() {
   }
 
   const formTotal = useMemo(
-    () =>
-      rows.reduce((sum, r) => sum + (Number(r.quantity) || 0) * (Number(r.unitPrice) || 0), 0),
+    () => rows.reduce((sum, r) => sum + (Number(r.quantity) || 0) * (Number(r.unitPrice) || 0), 0),
     [rows]
   );
 
@@ -244,10 +406,10 @@ export default function ProcurementPOTracking() {
     }
   }
 
-  async function handleStatusChange(id: string, status: PurchaseOrderStatus) {
+  async function handleStatusChange(id: string, status: "SHIPPED" | "CANCELLED") {
     setActionLoadingId(id);
     try {
-      await updatePurchaseOrderStatus(id, status);
+      await updatePurchaseOrderStatus(id, { status });
       await loadOrders();
     } catch (err: any) {
       setError(err.message || "Failed to update order status");
@@ -345,7 +507,7 @@ export default function ProcurementPOTracking() {
             </div>
           </div>
 
-          {/* Inline New Order Panel — sits right below the header/button, no modal */}
+          {/* Inline New Order Panel */}
           {showForm && (
             <div className="max-w-6xl mx-auto mb-10 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/10">
               <h2 className="font-headline text-xl text-on-surface mb-4">New Purchase Order</h2>
@@ -476,7 +638,7 @@ export default function ProcurementPOTracking() {
             </div>
           )}
 
-          {/* Dashboard Overview Cards — all computed from real fetched orders */}
+          {/* Dashboard Overview Cards */}
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group hover:bg-surface-container-low transition-colors duration-300">
               <Truck
@@ -520,10 +682,7 @@ export default function ProcurementPOTracking() {
             <div className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="font-headline text-2xl text-on-surface">Orders</h2>
               <div className="relative w-full sm:w-auto">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50"
-                  size={18}
-                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" size={18} />
                 <input
                   type="text"
                   value={search}
@@ -534,37 +693,38 @@ export default function ProcurementPOTracking() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-61.25 table-fixed border-collapse text-left">
+            <div className="w-full overflow-x-auto overscroll-x-contain">
+              <table className="w-full min-w-300 table-fixed border-collapse text-left">
                 <thead>
                   <tr className="border-b border-surface-container-high/50 text-[10px] uppercase tracking-wider text-on-surface-variant font-medium">
-                    <th className="w-[9%] px-3 py-2.5 font-body">PO Number</th>
-                    <th className="w-[10%] px-3 py-2.5 font-body">Supplier</th>
-                    <th className="w-[27%] px-3 py-2.5 font-body">Purchased Items</th>
-                    <th className="w-[9%] px-3 py-2.5 font-body">Date Issued</th>
-                    <th className="w-[9%] px-3 py-2.5 font-body">Expected</th>
-                    <th className="w-[9%] px-3 py-2.5 text-right font-body">Amount</th>
-                    <th className="w-[9%] px-3 py-2.5 font-body">Status</th>
-                    <th className="w-[9%] px-3 py-2.5 font-body">Rating</th>
-                    <th className="w-[9%] px-3 py-2.5 text-right font-body">Action</th>
+                    <th className="w-[8%] px-3 py-2.5 font-body">PO Number</th>
+                    <th className="w-[9%] px-3 py-2.5 font-body">Supplier</th>
+                    <th className="w-[20%] px-3 py-2.5 font-body">Purchased Items</th>
+                    <th className="w-[20%] px-3 py-2.5 font-body">Received Item</th>
+                    <th className="w-[8%] px-3 py-2.5 font-body">Date Issued</th>
+                    <th className="w-[8%] px-3 py-2.5 font-body">Expected</th>
+                    <th className="w-[8%] px-3 py-2.5 text-right font-body">Amount</th>
+                    <th className="w-[7%] px-3 py-2.5 font-body">Status</th>
+                    <th className="w-[6%] px-3 py-2.5 font-body">Rating</th>
+                    <th className="w-[6%] px-3 py-2.5 text-right font-body">Action</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   {loading ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-10 text-center text-on-surface-variant">
+                      <td colSpan={10} className="px-4 py-10 text-center text-on-surface-variant">
                         Loading purchase orders…
                       </td>
                     </tr>
                   ) : error ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-10 text-center text-error">
+                      <td colSpan={10} className="px-4 py-10 text-center text-error">
                         {error}
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-10 text-center text-on-surface-variant">
+                      <td colSpan={10} className="px-4 py-10 text-center text-on-surface-variant">
                         No purchase orders yet.
                       </td>
                     </tr>
@@ -572,6 +732,7 @@ export default function ProcurementPOTracking() {
                     filtered.map((row) => {
                       const cancelled = row.status === "CANCELLED";
                       const busy = actionLoadingId === row.id;
+                      const shortAmount = Number(row.totalAmount) !== Number(row.purchaseAmount);
                       return (
                         <tr
                           key={row.id}
@@ -594,10 +755,7 @@ export default function ProcurementPOTracking() {
                           <td className="px-3 py-2.5 align-top">
                             <div className="space-y-1.5">
                               {row.items?.map((item) => (
-                                <div
-                                  key={item.id}
-                                  className="rounded-md bg-surface-container-low px-2 py-1.5"
-                                >
+                                <div key={item.id} className="rounded-md bg-surface-container-low px-2 py-1.5">
                                   <div className="truncate text-xs font-medium text-on-surface">
                                     {item.inventoryItem?.name ?? "Unknown Item"}
                                   </div>
@@ -609,30 +767,75 @@ export default function ProcurementPOTracking() {
                                         {item.quantity} {item.inventoryItem?.unit ?? ""}
                                       </strong>
                                     </span>
-
                                     <span>•</span>
-
                                     <span>
                                       Unit:{" "}
                                       <strong className="text-on-surface">
                                         {formatCurrency(Number(item.unitPrice))}
                                       </strong>
                                     </span>
-
                                     <span>•</span>
-
                                     <span>
                                       Total:{" "}
                                       <strong className="text-on-surface">
-                                        {formatCurrency(
-                                          Number(item.quantity) * Number(item.unitPrice)
-                                        )}
+                                        {formatCurrency(Number(item.quantity) * Number(item.unitPrice))}
                                       </strong>
                                     </span>
                                   </div>
                                 </div>
                               ))}
                             </div>
+                          </td>
+                          <td className="px-3 py-2.5 align-top">
+                            {row.status !== "RECEIVED" ? (
+                              <span className="text-on-surface-variant text-xs">—</span>
+                            ) : (
+                              <div className="space-y-1.5">
+                                {row.items?.map((item) => {
+                                  const qtyMismatch =
+                                    item.receivedQuantity !== null &&
+                                    Number(item.receivedQuantity) !== Number(item.quantity);
+                                  const priceMismatch =
+                                    item.receivedUnitPrice !== null &&
+                                    Number(item.receivedUnitPrice) !== Number(item.unitPrice);
+                                  return (
+                                    <div key={item.id} className="rounded-md bg-surface-container-low px-2 py-1.5">
+                                      <div className="truncate text-xs font-medium text-on-surface">
+                                        {item.inventoryItem?.name ?? "Unknown Item"}
+                                      </div>
+                                      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px]">
+                                        <span className={qtyMismatch ? "text-tertiary font-medium" : "text-on-surface-variant"}>
+                                          Qty:{" "}
+                                          <strong>
+                                            {item.receivedQuantity ?? "—"} {item.inventoryItem?.unit ?? ""}
+                                          </strong>
+                                        </span>
+                                        <span className="text-on-surface-variant">•</span>
+                                        <span className={priceMismatch ? "text-tertiary font-medium" : "text-on-surface-variant"}>
+                                          Unit:{" "}
+                                          <strong>
+                                            {item.receivedUnitPrice !== null
+                                              ? formatCurrency(Number(item.receivedUnitPrice))
+                                              : "—"}
+                                          </strong>
+                                        </span>
+                                        <span className="text-on-surface-variant">•</span>
+                                        <span className="text-on-surface-variant">
+                                          Total:{" "}
+                                          <strong className="text-on-surface">
+                                            {item.receivedQuantity !== null && item.receivedUnitPrice !== null
+                                              ? formatCurrency(
+                                                  Number(item.receivedQuantity) * Number(item.receivedUnitPrice)
+                                                )
+                                              : "—"}
+                                          </strong>
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </td>
                           <td className="px-3 py-2.5 align-top text-xs whitespace-nowrap text-on-surface-variant">
                             {formatDate(row.issuedDate)}
@@ -646,6 +849,11 @@ export default function ProcurementPOTracking() {
                             }`}
                           >
                             {formatCurrency(Number(row.totalAmount))}
+                            {shortAmount && (
+                              <p className="text-[10px] font-body text-on-surface-variant font-normal">
+                                Ordered: {formatCurrency(Number(row.purchaseAmount))}
+                              </p>
+                            )}
                           </td>
                           <td className="px-3 py-2.5 align-top">
                             <div className="origin-left scale-90">
@@ -679,7 +887,7 @@ export default function ProcurementPOTracking() {
                                 <>
                                   <button
                                     disabled={busy}
-                                    onClick={() => handleStatusChange(row.id, "RECEIVED")}
+                                    onClick={() => setReceivingOrder(row)}
                                     className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
                                   >
                                     Mark Received
@@ -715,6 +923,14 @@ export default function ProcurementPOTracking() {
           </div>
         </div>
       </main>
+
+      {receivingOrder && (
+        <ReceiveOrderModal
+          order={receivingOrder}
+          onClose={() => setReceivingOrder(null)}
+          onReceived={loadOrders}
+        />
+      )}
     </div>
   );
 }

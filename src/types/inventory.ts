@@ -56,6 +56,8 @@ export type PurchaseOrderItem = {
   inventoryItem?: InventoryItem;
   quantity: string;
   unitPrice: string;
+  receivedQuantity: string | null;
+  receivedUnitPrice: string | null;
 };
 
 export type PurchaseOrder = {
@@ -66,11 +68,13 @@ export type PurchaseOrder = {
   status: PurchaseOrderStatus;
   issuedDate: string;
   expectedDate: string | null;
+  deliveredDate: string | null;
   totalAmount: string;
   rating: number | null;
   items: PurchaseOrderItem[];
   createdAt: string;
   updatedAt: string;
+  purchaseAmount: number | null;
 };
 
 // Result shape of GET /suppliers/directory — aggregated from real PurchaseOrder data.
@@ -156,6 +160,15 @@ export type CreateSupplierContactInput = {
   businessHours?: string;
 };
 
+export type ShortageRecord = {
+  poNumber: string;
+  itemName: string;
+  unit: string;
+  orderedQuantity: number;
+  receivedQuantity: number;
+  shortageQuantity: number;
+  deliveredDate: string | null;
+};
 
 export type SupplierDetail = Supplier & {
   totalSpend: number;
@@ -163,8 +176,10 @@ export type SupplierDetail = Supplier & {
   fulfillmentRate: number | null; // null = not enough order history yet
   totalOrders: number;
   receivedOrderCount: number;
-  qualityScore: number | null; 
+  qualityScore: number | null;
   ratedOrderCount: number;
   onTimeDeliveryRate: number | null;   // % on-time over the last 2 months, null if no trackable orders
   onTimeTrackedCount: number;
+  shortageCount: number;               // count of received line items where receivedQuantity < ordered quantity, YTD
+  shortages: ShortageRecord[];         // the underlying records for shortageCount, most recent first
 };

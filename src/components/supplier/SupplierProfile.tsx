@@ -11,6 +11,7 @@ import {
   Loader2,
   PackageX,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { getSupplier, getInventory, getPurchaseOrders } from "../../api/inventory";
 import type { InventoryItem, PurchaseOrder, SupplierDetail } from "../../types/inventory";
@@ -62,11 +63,12 @@ function buildVolumeTrend(orders: PurchaseOrder[]) {
     .slice(-8);
 
   const max = Math.max(1, ...sorted.map(([, v]) => v));
-  return sorted.map(([key, value]) => {
+  const bucketsWithLabels = sorted.map(([key, value]) => {
     const [year, month] = key.split("-").map(Number);
     const label = new Date(year, month, 1).toLocaleDateString("en-US", { month: "short" });
     return { label, value, height: Math.round((value / max) * 100) };
   });
+  return { buckets: bucketsWithLabels, max };
 }
 
 export default function SupplierProfile() {
@@ -180,9 +182,6 @@ export default function SupplierProfile() {
                     >
                       Contact Supplier
                     </a>
-                    <button className="px-6 py-3 bg-primary text-on-primary rounded-xl font-body font-medium hover:opacity-90 transition-opacity">
-                      New Order
-                    </button>
                   </div>
                 </div>
               </div>
@@ -264,27 +263,42 @@ export default function SupplierProfile() {
                       Volume Trend (Monthly)
                     </h3>
                   </div>
-                  {volumeTrend.length === 0 ? (
+                  {volumeTrend.buckets.length === 0 ? (
                     <p className="font-body text-sm text-outline py-8 text-center">
                       No received orders yet to chart.
                     </p>
                   ) : (
-                    <div className="h-32 w-full bg-surface-container-low rounded-lg relative overflow-hidden flex items-end px-4 gap-2">
-                      {volumeTrend.map((bucket, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group relative">
-                          <div
-                            className={`w-full rounded-t-sm transition-colors ${
-                              i === volumeTrend.length - 1
-                                ? "bg-primary-container"
-                                : "bg-primary-container/40 hover:bg-primary-container"
-                            }`}
-                            style={{ height: `${bucket.height}%` }}
-                          />
-                          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                            {currency(bucket.value)}
-                          </div>
+                    <div className="grid grid-cols-[3.5rem_1fr] gap-3">
+                      <div className="h-40 flex flex-col justify-between text-right font-body text-[11px] text-on-surface-variant">
+                        <span>{currency(volumeTrend.max)}</span>
+                        <span>{currency(volumeTrend.max / 2)}</span>
+                        <span>$0</span>
+                      </div>
+                      <div className="relative h-40 bg-surface-container-low rounded-lg overflow-hidden">
+                        <div className="absolute inset-x-0 top-0 border-t border-surface-container-high" />
+                        <div className="absolute inset-x-0 top-1/2 border-t border-surface-container-high" />
+                        <div className="absolute inset-x-0 bottom-0 border-t border-surface-container-high" />
+                        <div className="absolute inset-0 flex items-end px-4 pt-3 pb-6 gap-2">
+                          {volumeTrend.buckets.map((bucket, i) => (
+                            <div key={`${bucket.label}-${i}`} className="flex-1 h-full flex items-end group relative">
+                              <div
+                                className={`w-full rounded-t-sm transition-colors ${
+                                  i === volumeTrend.buckets.length - 1
+                                    ? "bg-primary-container"
+                                    : "bg-primary-container/40 hover:bg-primary-container"
+                                }`}
+                                style={{ height: `${bucket.height}%` }}
+                              />
+                              <span className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-5 font-body text-[11px] text-on-surface-variant">
+                                {bucket.label}
+                              </span>
+                              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                {currency(bucket.value)}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -462,6 +476,61 @@ export default function SupplierProfile() {
                     );
                   })}
                 </div>
+              )}
+            </section>
+
+            {/* Shortage Report */}
+            <section className="bg-surface-container-lowest rounded-xl p-8 ambient-shadow ghost-border">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-headline text-2xl text-on-surface">Shortage Report</h2>
+                <span className="font-body text-xs text-on-surface-variant uppercase tracking-wide">
+                  Year to date
+                </span>
+              </div>
+
+              {(supplier.shortageCount ?? 0) === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+                  <AlertTriangle className="text-outline" size={24} />
+                  <p className="font-body text-sm text-on-surface-variant">
+                    Zero shortages reported YTD.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="font-body text-sm text-on-surface-variant mb-5">
+                    {supplier.shortageCount} shortage{supplier.shortageCount === 1 ? "" : "s"} reported this year.
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-sm">
+                      <thead>
+                        <tr className="border-b border-surface-container-high text-on-surface-variant text-[11px] uppercase tracking-wider">
+                          <th className="py-2 pr-4 font-body font-medium">Item</th>
+                          <th className="py-2 pr-4 font-body font-medium">Order</th>
+                          <th className="py-2 pr-4 font-body font-medium text-right">Ordered</th>
+                          <th className="py-2 pr-4 font-body font-medium text-right">Received</th>
+                          <th className="py-2 pr-0 font-body font-medium text-right">Shortage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(supplier.shortages ?? []).map((s, i) => (
+                          <tr key={i} className="border-b border-surface-container-high/50 last:border-0">
+                            <td className="py-2.5 pr-4 font-body text-on-surface">{s.itemName}</td>
+                            <td className="py-2.5 pr-4 font-body text-primary font-medium">{s.poNumber}</td>
+                            <td className="py-2.5 pr-4 font-body text-right text-on-surface-variant">
+                              {s.orderedQuantity} {s.unit}
+                            </td>
+                            <td className="py-2.5 pr-4 font-body text-right text-on-surface-variant">
+                              {s.receivedQuantity} {s.unit}
+                            </td>
+                            <td className="py-2.5 pr-0 font-body text-right text-error font-semibold">
+                              -{s.shortageQuantity} {s.unit}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </section>
           </div>

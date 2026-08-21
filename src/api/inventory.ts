@@ -139,10 +139,16 @@ export function createPurchaseOrder(input: {
   });
 }
 
-export function updatePurchaseOrderStatus(id: string, status: PurchaseOrder["status"]) {
+export function updatePurchaseOrderStatus(
+  id: string,
+  payload:
+    | { status: "SHIPPED" | "CANCELLED" }
+    | { status: "RECEIVED"; receivedEverything: true }
+    | { status: "RECEIVED"; items: { purchaseOrderItemId: string; receivedQuantity: number; receivedUnitPrice: number }[] }
+) {
   return request<ApiItemResponse<PurchaseOrder>>(`/purchase-orders/${id}/status`, {
     method: "PATCH",
-    body: JSON.stringify({ status }),
+    body: JSON.stringify(payload),
   });
 }
 
