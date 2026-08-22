@@ -32,7 +32,7 @@ export default function AddEmployeeModal({
       hourlyRate: "",
       scheduleStartTime: "",
       scheduleEndTime: "",
-      scheduleLabel: "",
+      scheduleLabel: "Unassign Shift",
     },
   });
 
@@ -223,11 +223,14 @@ export default function AddEmployeeModal({
 
               {/* Schedule */}
               <div>
-                <input
+                <select
                   {...register("scheduleLabel")}
-                  className={INPUT_CLS + " py-2 text-sm"}
-                  placeholder="Schedule Label (optional)"
-                />
+                  className={INPUT_CLS + " py-2 text-sm appearance-none pr-8"}
+                >
+                  <option value="Morning Shift">Morning Shift</option>
+                  <option value="Night Shift">Night Shift</option>
+                  <option value="Unassign Shift">Unassign Shift</option>
+                </select>
               </div>
               <div>
                 <input

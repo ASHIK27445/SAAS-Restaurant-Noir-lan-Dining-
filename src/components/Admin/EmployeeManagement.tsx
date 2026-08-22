@@ -110,6 +110,12 @@ const EmployeeCard = React.memo(function EmployeeCard({
           </span>
         </div>
         <p className="text-xs text-secondary italic">{emp.title} • {emp.department}</p>
+        <p className="text-[10px] text-on-surface-variant mt-1">
+          {emp.scheduleLabel || "Unassign Shift"}
+          {emp.scheduleStartTime && emp.scheduleEndTime
+            ? ` • ${emp.scheduleStartTime}–${emp.scheduleEndTime}`
+            : " • Time not set"}
+        </p>
       </div>
 
       <div className="space-y-1.5 py-3 border-t border-outline-variant/15">
