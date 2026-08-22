@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Calendar, Check, DollarSign } from "lucide-react";
-import { getAttendance, checkIn, checkOut, toggleOpenShiftAttendance, setBonus } from "../../api/employee";
+import { Calendar, Check, DollarSign, Pencil } from "lucide-react";
+import { getAttendance, checkIn, checkOut, toggleOpenShiftAttendance, setBonus, updateAttendanceTimes } from "../../api/employee";
 import type { AttendanceRow } from "../../types/employee";
 
 function todayStr() {
@@ -8,6 +8,49 @@ function todayStr() {
 }
 function formatTime(iso: string | null) {
   return iso ? new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "—";
+}
+
+function inputTime(iso: string) {
+  const date = new Date(iso);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function TimeCell({ row, date, field, onSaved }: { row: AttendanceRow; date: string; field: "checkIn" | "checkOut"; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const currentValue = row[field];
+  const otherValue = row[field === "checkIn" ? "checkOut" : "checkIn"];
+  const [value, setValue] = useState(currentValue ? inputTime(currentValue) : "");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (!value || !otherValue) return;
+    setSaving(true);
+    try {
+      await updateAttendanceTimes(row.staffId, date, {
+        checkIn: field === "checkIn" ? value : inputTime(otherValue),
+        checkOut: field === "checkOut" ? value : inputTime(otherValue),
+      });
+      onSaved();
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!editing) {
+    return (
+      <button disabled={!currentValue} onClick={() => setEditing(true)} className="inline-flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary disabled:cursor-default disabled:hover:text-on-surface-variant">
+        {formatTime(currentValue)} {currentValue && <Pencil size={10} />}
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <input autoFocus type="time" value={value} onChange={(e) => setValue(e.target.value)} className="w-22 bg-surface-container-low rounded px-1 py-0.5 text-xs" />
+      <button onClick={save} disabled={saving} className="text-primary text-xs font-semibold">{saving ? "…" : "✓"}</button>
+    </div>
+  );
 }
 
 function BonusCell({ row, date, onSaved }: { row: AttendanceRow; date: string; onSaved: () => void }) {
@@ -135,14 +178,14 @@ export default function DailyAttendance() {
                       </td>
                       <td className="py-2.5 pr-3 text-center">
                         {row.checkIn ? (
-                          <span className="text-xs text-on-surface-variant">{formatTime(row.checkIn)}</span>
+                          <TimeCell key={`${row.staffId}-start-${row.checkIn}`} row={row} date={date} field="checkIn" onSaved={load} />
                         ) : (
                           <button disabled={busy} onClick={() => handleCheckIn(row.staffId)} className="w-5 h-5 rounded border border-outline-variant/40 hover:border-primary hover:bg-primary/10 transition-colors inline-flex items-center justify-center disabled:opacity-40" title="Mark attendance start" />
                         )}
                       </td>
                       <td className="py-2.5 pr-3 text-center">
                         {row.checkOut ? (
-                          <span className="text-xs text-on-surface-variant">{formatTime(row.checkOut)}</span>
+                          <TimeCell key={`${row.staffId}-end-${row.checkOut}`} row={row} date={date} field="checkOut" onSaved={load} />
                         ) : row.checkIn ? (
                           <button disabled={busy} onClick={() => handleCheckOut(row.staffId)} className="w-5 h-5 rounded border border-outline-variant/40 hover:border-primary hover:bg-primary/10 transition-colors inline-flex items-center justify-center disabled:opacity-40" title="Mark attendance end" />
                         ) : (

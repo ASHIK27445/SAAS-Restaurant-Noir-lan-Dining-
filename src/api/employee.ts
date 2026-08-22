@@ -74,6 +74,12 @@ export function checkIn(staffId: string, date: string) {
 export function checkOut(staffId: string, date: string) {
   return request<ApiItemResponse<AttendanceRow>>("/employees/attendance/check-out", { method: "POST", body: JSON.stringify({ staffId, date }) });
 }
+export function updateAttendanceTimes(staffId: string, date: string, input: { checkIn: string; checkOut: string }) {
+  return request<ApiItemResponse<AttendanceRow>>("/employees/attendance/times", {
+    method: "PATCH",
+    body: JSON.stringify({ staffId, date, ...input }),
+  });
+}
 export function toggleOpenShiftAttendance(input: { staffId: string; date: string; attended: boolean; openShiftAssignmentId: string }) {
   return request<ApiItemResponse<AttendanceRow>>("/employees/attendance/open-shift-toggle", { method: "POST", body: JSON.stringify(input) });
 }

@@ -1,4 +1,4 @@
-import { Calendar1, CirclePlus, EllipsisVertical, HeartPlus, Mail, Phone, Plus, Search, SquarePen, DollarSign, LogIn, LogOut } from "lucide-react";
+import { CirclePlus, EllipsisVertical,  Mail, Phone, Plus, Search, SquarePen, DollarSign, LogIn, LogOut } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import AddEmployeeModal from "./AddEmployeeModal";
 import EditEmployeeModal from "./EditEmployeeModal";
