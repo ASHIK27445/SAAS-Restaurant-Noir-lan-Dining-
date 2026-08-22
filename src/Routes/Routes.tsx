@@ -40,6 +40,8 @@ import SupplierCatalogManagement from "../components/supplier/SupplierCatelogMan
 import ProcurementPOTracking from "../components/supplier/ProcurementTracking";
 import SupplierLayout from "../components/supplier/SupplierLayout";
 import InventorySuppliers from "../components/supplier/InventorySuppliers";
+import WageReport from "../components/Admin/WageReport";
+import DailyAttendance from "../components/Admin/DailyAttendence";
 
 export const router = createBrowserRouter([
     {
@@ -112,6 +114,14 @@ export const router = createBrowserRouter([
     {
         path: 'invoice-history',
         Component: InvoiceHistory
+    },
+    {
+        path: 'wage-report',
+        Component: WageReport
+    },
+    {
+        path: 'attendence',
+        Component: DailyAttendance
     }
   ]
 },

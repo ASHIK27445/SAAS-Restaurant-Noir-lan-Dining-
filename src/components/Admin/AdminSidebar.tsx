@@ -9,6 +9,8 @@ import {
   Settings,
   HelpCircle,
   AlarmClockCheck,
+  LineChart,
+  ListCheck,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -33,6 +35,11 @@ const NAV_ITEMS = [
     to: "/admin/employee",
   },
   {
+    icon: ListCheck,
+    label: "Daily Attendence",
+    to: "/admin/attendence",
+  },
+  {
     icon: AlarmClockCheck,
     label: "Staff Schedule",
     to: "/admin/staff-schedule",
@@ -41,6 +48,11 @@ const NAV_ITEMS = [
     icon: AlarmClockCheck,
     label: "Staff View Schedule",
     to: "/admin/staff-view-schedule",
+  },
+  {
+    icon: LineChart,
+    label: "Wage Report",
+    to: "/admin/wage-report",
   },
   {
     icon: BarChart3,

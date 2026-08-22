@@ -2,16 +2,26 @@ import { X, Camera } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { employeeSchema } from "../../Schemas/employee.schema";
+import { editEmployeeSchema } from "../../Schemas/employee.schema";
+import { updateStaff, updateStaffRate } from "../../api/employee";
+import type { EmployeeListItem } from "../../types/employee";
 
 const INPUT_CLS =
   "w-full bg-surface-container-low border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary/20 text-on-surface placeholder:text-outline/60 font-body transition-all outline-none";
 
-export default function AddEmployeeModal({
+interface EditEmployeeModalProps {
+  showModal: boolean;
+  setShowModal: (show: boolean) => void;
+  employee: EmployeeListItem | null;
+  onSuccess: () => void;
+}
+
+export default function EditEmployeeModal({
   showModal,
   setShowModal,
+  employee,
   onSuccess,
-}: any) {
+}: EditEmployeeModalProps) {
   const {
     register,
     handleSubmit,
@@ -20,8 +30,9 @@ export default function AddEmployeeModal({
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(employeeSchema),
+    resolver: zodResolver(editEmployeeSchema),
     defaultValues: {
+      id: "",
       name: "",
       email: "",
       role: undefined,
@@ -40,12 +51,25 @@ export default function AddEmployeeModal({
   const imageUrl = watch("image");
   const avatarPreview = imageUrl;
 
-  // Reset form when modal closes
+  // Populate form when employee changes
   useEffect(() => {
-    if (!showModal) {
-      reset();
+    if (showModal && employee) {
+      reset({
+        id: employee.id,
+        name: employee.name,
+        email: employee.email,
+        role: employee.role,
+        title: employee.title,
+        phone: employee.phone,
+        systemAccess: employee.systemAccess,
+        image: employee.img,
+        hourlyRate: employee.hourlyRate ?? "",
+        scheduleStartTime: employee.scheduleStartTime ?? "",
+        scheduleEndTime: employee.scheduleEndTime ?? "",
+        scheduleLabel: employee.scheduleLabel ?? "",
+      });
     }
-  }, [showModal, reset]);
+  }, [showModal, employee, reset]);
 
   const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,35 +80,40 @@ export default function AddEmployeeModal({
   };
 
   const onSubmit = async (data: any) => {
+    if (!employee) return;
     try {
-      const response = await fetch("http://localhost:3000/employees/staff/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          hourlyRate: data.hourlyRate ? Number(data.hourlyRate) : undefined,
-        }),
+      const response = await updateStaff(employee.id, {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        title: data.title,
+        phone: data.phone,
+        image: data.image,
+        systemAccess: data.systemAccess,
+        scheduleStartTime: data.scheduleStartTime,
+        scheduleEndTime: data.scheduleEndTime,
+        scheduleLabel: data.scheduleLabel,
       });
 
-        if (response.ok) {
-          const newEmployee = await response.json();
-          onSuccess?.(newEmployee);
-          console.log(newEmployee, onSuccess?.(newEmployee))
-          alert(newEmployee.message)
-          // setShowModal(false);
-          // reset();
-        } else {
-          const error = await response.json();
-          console.error("Validation error:", error);
-        }
-      } catch (error) {
-        console.error("Error creating employee:", error);
+      if (data.hourlyRate !== "" && Number(data.hourlyRate) !== Number(employee.hourlyRate ?? 0)) {
+        await updateStaffRate(employee.id, Number(data.hourlyRate));
       }
-    };
+
+      if (response.success) {
+        alert("Staff updated successfully");
+        onSuccess?.();
+        setShowModal(false);
+        reset();
+      }
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      alert("Failed to update employee");
+    }
+  };
 
   const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin"];
 
-  if (!showModal) return null;
+  if (!showModal || !employee) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-on-primary-fixed/40 backdrop-blur-md">
@@ -96,9 +125,9 @@ export default function AddEmployeeModal({
             className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
           />
           <div className="relative h-full p-6 flex flex-col justify-end text-on-primary">
-            <p className="font-headline text-xl italic mb-1">Build the team</p>
+            <p className="font-headline text-xl italic mb-1">Update Profile</p>
             <p className="text-xs opacity-80">
-              Adding a new member requires attention to detail.
+              Make changes to employee information.
             </p>
           </div>
         </div>
@@ -108,9 +137,9 @@ export default function AddEmployeeModal({
           {/* HEADER */}
           <div className="flex justify-between mb-5">
             <div>
-              <h2 className="text-xl font-bold text-primary">New Employee</h2>
+              <h2 className="text-xl font-bold text-primary">Edit Employee</h2>
               <p className="text-xs text-on-surface-variant">
-                Enter details below
+                Update {employee.name}'s details
               </p>
             </div>
             <button onClick={() => setShowModal(false)} type="button">
@@ -213,12 +242,15 @@ export default function AddEmployeeModal({
               <div>
                 <input
                   {...register("hourlyRate")}
-                  type="number"
-                  step="0.01"
-                  min="0"
                   className={INPUT_CLS + " py-2 text-sm"}
-                  placeholder="Hourly Rate (optional)"
+                  placeholder="Hourly Rate"
+                  type="number"
+                  min="0"
+                  step="0.01"
                 />
+                {errors.hourlyRate && (
+                  <p className="text-red-500 text-xs mt-1">{errors.hourlyRate.message}</p>
+                )}
               </div>
 
               {/* Schedule */}
@@ -290,7 +322,7 @@ export default function AddEmployeeModal({
                 disabled={isSubmitting}
                 className="bg-primary text-white px-5 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
               >
-                {isSubmitting ? "Adding..." : "Add Member"}
+                {isSubmitting ? "Updating..." : "Save Changes"}
               </button>
             </div>
           </form>
