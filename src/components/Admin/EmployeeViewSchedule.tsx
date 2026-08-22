@@ -1,365 +1,122 @@
-import {
-  CalendarDays,
-  Menu,
-  ChevronRight,
-  Search,
-  Bell,
-  Mail,
-  Clock,
-  UtensilsCrossed,
-  ChevronLeft,
-  ChevronRight as ChevronRightIcon,
-  Star,
-  ArrowRight,
-  Home,
-  CalendarRange,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, Clock, Mail, Search, UserRound } from "lucide-react";
+import { getAttendance, getMonthlyWageReport, getOpenShifts, getStaff } from "../../api/employee";
+import type { AttendanceRow, OpenShift, Staff } from "../../types/employee";
 
-const juliannaAvatar =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDMY2XKfLuJrPOzntNVjJsKU_dl9LOSbINTNeRejf7Vhsq1SY-02LbVnAZsPvsT1uUparnVGuNqZAjUanalpfBug2iVPQGsiDN4YwO-3jhlG9c1xUDaKV3YcM9F_Ayata4N06REbmVOACIK7vkcd10OJCKUPkxt60STrjv5SLuALul0-mRokHPJTi5snIL9NOQee_IIlgjLjLnWsoqhHezyRE7L4Dx1IigXkLFhUhWyvXWRwVZL5icjtWSyD_mbjQ-lk8xkpK3NJew";
+type DatedAttendance = AttendanceRow & { attendanceDate: string };
 
-const mobileAvatar =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAuzcpPsx5dWWYa5Z5vYVRw20RK9Jnz1A5mdfHBpIxcg_7nrjFtowtJAEc3x1LX-8JfprsZtIfBPCdF2G8mk3VwZ7NsW2ztU4iSxCUFZAHwZ4Qq0_Fwi8RQDiQf6_Rs8bMofRpdealUKr6raFGxczxKhAu_qjxYGFi91fEAHMaaLfT_w6BqF0jXfWWXNoowRVrcDbrvQ3pYcbVxW4YSl6_CpDP2d_8J-vdOptqO--OJQot0HfMri82MYVgAOkpbi_o9GlODE0IvuAM";
-
-type DayData =
-  | { type: "empty"; label: string }
-  | { type: "blank" }
-  | { type: "today" }
-  | {
-      type: "shift";
-      date: number;
-      time: string;
-      label?: string;
-      variant: "primary" | "tertiary";
-    };
-
-const calendarDays: DayData[] = [
-  { type: "empty", label: "24" },
-  { type: "empty", label: "25" },
-  { type: "empty", label: "26" },
-  { type: "empty", label: "27" },
-  { type: "empty", label: "28" },
-  { type: "empty", label: "29" },
-  { type: "empty", label: "30" },
-  { type: "blank" },
-  { type: "shift", date: 2, time: "16:00 - 00:00", label: "Dinner Service", variant: "primary" },
-  { type: "blank" },
-  { type: "blank" },
-  { type: "shift", date: 5, time: "16:00 - 00:00", variant: "primary" },
-  { type: "shift", date: 6, time: "12:00 - 22:00", variant: "primary" },
-  { type: "blank" },
-  { type: "blank" },
-  { type: "shift", date: 9, time: "09:00 - 15:00", label: "Cellar Tasting", variant: "tertiary" },
-  { type: "today" },
-  { type: "shift", date: 11, time: "16:00 - 00:00", variant: "primary" },
-  { type: "shift", date: 12, time: "16:00 - 00:00", variant: "primary" },
-  { type: "shift", date: 13, time: "12:00 - 22:00", variant: "primary" },
-  { type: "blank" },
-  { type: "blank" },
-  { type: "blank" },
-  { type: "blank" },
-  { type: "blank" },
-  { type: "shift", date: 19, time: "16:00 - 00:00", variant: "primary" },
-  { type: "shift", date: 20, time: "12:00 - 22:00", variant: "primary" },
-  { type: "blank" },
-];
-
-const agendaItems = [
-  {
-    month: "Oct",
-    date: "05",
-    title: "Evening Shift",
-    time: "4:00 PM - Midnight",
-    accent: "primary" as const,
-  },
-  {
-    month: "Oct",
-    date: "06",
-    title: "Double Service",
-    time: "12:00 PM - 10:00 PM",
-    accent: "primary" as const,
-  },
-  {
-    month: "Oct",
-    date: "09",
-    title: "Private Event",
-    time: "9:00 AM - 3:00 PM",
-    accent: "tertiary" as const,
-  },
-];
-
-const stats = [
-  { value: "152h", label: "Scheduled Hours", color: "text-primary" },
-  { value: "18", label: "Total Shifts", color: "text-primary" },
-  { value: "4", label: "Special Events", color: "text-tertiary" },
-  { value: "0", label: "Conflicts", color: "text-primary" },
-];
-
-function CalendarDay({ data }: { data: DayData }) {
-  if (data.type === "empty") {
-    return (
-      <div className="bg-surface min-h-20 p-1.5 text-outline-variant opacity-30 text-[10px]">
-        {data.label}
-      </div>
-    );
-  }
-  if (data.type === "blank") {
-    return <div className="bg-surface min-h-20 p-1.5 text-on-surface-variant text-[10px]" />;
-  }
-  if (data.type === "today") {
-    return (
-      <div className="bg-surface min-h-20 p-1.5 text-[10px] font-bold text-primary ring-1 ring-inset ring-primary/20 bg-primary-fixed/10">
-        10
-      </div>
-    );
-  }
-  const isPrimary = data.variant === "primary";
-  return (
-    <div className="bg-surface-container-lowest min-h-20 p-1.5 flex flex-col gap-1">
-      <span className="text-on-surface font-bold text-[10px]">{data.date}</span>
-      <div
-        className={`text-[9px] p-1 rounded-lg border ${
-          isPrimary
-            ? "bg-primary-fixed/30 text-on-primary-fixed-variant border-primary/10"
-            : "bg-tertiary-fixed/40 text-on-tertiary-fixed-variant border-tertiary/10"
-        }`}
-      >
-        <span className="block font-bold leading-tight">{data.time}</span>
-        {data.label && <span className="opacity-70 italic">{data.label}</span>}
-      </div>
-    </div>
-  );
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function formatTime(value: string | null) {
+  return value ? new Date(value).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "Not recorded";
 }
+function formatDate(value: string) {
+  return new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+}
+function dateKey(value: string | Date) { return new Date(value).toISOString().slice(0, 10); }
 
 export default function EmployeeViewSchedule() {
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceRow[]>([]);
+   const [monthAttendance, setMonthAttendance] = useState<DatedAttendance[]>([]); 
+  const [events, setEvents] = useState<OpenShift[]>([]);
+  const [monthlyHours, setMonthlyHours] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [date, setDate] = useState(todayStr());
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    getStaff()
+      .then((response) => {
+        setStaff(response.data);
+        setSelectedId((current) => current ?? response.data[0]?.id ?? null);
+      })
+      .catch(() => setError("Unable to load staff members."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    setAttendance([]);
+    getAttendance(date).then((response) => setAttendance(response.data)).catch(() => setError("Unable to load attendance for this date."));
+  }, [date]);
+
+  useEffect(() => {
+    const monthStart = new Date(`${date.slice(0, 7)}-01T00:00:00`);
+    const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
+    Promise.all(Array.from({ length: daysInMonth }, (_, index) => {
+      const day = new Date(monthStart);
+      day.setDate(index + 1);
+      const attendanceDate = day.toISOString().slice(0, 10);
+      return getAttendance(attendanceDate).then((response) => ({ attendanceDate, rows: response.data }));
+    })).then((responses) => {
+      setMonthAttendance(responses.flatMap(({ attendanceDate, rows: responseRows }) => responseRows
+        .filter((row) => row.staffId === selectedId)
+        .map((row) => ({ ...row, attendanceDate }))));
+    }).catch(() => setError("Unable to load monthly attendance."));
+  }, [date, selectedId]);
+
+  useEffect(() => {
+    const monthStart = `${date.slice(0, 7)}-01`;
+    const monthEndDate = new Date(`${monthStart}T00:00:00`);
+    monthEndDate.setMonth(monthEndDate.getMonth() + 1, 0);
+    const monthEnd = dateKey(monthEndDate);
+    Promise.all([
+      getOpenShifts({ startDate: monthStart, endDate: monthEnd }),
+      getMonthlyWageReport(monthEndDate.getFullYear(), monthEndDate.getMonth() + 1),
+    ]).then(([shiftResponse, wageResponse]) => {
+      setEvents(shiftResponse.data.filter((shift) => shift.assignments.some((assignment) => assignment.staffId === selectedId)));
+      const entry = wageResponse.data.find((item) => item.staffId === selectedId);
+      setMonthlyHours(entry?.totalHours ?? 0);
+    }).catch(() => setError("Unable to load schedule events."));
+  }, [date, selectedId]);
+
+  const visibleStaff = useMemo(
+    () => staff.filter((member) => member.name.toLowerCase().includes(search.toLowerCase())),
+    [staff, search],
+  );
+  const selectedStaff = staff.find((member) => member.id === selectedId) ?? visibleStaff[0] ?? null;
+  const selectedAttendance = attendance.find((row) => row.staffId === selectedStaff?.id);
+  const monthStartDate = new Date(`${date.slice(0, 7)}-01T00:00:00`);
+  const monthDays = new Date(monthStartDate.getFullYear(), monthStartDate.getMonth() + 1, 0).getDate();
+  const firstDay = monthStartDate.getDay();
+  const calendarCells = Array.from({ length: firstDay + monthDays }, (_, index) => index < firstDay ? null : index - firstDay + 1);
+  const eventsByDate = new Map(events.map((event) => [dateKey(event.date), event]));
+  const attendanceByDate = new Map(monthAttendance.map((row) => [row.attendanceDate, row]));
+  const upcomingEvents = events.filter((event) => dateKey(event.date) >= dateKey(new Date())).sort((a, b) => dateKey(a.date).localeCompare(dateKey(b.date))).slice(0, 4);
+
+  if (loading) return <div className="flex min-h-screen items-center justify-center text-sm text-on-surface-variant">Loading staff schedules...</div>;
+
   return (
-    <div className="flex min-h-screen bg-background text-on-surface font-body">
+    <div className="min-h-screen bg-surface px-5 py-6 text-on-surface sm:px-8 sm:py-8">
+      <header className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div><p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-tertiary">Admin / Staff</p><h1 className="font-headline text-3xl text-primary">Staff View Schedule</h1><p className="mt-1 text-sm text-on-surface-variant">Select a staff member to view their real schedule and attendance.</p></div>
+        <label className="flex items-center gap-2 rounded-full bg-surface-container-low px-4 py-2 text-xs"><CalendarDays size={14} className="text-primary" /><input type="date" value={date} onChange={(event) => setDate(event.target.value)} className="bg-transparent outline-none" /></label>
+      </header>
 
+      {error && <p className="mb-4 rounded-lg bg-error/10 px-3 py-2 text-xs text-error">{error}</p>}
 
-      {/* Main */}
-      <main className="flex-1 pb-16 md:pb-0">
-        {/* Top Bar */}
-        <header
-          className="flex justify-between items-center px-6 py-3 w-full max-w-screen-2xl mx-auto sticky top-0 z-40"
-          style={{ background: "rgba(251,249,245,0.85)", backdropFilter: "blur(20px)" }}
-        >
-          <div className="flex items-center gap-3">
-            <button className="md:hidden p-1.5 rounded-full hover:bg-surface-container-low transition-colors">
-              <Menu size={16} />
-            </button>
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-on-surface-variant">Schedules</span>
-              <ChevronRight size={12} className="text-on-surface-variant" />
-              <span className="font-semibold text-primary">Julianna Vane</span>
-            </div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[15rem_minmax(0,1fr)]">
+        <aside className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-4">
+          <div className="relative mb-4"><Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search staff" className="w-full rounded-lg bg-surface-container-low py-2 pl-9 pr-3 text-xs outline-none focus:ring-1 focus:ring-primary/30" /></div>
+          <div className="space-y-1">
+            {visibleStaff.map((member) => <button key={member.id} onClick={() => setSelectedId(member.id)} className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors ${selectedStaff?.id === member.id ? "bg-primary text-on-primary" : "hover:bg-surface-container-low"}`}><div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-bold">{member.avatar ? <img src={member.avatar} alt="" className="h-full w-full object-cover" /> : member.name.charAt(0)}</div><span className="truncate text-xs font-medium">{member.name}</span></button>)}
+            {!visibleStaff.length && <p className="px-2 py-4 text-xs text-on-surface-variant">No staff found.</p>}
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative hidden sm:block">
-              <Search
-                size={13}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
-              />
-              <input
-                className="bg-surface-container-low border-none rounded-full pl-9 pr-3 py-1.5 text-xs w-52 focus:ring-1 focus:ring-primary/20 transition-all"
-                placeholder="Search roster..."
-                type="text"
-              />
-            </div>
-            <button className="p-1.5 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
-              <Bell size={16} />
-            </button>
-          </div>
-        </header>
+        </aside>
 
-        <div className="px-6 pb-10 max-w-7xl mx-auto">
-          {/* Employee Profile */}
-          <section className="mt-6 mb-8 flex flex-col md:flex-row gap-6 items-end justify-between">
-            <div className="flex items-center gap-5">
-              <div className="relative group shrink-0">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-sm">
-                  <img
-                    src={juliannaAvatar}
-                    alt="Julianna Vane"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="absolute -bottom-1.5 -right-1.5 bg-primary text-white h-6 w-6 rounded-full flex items-center justify-center border-2 border-background shadow">
-                  <Star size={10} fill="currentColor" />
-                </div>
-              </div>
-              <div>
-                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-tertiary mb-1 block">
-                  Lead Sommelier
-                </span>
-                <h2 className="text-2xl font-bold tracking-tight text-on-surface font-headline italic">
-                  Julianna Vane
-                </h2>
-                <p className="text-on-surface-variant mt-1 max-w-sm text-xs leading-relaxed">
-                  Dedicated curator of the Verdant Hearth cellar. Specialized in cool-climate
-                  varietals and bio-dynamic pairings.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <button className="bg-surface-container-high text-primary px-4 py-2 rounded-xl font-medium text-xs hover:bg-surface-container-highest transition-colors flex items-center gap-1.5">
-                <Mail size={13} />
-                Contact
-              </button>
-              <button className="bg-primary text-on-primary px-4 py-2 rounded-xl font-medium text-xs hover:opacity-90 transition-all flex items-center gap-1.5 shadow-md">
-                <CalendarDays size={13} />
-                Edit Schedule
-              </button>
-            </div>
-          </section>
+        {selectedStaff ? <main className="min-w-0">
+          <section className="mb-6 rounded-2xl bg-primary p-5 text-on-primary sm:p-6"><div className="flex flex-col gap-5 sm:flex-row sm:items-center"><div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white/15 text-2xl font-bold">{selectedStaff.avatar ? <img src={selectedStaff.avatar} alt={selectedStaff.name} className="h-full w-full object-cover" /> : selectedStaff.name.charAt(0)}</div><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">{selectedStaff.title}</p><h2 className="mt-1 font-headline text-3xl">{selectedStaff.name}</h2><p className="mt-1 text-sm opacity-80">{selectedStaff.role} · {selectedStaff.department}</p><p className="mt-2 flex items-center gap-2 text-xs opacity-80"><Mail size={13} /> {selectedStaff.email}</p></div></div></section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Calendar */}
-            <div className="lg:col-span-8">
-              <div className="bg-surface-container-low rounded-2xl p-5">
-                <div className="flex justify-between items-center mb-5">
-                  <h3 className="text-lg font-bold font-headline italic text-primary">
-                    October 2023
-                  </h3>
-                  <div className="flex gap-1.5">
-                    <button className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors border border-outline-variant/10">
-                      <ChevronLeft size={15} />
-                    </button>
-                    <button className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors border border-outline-variant/10">
-                      <ChevronRightIcon size={15} />
-                    </button>
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4"><div className="rounded-xl bg-surface-container-low p-4"><p className="text-[10px] uppercase tracking-wider text-on-surface-variant">Schedule label</p><p className="mt-2 font-headline text-xl text-primary">{selectedStaff.scheduleLabel || "Unassign Shift"}</p></div><div className="rounded-xl bg-surface-container-low p-4"><p className="text-[10px] uppercase tracking-wider text-on-surface-variant">Scheduled time</p><p className="mt-2 flex items-center gap-2 font-headline text-xl text-primary"><Clock size={17} />{selectedStaff.scheduleStartTime && selectedStaff.scheduleEndTime ? `${selectedStaff.scheduleStartTime}–${selectedStaff.scheduleEndTime}` : "Not set"}</p></div><div className="rounded-xl bg-surface-container-low p-4"><p className="text-[10px] uppercase tracking-wider text-on-surface-variant">Monthly hours</p><p className="mt-2 font-headline text-xl text-primary">{monthlyHours === null ? "Loading..." : `${monthlyHours}h`}</p></div><div className="rounded-xl bg-surface-container-low p-4"><p className="text-[10px] uppercase tracking-wider text-on-surface-variant">Selected date</p><p className="mt-2 font-headline text-xl text-primary">{formatDate(date).split(",")[0]}</p></div></div>
 
-                <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl border border-outline-variant/20 bg-outline-variant/20">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                    <div
-                      key={d}
-                      className="bg-surface-container-high py-2.5 text-center text-[9px] font-bold uppercase tracking-widest text-on-secondary-container"
-                    >
-                      {d}
-                    </div>
-                  ))}
-                  {calendarDays.map((day, i) => (
-                    <CalendarDay key={i} data={day} />
-                  ))}
-                </div>
-              </div>
-            </div>
+          <section className="mt-6 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-5"><div className="mb-5 flex items-center justify-between"><div><h3 className="font-headline text-xl text-primary">Schedule Calendar</h3><p className="mt-1 text-xs text-on-surface-variant">{monthStartDate.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</p></div><CalendarDays size={20} className="text-primary" /></div><div className="mb-4 flex flex-wrap gap-3 text-[10px] text-on-surface-variant"><span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-emerald-500" /> Regular attendance</span><span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-sky-500" /> Open shift</span></div><div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl border border-outline-variant/15 bg-outline-variant/15">{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <div key={day} className="bg-surface-container-high py-2 text-center text-[10px] font-bold uppercase text-on-surface-variant">{day}</div>)}{calendarCells.map((day, index) => { const key = day ? `${date.slice(0, 7)}-${String(day).padStart(2, "0")}` : ""; const event = day ? eventsByDate.get(key) : undefined; const dayAttendance = day ? attendanceByDate.get(key) : undefined; const regular = !!dayAttendance?.checkIn; const openShift = !!dayAttendance?.openShiftAttended; const statusClass = regular && openShift ? "border-2 border-sky-500 bg-gradient-to-br from-emerald-500 to-sky-500 text-white" : regular ? "border-2 border-emerald-500 bg-emerald-500 text-white" : openShift ? "border-2 border-sky-500 bg-sky-500 text-white" : "border border-transparent bg-white text-on-surface"; return <div key={index} className={`min-h-20 p-2 text-[10px] ${statusClass} ${day === Number(date.slice(8, 10)) ? "ring-2 ring-inset ring-primary" : ""}`}>{day && <><div className="flex items-center justify-center"><span className="text-base font-bold leading-none">{day}</span></div><div className="mt-1 flex justify-center gap-0.5">{regular && <i className="h-2 w-2 rounded-full bg-white" />}{openShift && <i className="h-2 w-2 rounded-full bg-white" />}</div>{event && <div className="mt-1 rounded-md bg-white/20 p-1 text-[9px]"><p className="truncate font-semibold">{event.label}</p><p>{event.startTime}–{event.endTime}</p></div>}</>}</div>; })}</div></section>
 
-            {/* Right Column */}
-            <div className="lg:col-span-4 space-y-6">
-              {/* Next Shift */}
-              <div className="bg-primary text-on-primary rounded-2xl p-5 relative overflow-hidden">
-                <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary-container/20 rounded-full blur-2xl" />
-                <div className="relative z-10">
-                  <span className="text-[9px] font-bold uppercase tracking-[0.3em] opacity-60 mb-3 block">
-                    Next Shift
-                  </span>
-                  <h4 className="text-2xl font-bold font-headline italic mb-3">Monday, 2nd</h4>
-                  <div className="flex flex-col gap-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <Clock size={14} className="text-primary-fixed-dim shrink-0" />
-                      <p className="text-xs font-medium">16:00 — 00:00 (8h)</p>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <UtensilsCrossed size={14} className="text-primary-fixed-dim shrink-0" />
-                      <p className="text-xs font-medium">Dinner Service & Wine Pairing</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <section className="mt-6 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-5"><div className="mb-4 flex items-center justify-between"><div><h3 className="font-headline text-xl text-primary">Upcoming Events</h3><p className="mt-1 text-xs text-on-surface-variant">Events assigned to {selectedStaff.name}</p></div><Clock size={20} className="text-tertiary" /></div>{upcomingEvents.length ? <div className="space-y-2">{upcomingEvents.map((event) => <div key={event.id} className="flex items-center justify-between rounded-xl bg-surface-container-low p-3"><div><p className="text-sm font-semibold">{event.label}</p><p className="text-xs text-on-surface-variant">{formatDate(dateKey(event.date))}</p></div><span className="text-xs text-on-surface-variant">{event.startTime}–{event.endTime}</span></div>)}</div> : <p className="py-4 text-center text-xs text-on-surface-variant">No upcoming events assigned.</p>}</section>
 
-              {/* Upcoming Agenda */}
-              <div>
-                <h3 className="text-base font-bold text-on-surface font-headline italic mb-4">
-                  Upcoming Agenda
-                </h3>
-                <div className="space-y-2.5">
-                  {agendaItems.map(({ month, date, title, time, accent }) => (
-                    <div
-                      key={date}
-                      className="bg-surface-container-lowest p-4 rounded-xl flex justify-between items-center group hover:bg-surface transition-colors duration-200"
-                    >
-                      <div className="flex gap-3">
-                        <div
-                          className={`flex flex-col items-center justify-center w-10 h-10 rounded-lg group-hover:${
-                            accent === "tertiary" ? "bg-tertiary-fixed" : "bg-primary-fixed"
-                          } bg-surface-container-low transition-colors duration-200`}
-                        >
-                          <span className="text-[8px] font-bold text-on-surface-variant uppercase">
-                            {month}
-                          </span>
-                          <span
-                            className={`text-sm font-bold ${
-                              accent === "tertiary" ? "text-tertiary" : "text-primary"
-                            }`}
-                          >
-                            {date}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-bold text-on-surface text-xs">{title}</p>
-                          <p className="text-[10px] text-on-surface-variant">{time}</p>
-                        </div>
-                      </div>
-                      <ArrowRight
-                        size={13}
-                        className="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="bg-secondary-container/30 rounded-2xl p-5 border border-outline-variant/10">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-secondary-fixed-variant mb-4">
-                  Monthly Analytics
-                </h4>
-                <div className="grid grid-cols-2 gap-5">
-                  {stats.map(({ value, label, color }) => (
-                    <div key={label}>
-                      <p className={`text-2xl font-bold font-headline ${color}`}>{value}</p>
-                      <p className="text-[9px] uppercase font-bold text-on-secondary-container mt-0.5">
-                        {label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Mobile Bottom Nav */}
-      <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 flex justify-around items-center py-3 px-4 z-50 border-t border-outline-variant/10"
-        style={{ background: "rgba(251,249,245,0.92)", backdropFilter: "blur(20px)" }}
-      >
-        {[
-          { icon: Home, label: "Home", active: false },
-          { icon: CalendarRange, label: "Schedule", active: true },
-          { icon: Bell, label: "Alerts", active: false },
-        ].map(({ icon: Icon, label, active }) => (
-          <a
-            key={label}
-            href="#"
-            className={`flex flex-col items-center gap-0.5 ${
-              active ? "text-primary" : "text-on-surface-variant"
-            }`}
-          >
-            <Icon size={18} fill={active ? "currentColor" : "none"} />
-            <span className="text-[9px] font-bold">{label}</span>
-          </a>
-        ))}
-        <a href="#" className="flex flex-col items-center gap-0.5 text-on-surface-variant">
-          <div className="h-4.5 w-4.5 rounded-full overflow-hidden">
-            <img src={mobileAvatar} alt="Me" className="h-full w-full object-cover" />
-          </div>
-          <span className="text-[9px] font-bold">Me</span>
-        </a>
-      </nav>
+          <section className="mt-6 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-5"><div className="mb-5 flex items-center justify-between"><div><h3 className="font-headline text-xl text-primary">Attendance Details</h3><p className="mt-1 text-xs text-on-surface-variant">{formatDate(date)}</p></div><UserRound size={20} className="text-primary" /></div><div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><div className="rounded-xl bg-surface-container-low p-4"><p className="text-[10px] uppercase text-on-surface-variant">Start</p><p className="mt-2 text-lg font-semibold">{formatTime(selectedAttendance?.checkIn ?? null)}</p></div><div className="rounded-xl bg-surface-container-low p-4"><p className="text-[10px] uppercase text-on-surface-variant">End</p><p className="mt-2 text-lg font-semibold">{formatTime(selectedAttendance?.checkOut ?? null)}</p></div><div className="rounded-xl bg-surface-container-low p-4"><p className="text-[10px] uppercase text-on-surface-variant">Hours</p><p className="mt-2 text-lg font-semibold">{selectedAttendance?.regularHours ?? "Not recorded"}</p></div></div></section>
+        </main> : <div className="flex min-h-64 items-center justify-center rounded-2xl bg-surface-container-low text-sm text-on-surface-variant">No staff member selected.</div>}
+      </div>
     </div>
   );
 }

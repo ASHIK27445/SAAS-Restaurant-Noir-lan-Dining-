@@ -23,12 +23,11 @@ function TimeCell({ row, date, field, onSaved }: { row: AttendanceRow; date: str
   const [saving, setSaving] = useState(false);
 
   async function save() {
-    if (!value || !otherValue) return;
+    if (!value) return;
     setSaving(true);
     try {
       await updateAttendanceTimes(row.staffId, date, {
-        checkIn: field === "checkIn" ? value : inputTime(otherValue),
-        checkOut: field === "checkOut" ? value : inputTime(otherValue),
+        [field]: value,
       });
       onSaved();
       setEditing(false);
@@ -92,6 +91,18 @@ export default function DailyAttendance() {
   const [loading, setLoading] = useState(true);
   const [busyStaffId, setBusyStaffId] = useState<string | null>(null);
 
+  async function markOnTime(row: AttendanceRow, field: "checkIn" | "checkOut") {
+    const value = field === "checkIn" ? row.scheduleStartTime : row.scheduleEndTime;
+    if (!value) return;
+    setBusyStaffId(row.staffId);
+    try { await updateAttendanceTimes(row.staffId, date, { [field]: value }); await load(); } finally { setBusyStaffId(null); }
+  }
+
+  async function markAllOnTime(field: "checkIn" | "checkOut") {
+    const eligible = rows.filter((row) => field === "checkIn" ? row.scheduleStartTime : row.scheduleEndTime);
+    for (const row of eligible) await markOnTime(row, field);
+  }
+
   function load() {
     setLoading(true);
     return getAttendance(date).then((res) => setRows(res.data)).finally(() => setLoading(false));
@@ -131,9 +142,11 @@ export default function DailyAttendance() {
             <h1 className="font-headline text-2xl sm:text-3xl text-primary tracking-tight">Daily Attendance</h1>
             <p className="text-on-surface-variant text-sm mt-1">Check staff in and out, and record any open-shift work or bonuses.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <Calendar size={16} className="text-on-surface-variant" />
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-surface-container-low rounded-lg px-3 py-2 text-sm border border-transparent focus:border-primary/30 focus:outline-none" />
+            <button onClick={() => markAllOnTime("checkIn")} className="rounded-lg bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20">On time all Start</button>
+            <button onClick={() => markAllOnTime("checkOut")} className="rounded-lg bg-tertiary/10 px-3 py-2 text-xs font-semibold text-tertiary hover:bg-tertiary/20">On time all End</button>
           </div>
         </header>
 
@@ -178,32 +191,38 @@ export default function DailyAttendance() {
                       </td>
                       <td className="py-2.5 pr-3 text-center">
                         {row.checkIn ? (
-                          <TimeCell key={`${row.staffId}-start-${row.checkIn}`} row={row} date={date} field="checkIn" onSaved={load} />
+                          <div className="flex flex-col items-center gap-1"><TimeCell key={`${row.staffId}-start-${row.checkIn}`} row={row} date={date} field="checkIn" onSaved={load} />{row.scheduleStartTime && <button disabled={busy} onClick={() => markOnTime(row, "checkIn")} className="text-[9px] font-semibold text-primary hover:underline">On time</button>}</div>
                         ) : (
-                          <button disabled={busy} onClick={() => handleCheckIn(row.staffId)} className="w-5 h-5 rounded border border-outline-variant/40 hover:border-primary hover:bg-primary/10 transition-colors inline-flex items-center justify-center disabled:opacity-40" title="Mark attendance start" />
+                          <div className="flex flex-col items-center gap-1">
+                            <button disabled={busy} onClick={() => handleCheckIn(row.staffId)} className="w-5 h-5 rounded border border-outline-variant/40 hover:border-primary hover:bg-primary/10 transition-colors inline-flex items-center justify-center disabled:opacity-40" title="Mark attendance start" />
+                            {row.scheduleStartTime && <button disabled={busy} onClick={() => markOnTime(row, "checkIn")} className="text-[9px] font-semibold text-primary hover:underline">On time</button>}
+                          </div>
                         )}
                       </td>
                       <td className="py-2.5 pr-3 text-center">
                         {row.checkOut ? (
-                          <TimeCell key={`${row.staffId}-end-${row.checkOut}`} row={row} date={date} field="checkOut" onSaved={load} />
+                          <div className="flex flex-col items-center gap-1"><TimeCell key={`${row.staffId}-end-${row.checkOut}`} row={row} date={date} field="checkOut" onSaved={load} />{row.scheduleEndTime && <button disabled={busy} onClick={() => markOnTime(row, "checkOut")} className="text-[9px] font-semibold text-tertiary hover:underline">On time</button>}</div>
                         ) : row.checkIn ? (
-                          <button disabled={busy} onClick={() => handleCheckOut(row.staffId)} className="w-5 h-5 rounded border border-outline-variant/40 hover:border-primary hover:bg-primary/10 transition-colors inline-flex items-center justify-center disabled:opacity-40" title="Mark attendance end" />
+                          <div className="flex flex-col items-center gap-1"><button disabled={busy} onClick={() => handleCheckOut(row.staffId)} className="w-5 h-5 rounded border border-outline-variant/40 hover:border-primary hover:bg-primary/10 transition-colors inline-flex items-center justify-center disabled:opacity-40" title="Mark attendance end" />{row.scheduleEndTime && <button disabled={busy} onClick={() => markOnTime(row, "checkOut")} className="text-[9px] font-semibold text-tertiary hover:underline">On time</button>}</div>
                         ) : (
                           <span className="text-xs text-on-surface-variant/30">—</span>
                         )}
                       </td>
                       <td className="py-2.5 pr-3 text-center">
                         {row.hasOpenShiftToday ? (
-                          <button
-                            disabled={busy}
-                            onClick={() => handleOpenShiftToggle(row)}
-                            title={row.openShiftLabel ?? "Open shift"}
-                            className={`w-5 h-5 rounded border inline-flex items-center justify-center transition-colors disabled:opacity-40 ${
-                              row.openShiftAttended ? "bg-tertiary border-tertiary text-on-tertiary" : "border-outline-variant/40 hover:border-tertiary hover:bg-tertiary/10"
-                            }`}
-                          >
-                            {row.openShiftAttended && <Check size={12} />}
-                          </button>
+                          <div className="flex flex-col items-center gap-1">
+                            <button
+                              disabled={busy}
+                              onClick={() => handleOpenShiftToggle(row)}
+                              title={row.openShiftLabel ?? "Open shift"}
+                              className={`w-5 h-5 rounded border inline-flex items-center justify-center transition-colors disabled:opacity-40 ${
+                                row.openShiftAttended ? "bg-tertiary border-tertiary text-on-tertiary" : "border-outline-variant/40 hover:border-tertiary hover:bg-tertiary/10"
+                              }`}
+                            >
+                              {row.openShiftAttended && <Check size={12} />}
+                            </button>
+                            <button disabled={busy} onClick={() => !row.openShiftAttended && handleOpenShiftToggle(row)} className="text-[9px] font-semibold text-tertiary hover:underline">On time</button>
+                          </div>
                         ) : (
                           <span className="text-xs text-on-surface-variant/30">—</span>
                         )}
