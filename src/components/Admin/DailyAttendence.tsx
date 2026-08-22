@@ -18,7 +18,7 @@ function inputTime(iso: string) {
 function TimeCell({ row, date, field, onSaved }: { row: AttendanceRow; date: string; field: "checkIn" | "checkOut"; onSaved: () => void }) {
   const [editing, setEditing] = useState(false);
   const currentValue = row[field];
-  const otherValue = row[field === "checkIn" ? "checkOut" : "checkIn"];
+//   const otherValue = row[field === "checkIn" ? "checkOut" : "checkIn"];
   const [value, setValue] = useState(currentValue ? inputTime(currentValue) : "");
   const [saving, setSaving] = useState(false);
 
