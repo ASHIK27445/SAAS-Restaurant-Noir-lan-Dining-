@@ -11,6 +11,7 @@ import {
   AlarmClockCheck,
   LineChart,
   ListCheck,
+  LayoutGrid,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -38,6 +39,11 @@ const NAV_ITEMS = [
     icon: ListCheck,
     label: "Daily Attendence",
     to: "/admin/attendence",
+  },
+  {
+    icon: LayoutGrid,
+    label: "Floor Distribution",
+    to: "/admin/floor-distribution",
   },
   {
     icon: AlarmClockCheck,

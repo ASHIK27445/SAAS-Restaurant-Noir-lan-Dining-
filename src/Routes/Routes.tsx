@@ -31,7 +31,6 @@ import EmployeeViewSchedule from "../components/Admin/EmployeeViewSchedule";
 import OrderManagement from "../components/Admin/OrderManagement";
 import Reports from "../components/Admin/Reports";
 import InvoiceHistory from "../components/Admin/InvoiceHistory";
-import OrderTracking from "../components/POS/OrderTracking";
 import SupplierProfile from "../components/supplier/SupplierProfile";
 import SupplierDirectory from "../components/supplier/SupplierDirectory";
 import SupplierPerformanceAnalysis from "../components/supplier/SupplierPerformanceAnalysis";
@@ -42,6 +41,7 @@ import SupplierLayout from "../components/supplier/SupplierLayout";
 import InventorySuppliers from "../components/supplier/InventorySuppliers";
 import WageReport from "../components/Admin/WageReport";
 import DailyAttendance from "../components/Admin/DailyAttendence";
+import FloorAdmin from "../components/Admin/FloorAdmin";
 
 export const router = createBrowserRouter([
     {
@@ -122,6 +122,10 @@ export const router = createBrowserRouter([
     {
         path: 'attendence',
         Component: DailyAttendance
+    },
+    {
+        path: 'floor-distribution',
+        Component: FloorAdmin
     }
   ]
 },
