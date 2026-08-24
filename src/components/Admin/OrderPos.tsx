@@ -62,6 +62,7 @@ function toReceipt(order: Order): ReceiptOrder {
 export default function OrderPos() {
   const [filter, setFilter] = useState<Filter>("ALL");
   const [selectedReceipt, setSelectedReceipt] = useState<ReceiptOrder | null>(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   function getLocalDate(offsetDays = 0) {
@@ -86,12 +87,21 @@ export default function OrderPos() {
   });
 
   async function changeStatus(order: Order, status: Order["status"]) {
+    const previousOrders = queryClient.getQueriesData<Order[]>({ queryKey: ["pos-orders"] });
+    setUpdatingOrderId(order.id);
+    queryClient.setQueriesData<Order[]>({ queryKey: ["pos-orders"] }, (currentOrders) => currentOrders?.map((currentOrder) => currentOrder.id === order.id ? {
+      ...currentOrder,
+      status,
+      ...(status === "COMPLETED" ? { completedAt: new Date().toISOString(), paymentStatus: "PAID" as const } : {}),
+    } : currentOrder));
     try {
       if (status === "COMPLETED" && order.orderType === "DINE_IN") await completeDineInWithPayment(order.id, "cash");
       else await updateOrderStatus(order.id, status);
-      await queryClient.invalidateQueries({ queryKey: ["pos-orders"] });
     } catch (error: any) {
+      for (const [queryKey, data] of previousOrders) queryClient.setQueryData(queryKey, data);
       window.alert(error.message || "Could not update order status");
+    } finally {
+      setUpdatingOrderId(null);
     }
   }
 
@@ -145,7 +155,7 @@ export default function OrderPos() {
           <p className="py-12 text-center text-sm text-on-surface-variant">No orders match this filter.</p>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
-            {filtered.map((order) => <OrderCard key={order.id} order={order} onPrint={() => printOrder(order)} onStatusChange={changeStatus} />)}
+            {filtered.map((order) => <OrderCard key={order.id} order={order} onPrint={() => printOrder(order)} onStatusChange={changeStatus} updating={updatingOrderId === order.id} />)}
           </div>
         )}
       </main>
@@ -159,7 +169,7 @@ function Stat({ label, value, icon: Icon }: { label: string; value: number; icon
   return <div className="flex shrink-0 items-center gap-2 rounded-xl bg-surface-container-lowest px-3 py-2 shadow-sm ring-1 ring-outline-variant/10"><Icon size={15} className="text-primary" /><span className="text-[10px] font-bold uppercase tracking-wider text-secondary">{label}</span><span className="font-headline text-lg text-primary">{value}</span></div>;
 }
 
-function OrderCard({ order, onPrint, onStatusChange }: { order: Order; onPrint: () => void; onStatusChange: (order: Order, status: Order["status"]) => void }) {
+function OrderCard({ order, onPrint, onStatusChange, updating }: { order: Order; onPrint: () => void; onStatusChange: (order: Order, status: Order["status"]) => void; updating: boolean }) {
   const preparation = prepState(order);
   const isReady = preparation?.startsWith("Preparation done") ?? false;
   const DetailIcon = order.orderType === "DELIVERY" ? MapPin : order.orderType === "DINE_IN" ? UserRound : Truck;
@@ -213,11 +223,11 @@ function OrderCard({ order, onPrint, onStatusChange }: { order: Order; onPrint: 
         </div>
         {nextAction?.status && (
           <div className="mt-3 flex gap-2">
-            <button type="button" onClick={() => onStatusChange(order, nextAction.status!)} className="inline-flex flex-1 items-center justify-center gap-1 rounded-xl bg-primary px-2 py-2 text-[10px] font-bold text-on-primary hover:opacity-90">
+            <button type="button" disabled={updating} onClick={() => onStatusChange(order, nextAction.status!)} className="inline-flex flex-1 items-center justify-center gap-1 rounded-xl bg-primary px-2 py-2 text-[10px] font-bold text-on-primary hover:opacity-90 disabled:cursor-wait disabled:opacity-50">
               <ArrowRight size={13} /> {nextAction.label}
             </button>
             {order.status !== "COMPLETED" && order.status !== "CANCELLED" && (
-              <button type="button" onClick={() => onStatusChange(order, "CANCELLED")} className="inline-flex items-center justify-center rounded-xl border border-error/30 px-2.5 py-2 text-error hover:bg-error/10" title="Cancel order"><Ban size={14} /></button>
+              <button type="button" disabled={updating} onClick={() => onStatusChange(order, "CANCELLED")} className="inline-flex items-center justify-center rounded-xl border border-error/30 px-2.5 py-2 text-error hover:bg-error/10 disabled:cursor-wait disabled:opacity-50" title="Cancel order"><Ban size={14} /></button>
             )}
           </div>
         )}
