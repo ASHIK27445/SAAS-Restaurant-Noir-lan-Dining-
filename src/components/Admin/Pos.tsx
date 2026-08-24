@@ -146,10 +146,11 @@ export default function Pos() {
   const serviceCharge = subtotal > 0 ? 5.0 : 0;
   const total = subtotal + tax + serviceCharge;
   const selectedServerName = waiters.find((w) => w.id === serverStaffId)?.name ?? 'Unassigned';
+  const needsServer = orderType !== 'DELIVERY';
   const draftReceipt: ReceiptOrder | null = orderItems.length === 0 ? null : {
     orderNumber: nextOrderNumber ?? 0,
     orderType,
-    serverName: selectedServerName,
+    serverName: needsServer ? selectedServerName : null,
     tableNo: tableNo ? String(tableNo) : null,
     customerName: customerName || null,
     paymentMethod: orderType === 'DINE_IN' ? null : paymentMethod,
@@ -180,7 +181,7 @@ export default function Pos() {
     try {
       const res = await createOrder({
         orderType,
-        serverStaffId: serverStaffId || undefined,
+        serverStaffId: needsServer ? serverStaffId || undefined : undefined,
         tableNo: orderType === "DINE_IN" && tableNo ? String(tableNo) : undefined,
         guestCount: orderType === "DINE_IN" ? guestCount ?? undefined : undefined,
         customerName: orderType === "DINE_IN" ? customerName || undefined : undefined,
@@ -254,7 +255,8 @@ export default function Pos() {
               </span>
             </div>
             <p className="mt-1 w-full text-xs font-medium text-secondary wrap-break-word">
-              Order #{nextOrderNumber === null ? '-----' : String(nextOrderNumber).padStart(5, '0')} • Server: {selectedServerName}
+              Order #{nextOrderNumber === null ? '-----' : String(nextOrderNumber).padStart(5, '0')}
+              {needsServer && ` • Server: ${selectedServerName}`}
             </p>
           </div>
 
@@ -296,13 +298,15 @@ export default function Pos() {
             </div>
           </div>
 
-          <div className="p-4 border-b border-outline-variant/20 shrink-0">
-            <p className="text-[10px] font-bold tracking-widest uppercase text-secondary mb-2">Server</p>
-            <select value={serverStaffId} onChange={(e) => setServerStaffId(e.target.value)} className="w-full px-2 py-1.5 text-xs rounded-lg border border-outline-variant bg-surface-container-lowest">
-              <option value="">Select server…</option>
-              {waiters.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
-            </select>
-          </div>
+          {needsServer && (
+            <div className="p-4 border-b border-outline-variant/20 shrink-0">
+              <p className="text-[10px] font-bold tracking-widest uppercase text-secondary mb-2">Server</p>
+              <select value={serverStaffId} onChange={(e) => setServerStaffId(e.target.value)} className="w-full px-2 py-1.5 text-xs rounded-lg border border-outline-variant bg-surface-container-lowest">
+                <option value="">Select server…</option>
+                {waiters.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+              </select>
+            </div>
+          )}
 
           {(orderType === "TAKEAWAY" || orderType === "DELIVERY") && (
             <div className="p-4 border-b border-outline-variant/20 shrink-0">
