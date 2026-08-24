@@ -89,3 +89,8 @@ export function markPrepComplete(unitId: string) {
 export function getKitchenQueue() {
   return request<ApiListResponse<any>>("/orders/kitchen-queue");
 }
+
+export type CustomerToken = { orderNumber: number; status: OrderStatus; orderType: OrderType; updatedAt: string };
+export function getCustomerTokens() {
+  return request<ApiListResponse<CustomerToken>>("/orders/token-display");
+}

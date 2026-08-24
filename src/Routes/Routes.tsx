@@ -44,6 +44,7 @@ import DailyAttendance from "../components/Admin/DailyAttendence";
 import FloorAdmin from "../components/Admin/FloorAdmin";
 import Pos from "../components/Admin/Pos";
 import KitchenQueue from "../components/Admin/KitchenQueue";
+import CustomerTokenDisplay from "../components/Admin/CustomerTokenDisplay";
 import CashierSettingPage from "../components/Admin/CashierSettingPage";
 import MenuItemManagement from "../components/Admin/MenuItemManagement";
 import PosKoh from "../components/Admin/PosKoh";
@@ -153,6 +154,7 @@ export const router = createBrowserRouter([
         { path: 'orders', Component: OrderPos },
         { path: 'orders/:orderId', Component: OrderPosDetails },
         { path: 'kitchen-queue', Component: KitchenQueue },
+        { path: 'customer-display', Component: CustomerTokenDisplay },
         { path: 'cashier-setting', Component: CashierSettingPage }
     ]
 },
