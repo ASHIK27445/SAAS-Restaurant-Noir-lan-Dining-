@@ -45,6 +45,7 @@ import FloorAdmin from "../components/Admin/FloorAdmin";
 import Pos from "../components/Admin/Pos";
 import KitchenQueue from "../components/Admin/KitchenQueue";
 import CashierSettingPage from "../components/Admin/CashierSettingPage";
+import MenuItemManagement from "../components/Admin/MenuItemManagement";
 
 export const router = createBrowserRouter([
     {
@@ -133,6 +134,10 @@ export const router = createBrowserRouter([
     {
         path: 'pos',
         Component: Pos
+    },
+    {
+        path: 'menu-item-manage',
+        Component: MenuItemManagement
     }
   ]
 },

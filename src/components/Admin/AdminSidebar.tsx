@@ -12,6 +12,7 @@ import {
   LineChart,
   ListCheck,
   LayoutGrid,
+  ForkKnife,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -74,6 +75,11 @@ const NAV_ITEMS = [
     icon: FileClock,
     label: "POS",
     to: "/admin/pos",
+  },
+  {
+    icon: ForkKnife,
+    label: "Menu Item Management",
+    to: "/admin/menu-item-manage",
   },
 ];
 
