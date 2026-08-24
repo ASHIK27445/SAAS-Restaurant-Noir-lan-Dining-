@@ -43,6 +43,8 @@ import WageReport from "../components/Admin/WageReport";
 import DailyAttendance from "../components/Admin/DailyAttendence";
 import FloorAdmin from "../components/Admin/FloorAdmin";
 import Pos from "../components/Admin/Pos";
+import KitchenQueue from "../components/Admin/KitchenQueue";
+import CashierSettingPage from "../components/Admin/CashierSettingPage";
 
 export const router = createBrowserRouter([
     {
@@ -194,5 +196,13 @@ export const router = createBrowserRouter([
     {
         path: '/pos-dashboard',
         Component: PosDashboard
+    },
+    {
+        path: '/kq',
+        Component: KitchenQueue
+    },
+    {
+        path: '/cashier-setting',
+        Component: CashierSettingPage
     }
 ])
