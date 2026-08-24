@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { CakeSlice, IceCream, Minus, Plus, Printer, Search, Soup, Utensils, Wine } from 'lucide-react';
 import { getMenuItemsByBucket, createOrder, getNextOrderNumber, getPosSettings, getPromoCodes, type PosSettings, type PromoCode } from '../../api/order';
 import { getStaff as getStaffMembers } from '../../api/employee';
@@ -78,9 +79,20 @@ const paymentMethods = [
 
 export default function Pos() {
   const [activeBucket, setActiveBucket] = useState("MEALS");
-  const [items, setItems] = useState<MenuItemWithCategory[]>([]);
-  const [loadingItems, setLoadingItems] = useState(true);
   const [search, setSearch] = useState("");
+
+  const bucketQueries = useQueries({
+    queries: BUCKETS.map((bucket) => ({
+      queryKey: ['pos-menu', bucket.key],
+      queryFn: () => getMenuItemsByBucket(bucket.key),
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    })),
+  });
+  const activeQuery = bucketQueries.find((_query, index) => BUCKETS[index].key === activeBucket);
+  const items: MenuItemWithCategory[] = activeQuery?.data?.data ?? [];
+  const loadingItems = activeQuery?.isLoading ?? true;
 
   const [orderItems, setOrderItems] = useState<OrderLine[]>([]);
   const [orderType, setOrderType] = useState<OrderType>('DINE_IN');
@@ -102,11 +114,6 @@ export default function Pos() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastOrderReceipt, setLastOrderReceipt] = useState<any>(null);
-
-  useEffect(() => {
-    setLoadingItems(true);
-    getMenuItemsByBucket(activeBucket).then((res) => setItems(res.data)).finally(() => setLoadingItems(false));
-  }, [activeBucket]);
 
   useEffect(() => {
     getStaffMembers({ role: "Waiter" }).then((res) => setWaiters(res.data.map((s: any) => ({ id: s.id, name: s.name }))));
