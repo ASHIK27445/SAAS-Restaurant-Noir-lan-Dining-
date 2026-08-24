@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CakeSlice, IceCream, Minus, Plus, Search, Soup, Utensils, Wine } from 'lucide-react';
-import { getMenuItemsByBucket, createOrder} from '../../api/order';
+import { getMenuItemsByBucket, createOrder, getNextOrderNumber } from '../../api/order';
 import { getStaff as getStaffMembers } from '../../api/employee';
 import type { MenuItemWithCategory, OrderType } from '../../types/order';
 
@@ -91,6 +91,7 @@ export default function Pos() {
 
   const [waiters, setWaiters] = useState<{ id: string; name: string }[]>([]);
   const [serverStaffId, setServerStaffId] = useState('');
+  const [nextOrderNumber, setNextOrderNumber] = useState<number | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +104,7 @@ export default function Pos() {
 
   useEffect(() => {
     getStaffMembers({ role: "Waiter" }).then((res) => setWaiters(res.data.map((s: any) => ({ id: s.id, name: s.name }))));
+    getNextOrderNumber().then((res) => setNextOrderNumber(res.data.orderNumber));
   }, []);
 
   const filteredItems = useMemo(
@@ -131,6 +133,7 @@ export default function Pos() {
   const tax = subtotal * 0.08;
   const serviceCharge = subtotal > 0 ? 5.0 : 0;
   const total = subtotal + tax + serviceCharge;
+  const selectedServerName = waiters.find((w) => w.id === serverStaffId)?.name ?? 'Unassigned';
 
   async function handlePlaceOrder() {
     setError(null);
@@ -208,11 +211,20 @@ export default function Pos() {
 
         <section style={{ flex: '25' }} className="min-w-0 flex flex-col h-screen border-r border-outline-variant/10 bg-surface-container-lowest">
           <div className="p-4 border-b border-outline-variant/20 shrink-0">
-            <h2 className="text-lg font-serif text-primary">
-              {orderType === 'DINE_IN' && tableNo ? `Table ${tableNo}` : 'Current Order'}
-              {orderType === 'DINE_IN' && guestCount && ` • Guests: ${guestCount}`}
-            </h2>
-            <span className="bg-tertiary/10 text-tertiary px-2 py-1 rounded-full text-[9px] font-bold uppercase">{orderType.replace("_", " ")}</span>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-lg font-serif text-primary truncate">
+                  {orderType === 'DINE_IN' && tableNo ? `Table ${tableNo}` : 'Current Order'}
+                  {orderType === 'DINE_IN' && guestCount && ` • Guests: ${guestCount}`}
+                </h2>
+                <p className="text-xs font-medium text-secondary wrap-break-word">
+                  Order #{nextOrderNumber === null ? '-----' : String(nextOrderNumber).padStart(5, '0')} • Server: {selectedServerName}
+                </p>
+              </div>
+              <span className="shrink-0 bg-tertiary/10 text-tertiary px-2 py-1 rounded-full text-[9px] font-bold uppercase">
+                {orderType.replace("_", "-")}
+              </span>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">

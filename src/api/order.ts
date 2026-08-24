@@ -32,6 +32,10 @@ export function getOrders(filters: { status?: string; orderType?: string; date?:
   return request<ApiListResponse<Order>>(`/orders${qs ? `?${qs}` : ""}`);
 }
 
+export function getNextOrderNumber() {
+  return request<ApiItemResponse<{ orderNumber: number }>>("/orders/next-number");
+}
+
 export function createOrder(input: {
   orderType: OrderType;
   serverStaffId?: string;
