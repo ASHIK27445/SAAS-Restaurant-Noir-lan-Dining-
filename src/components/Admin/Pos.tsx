@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CakeSlice, IceCream, Minus, Plus, Search, Soup, Utensils, Wine } from 'lucide-react';
+import { CakeSlice, IceCream, Minus, Plus, Printer, Search, Soup, Utensils, Wine } from 'lucide-react';
 import { getMenuItemsByBucket, createOrder, getNextOrderNumber } from '../../api/order';
 import { getStaff as getStaffMembers } from '../../api/employee';
 import type { MenuItemWithCategory, OrderType } from '../../types/order';
+import ReceiptPreview from './ReceiptPreview';
+import type { ReceiptOrder } from './ReceiptPreview';
 
 type CategoryButtonProps = { icon: any; label: string; active: boolean; onClick: () => void };
 function CategoryButton({ icon, label, active, onClick }: CategoryButtonProps) {
@@ -92,6 +94,7 @@ export default function Pos() {
   const [waiters, setWaiters] = useState<{ id: string; name: string }[]>([]);
   const [serverStaffId, setServerStaffId] = useState(() => localStorage.getItem('pos-selected-server-id') ?? '');
   const [nextOrderNumber, setNextOrderNumber] = useState<number | null>(null);
+  const [autoPrintReceipt] = useState(() => localStorage.getItem('pos-auto-print-receipt') !== 'false');
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +114,10 @@ export default function Pos() {
     if (serverStaffId) localStorage.setItem('pos-selected-server-id', serverStaffId);
     else localStorage.removeItem('pos-selected-server-id');
   }, [serverStaffId]);
+
+  useEffect(() => {
+    localStorage.setItem('pos-auto-print-receipt', String(autoPrintReceipt));
+  }, [autoPrintReceipt]);
 
   const filteredItems = useMemo(
     () => items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase())),
@@ -139,6 +146,29 @@ export default function Pos() {
   const serviceCharge = subtotal > 0 ? 5.0 : 0;
   const total = subtotal + tax + serviceCharge;
   const selectedServerName = waiters.find((w) => w.id === serverStaffId)?.name ?? 'Unassigned';
+  const draftReceipt: ReceiptOrder | null = orderItems.length === 0 ? null : {
+    orderNumber: nextOrderNumber ?? 0,
+    orderType,
+    serverName: selectedServerName,
+    tableNo: tableNo ? String(tableNo) : null,
+    customerName: customerName || null,
+    paymentMethod: orderType === 'DINE_IN' ? null : paymentMethod,
+    subtotal,
+    tax,
+    serviceCharge,
+    total,
+    items: orderItems.map((item) => ({
+      quantity: item.qty,
+      unitPrice: item.price,
+      note: item.note ?? null,
+      menuItem: { name: item.name },
+    })),
+  };
+  const receiptToPrint = draftReceipt ?? (lastOrderReceipt as ReceiptOrder | null);
+
+  function printReceipt() {
+    window.setTimeout(() => window.print(), 100);
+  }
 
   async function handlePlaceOrder() {
     setError(null);
@@ -161,11 +191,9 @@ export default function Pos() {
         subtotal, tax, serviceCharge, total,
       });
 
-      // Takeaway/delivery are paid upfront — print the receipt right away.
-      if (upfrontPaid) {
-        setLastOrderReceipt(res.data);
-        setTimeout(() => window.print(), 100);
-      }
+      setLastOrderReceipt(res.data);
+      setNextOrderNumber(res.data.orderNumber + 1);
+      if (autoPrintReceipt) printReceipt();
 
       clearOrder();
       setTableNo(null);
@@ -322,6 +350,11 @@ export default function Pos() {
           {error && <p className="px-4 pt-3 text-xs text-error">{error}</p>}
 
           <div className="p-4 flex flex-col gap-2 mt-auto">
+            {orderType === "DINE_IN" && (
+              <button type="button" onClick={printReceipt} disabled={!draftReceipt} className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-primary px-2 py-2 text-sm font-bold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40" title="Print current order">
+                <Printer size={15} /> Print
+              </button>
+            )}
             <button onClick={handlePlaceOrder} disabled={submitting || orderItems.length === 0}
               className="w-full px-2 py-2 rounded-lg bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg active:scale-[0.98] disabled:opacity-50">
               {submitting ? "Placing…" : (orderType === "DINE_IN" ? "Place Order" : "Place Order & Pay")}
@@ -329,6 +362,7 @@ export default function Pos() {
           </div>
         </section>
       </main>
+      {receiptToPrint && <div className="printable-receipt"><ReceiptPreview order={receiptToPrint} /></div>}
     </div>
   );
 }

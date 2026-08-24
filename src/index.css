@@ -56,6 +56,35 @@
   border-radius: 9999px;
 }
 
+.printable-receipt {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .printable-receipt,
+  .printable-receipt * {
+    visibility: visible !important;
+  }
+
+  .printable-receipt {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80mm;
+  }
+
+  .receipt-paper {
+    box-shadow: none !important;
+    max-width: none !important;
+    width: 80mm !important;
+  }
+}
+
 /* Add to your CSS or as inline style */
 .grid {
   animation: fadeIn 0.3s ease-in-out;

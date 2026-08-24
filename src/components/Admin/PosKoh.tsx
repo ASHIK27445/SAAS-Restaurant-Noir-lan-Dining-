@@ -39,7 +39,7 @@ export default function PosKoh() {
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-hidden">
+      <main className="custom-scrollbar min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
         <Outlet />
       </main>
     </div>
