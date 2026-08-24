@@ -47,6 +47,8 @@ import KitchenQueue from "../components/Admin/KitchenQueue";
 import CashierSettingPage from "../components/Admin/CashierSettingPage";
 import MenuItemManagement from "../components/Admin/MenuItemManagement";
 import PosKoh from "../components/Admin/PosKoh";
+import OrderPos from "../components/Admin/OrderPos";
+import OrderPosDetails from "../components/Admin/OrderPosDetails";
 
 export const router = createBrowserRouter([
     {
@@ -147,6 +149,8 @@ export const router = createBrowserRouter([
     Component: PosKoh,
     children: [
         { index: true, Component: Pos },
+        { path: 'orders', Component: OrderPos },
+        { path: 'orders/:orderId', Component: OrderPosDetails },
         { path: 'kitchen-queue', Component: KitchenQueue },
         { path: 'cashier-setting', Component: CashierSettingPage }
     ]

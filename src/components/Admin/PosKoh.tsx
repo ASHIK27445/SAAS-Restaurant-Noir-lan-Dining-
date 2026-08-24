@@ -1,8 +1,9 @@
-import { ChefHat, Settings, ShoppingCart } from "lucide-react";
+import { ChefHat, ClipboardList, Settings, ShoppingCart } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
 
 const NAV_ITEMS = [
   { label: "POS", to: "/pos-koh", icon: ShoppingCart, end: true },
+  { label: "Orders", to: "/pos-koh/orders", icon: ClipboardList, end: false },
   { label: "Kitchen Queue", to: "/pos-koh/kitchen-queue", icon: ChefHat, end: false },
   { label: "Cashier Setting", to: "/pos-koh/cashier-setting", icon: Settings, end: false },
 ];

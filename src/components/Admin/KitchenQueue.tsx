@@ -27,7 +27,7 @@ export default function KitchenQueue() {
                 <p className="text-[10px] text-on-surface-variant">Order {u.orderItem.order.orderNumber} • {new Date(u.orderItem.order.createdAt).toLocaleTimeString()}</p>
               </div>
               {!u.prepStartedAt ? (
-                <button onClick={() => markPrepStart(u.id).then(load)} className="text-xs font-semibold text-primary hover:underline">Start Prep</button>
+                <button onClick={() => markPrepStart(u.id).then(load)} className="text-xs font-semibold text-primary hover:underline">Start Preparing</button>
               ) : (
                 <button onClick={() => markPrepComplete(u.id).then(load)} className="text-xs font-semibold text-tertiary hover:underline">Mark Done</button>
               )}
