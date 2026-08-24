@@ -62,7 +62,7 @@ export type Order = {
 export type CashierSetting = {
   id: string;
   activeCashierStaffId: string | null;
-  activeCashier?: { id: string; name: string } | null;
+  activeCashier?: { id: string; name: string; role: string } | null;
   updatedAt: string;
 };
 
