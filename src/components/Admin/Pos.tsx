@@ -90,7 +90,7 @@ export default function Pos() {
   const [deliveryAddress, setDeliveryAddress] = useState('');
 
   const [waiters, setWaiters] = useState<{ id: string; name: string }[]>([]);
-  const [serverStaffId, setServerStaffId] = useState('');
+  const [serverStaffId, setServerStaffId] = useState(() => localStorage.getItem('pos-selected-server-id') ?? '');
   const [nextOrderNumber, setNextOrderNumber] = useState<number | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
@@ -106,6 +106,11 @@ export default function Pos() {
     getStaffMembers({ role: "Waiter" }).then((res) => setWaiters(res.data.map((s: any) => ({ id: s.id, name: s.name }))));
     getNextOrderNumber().then((res) => setNextOrderNumber(res.data.orderNumber));
   }, []);
+
+  useEffect(() => {
+    if (serverStaffId) localStorage.setItem('pos-selected-server-id', serverStaffId);
+    else localStorage.removeItem('pos-selected-server-id');
+  }, [serverStaffId]);
 
   const filteredItems = useMemo(
     () => items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase())),
