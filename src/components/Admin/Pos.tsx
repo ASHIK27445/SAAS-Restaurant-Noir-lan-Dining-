@@ -202,7 +202,7 @@ export default function Pos() {
         serverStaffId: needsServer ? serverStaffId || undefined : undefined,
         tableNo: orderType === "DINE_IN" && tableNo ? String(tableNo) : undefined,
         guestCount: orderType === "DINE_IN" ? guestCount ?? undefined : undefined,
-        customerName: orderType === "DINE_IN" ? customerName || undefined : undefined,
+        customerName: customerName || undefined,
         deliveryAddress: orderType === "DELIVERY" ? deliveryAddress : undefined,
         note: specialNote || undefined,
         paymentMethod: upfrontPaid ? paymentMethod : undefined,
@@ -330,6 +330,10 @@ export default function Pos() {
             </div>
           )}
 
+          <div className="p-4 border-b border-outline-variant/20 shrink-0">
+            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer name" className="w-full px-2 py-1.5 text-xs rounded-lg border border-outline-variant bg-surface-container-lowest" />
+          </div>
+
           {(orderType === "TAKEAWAY" || orderType === "DELIVERY") && (
             <div className="p-4 border-b border-outline-variant/20 shrink-0">
               <p className="text-[10px] font-bold tracking-widest uppercase text-secondary mb-2">Payment (paid now)</p>
@@ -346,8 +350,6 @@ export default function Pos() {
 
           {orderType === "DINE_IN" && (
             <div className="p-4 border-b border-outline-variant/20 shrink-0 space-y-2">
-              <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer name (pays later)"
-                className="w-full px-2 py-1.5 text-xs rounded-lg border border-outline-variant bg-surface-container-lowest" />
               <div className="flex gap-1.5">
                 <select value={tableNo ?? ''} onChange={(e) => setTableNo(Number(e.target.value))} className="flex-1 px-1.5 py-1 text-xs rounded-md border border-outline bg-surface-container-lowest">
                   <option value="" disabled>Table</option>
