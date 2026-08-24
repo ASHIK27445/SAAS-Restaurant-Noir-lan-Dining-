@@ -1,10 +1,25 @@
 import { useEffect, useState } from "react";
-import { Calendar, TrendingUp, Clock } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, TrendingUp, Clock } from "lucide-react";
 import { getAttendance, getWeeklyWageReport, getMonthlyWageReport, getYearlyWageReport } from "../../api/employee";
 import type { AttendanceRow, WageSummaryReport, YearlyWageReport } from "../../types/employee";
 
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 function todayStr() { return new Date().toISOString().slice(0, 10); }
+function weekStartStr() {
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
+  return date.toISOString().slice(0, 10);
+}
+function shiftWeek(dateString: string, weeks: number) {
+  const date = new Date(`${dateString}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + weeks * 7);
+  return date.toISOString().slice(0, 10);
+}
+function mondayOf(dateString: string) {
+  const date = new Date(`${dateString}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
+  return date.toISOString().slice(0, 10);
+}
 
 export default function WageReport() {
   const [view, setView] = useState<"daily" | "weekly" | "monthly" | "yearly">("daily");
@@ -12,7 +27,7 @@ export default function WageReport() {
   const [date, setDate] = useState(todayStr());
   const [daily, setDaily] = useState<AttendanceRow[]>([]);
 
-  const [weekStart, setWeekStart] = useState(todayStr());
+  const [weekStart, setWeekStart] = useState(weekStartStr());
   const [weekly, setWeekly] = useState<WageSummaryReport | null>(null);
 
   const now = new Date();
@@ -57,7 +72,17 @@ export default function WageReport() {
         <div className="flex items-center gap-2 mb-6 flex-wrap">
           <Calendar size={16} className="text-on-surface-variant" />
           {view === "daily" && <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-surface-container-low rounded-lg px-3 py-2 text-sm border border-transparent focus:border-primary/30 focus:outline-none" />}
-          {view === "weekly" && <input type="date" value={weekStart} onChange={(e) => setWeekStart(e.target.value)} className="bg-surface-container-low rounded-lg px-3 py-2 text-sm border border-transparent focus:border-primary/30 focus:outline-none" />}
+          {view === "weekly" && (
+            <div className="flex items-center gap-1">
+              <button type="button" onClick={() => setWeekStart((date) => shiftWeek(date, -1))} className="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-primary" aria-label="Previous week" title="Previous week">
+                <ChevronLeft size={16} />
+              </button>
+              <input type="date" value={weekStart} onChange={(e) => setWeekStart(mondayOf(e.target.value))} className="bg-surface-container-low rounded-lg px-3 py-2 text-sm border border-transparent focus:border-primary/30 focus:outline-none" />
+              <button type="button" onClick={() => setWeekStart((date) => shiftWeek(date, 1))} className="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-primary" aria-label="Next week" title="Next week">
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
           {view === "monthly" && (
             <>
               <select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="bg-surface-container-low rounded-lg px-3 py-2 text-sm border border-transparent focus:border-primary/30 focus:outline-none">
@@ -93,7 +118,7 @@ export default function WageReport() {
               }))}
             />
           </>
-        ) : (view === "weekly" || view === "monthly") && (weekly || monthly) ? (
+        ) : (view === "weekly" ? weekly : view === "monthly" ? monthly : null) ? (
           <>
             {(() => {
               const rep = view === "weekly" ? weekly! : monthly!;
