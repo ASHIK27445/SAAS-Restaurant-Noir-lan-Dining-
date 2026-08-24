@@ -70,6 +70,11 @@ const NAV_ITEMS = [
     label: "Invoice History",
     to: "/admin/invoice-history",
   },
+  {
+    icon: FileClock,
+    label: "POS",
+    to: "/admin/pos",
+  },
 ];
 
 const FOOTER_ITEMS = [

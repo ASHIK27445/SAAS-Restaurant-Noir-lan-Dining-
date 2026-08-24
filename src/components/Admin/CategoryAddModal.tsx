@@ -225,6 +225,16 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
                                 </label>
                             )}
                         </div>
+
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[11px] font-medium text-on-surface-variant">POS Bucket *</label>
+                            <select {...register("bucketType")} className="h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs">
+                                <option value="MEALS">Meals</option>
+                                <option value="DRINKS">Drinks</option>
+                                <option value="DESSERTS">Desserts</option>
+                                <option value="SIDES">Sides</option>
+                            </select>
+                        </div>
                     </div>
 
                     {/* Footer */}

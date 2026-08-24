@@ -42,6 +42,7 @@ import InventorySuppliers from "../components/supplier/InventorySuppliers";
 import WageReport from "../components/Admin/WageReport";
 import DailyAttendance from "../components/Admin/DailyAttendence";
 import FloorAdmin from "../components/Admin/FloorAdmin";
+import Pos from "../components/Admin/Pos";
 
 export const router = createBrowserRouter([
     {
@@ -126,6 +127,10 @@ export const router = createBrowserRouter([
     {
         path: 'floor-distribution',
         Component: FloorAdmin
+    },
+    {
+        path: 'pos',
+        Component: Pos
     }
   ]
 },
