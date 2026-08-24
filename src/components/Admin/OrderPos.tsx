@@ -1,5 +1,6 @@
 import { AlertCircle, ArrowRight, Ban, CheckCircle2, ChefHat, Clock3, Eye, MapPin, Printer, ReceiptText, Truck, UserRound } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router";
 import { completeDineInWithPayment, getOrders, updateOrderStatus } from "../../api/order";
 import type { Order } from "../../types/order";
@@ -59,10 +60,9 @@ function toReceipt(order: Order): ReceiptOrder {
 }
 
 export default function OrderPos() {
-  const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<Filter>("ALL");
-  const [loading, setLoading] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState<ReceiptOrder | null>(null);
+  const queryClient = useQueryClient();
 
   function getLocalDate(offsetDays = 0) {
     const date = new Date();
@@ -71,31 +71,29 @@ export default function OrderPos() {
     return date.toISOString().slice(0, 10);
   }
 
-  async function loadOrders() {
-    try {
+  const { data: orders = [], isLoading: loading } = useQuery({
+    queryKey: ["pos-orders", getLocalDate(), getLocalDate(-1)],
+    queryFn: async () => {
       const [today, previousDay] = await Promise.all([
         getOrders({ date: getLocalDate() }),
         getOrders({ date: getLocalDate(-1) }),
       ]);
-      setOrders([...today.data, ...previousDay.data]);
-    } finally { setLoading(false); }
-  }
+      return [...today.data, ...previousDay.data];
+    },
+    staleTime: 2 * 1000,
+    refetchInterval: 5 * 1000,
+    refetchOnWindowFocus: true,
+  });
 
   async function changeStatus(order: Order, status: Order["status"]) {
     try {
       if (status === "COMPLETED" && order.orderType === "DINE_IN") await completeDineInWithPayment(order.id, "cash");
       else await updateOrderStatus(order.id, status);
-      await loadOrders();
+      await queryClient.invalidateQueries({ queryKey: ["pos-orders"] });
     } catch (error: any) {
       window.alert(error.message || "Could not update order status");
     }
   }
-
-  useEffect(() => {
-    loadOrders();
-    const timer = window.setInterval(loadOrders, 5000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   const filtered = useMemo(() => orders.filter((order) => filter === "ALL" || order.status === filter), [orders, filter]);
 

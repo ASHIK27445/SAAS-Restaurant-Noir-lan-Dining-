@@ -1,14 +1,20 @@
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getKitchenQueue, markPrepStart, markPrepComplete } from "../../api/order";
 
 export default function KitchenQueue() {
-  const [units, setUnits] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const load = async() => {
-    return getKitchenQueue().then((res) => setUnits(res.data)).finally(() => setLoading(false));
-  }
-  useEffect(() => { load(); }, []);
+  const queryClient = useQueryClient();
+  const { data: units = [], isLoading: loading } = useQuery({
+    queryKey: ["kitchen-queue"],
+    queryFn: async () => (await getKitchenQueue()).data,
+    staleTime: 2 * 1000,
+    refetchInterval: 5 * 1000,
+    refetchOnWindowFocus: true,
+  });
+  const prepMutation = useMutation({
+    mutationFn: ({ unitId, complete }: { unitId: string; complete: boolean }) =>
+      complete ? markPrepComplete(unitId) : markPrepStart(unitId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["kitchen-queue"] }),
+  });
 
   return (
     <div className="bg-surface text-on-surface font-body min-h-screen p-6">
@@ -27,9 +33,9 @@ export default function KitchenQueue() {
                 <p className="text-[10px] text-on-surface-variant">Order {u.orderItem.order.orderNumber} • {new Date(u.orderItem.order.createdAt).toLocaleTimeString()}</p>
               </div>
               {!u.prepStartedAt ? (
-                <button onClick={() => markPrepStart(u.id).then(load)} className="text-xs font-semibold text-primary hover:underline">Start Preparing</button>
+                <button disabled={prepMutation.isPending} onClick={() => prepMutation.mutate({ unitId: u.id, complete: false })} className="text-xs font-semibold text-primary hover:underline disabled:opacity-50">Start Preparing</button>
               ) : (
-                <button onClick={() => markPrepComplete(u.id).then(load)} className="text-xs font-semibold text-tertiary hover:underline">Mark Done</button>
+                <button disabled={prepMutation.isPending} onClick={() => prepMutation.mutate({ unitId: u.id, complete: true })} className="text-xs font-semibold text-tertiary hover:underline disabled:opacity-50">Mark Done</button>
               )}
             </div>
           ))}

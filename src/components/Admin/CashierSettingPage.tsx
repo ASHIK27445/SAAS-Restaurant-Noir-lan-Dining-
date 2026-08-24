@@ -1,5 +1,6 @@
 import { CheckCircle2, Printer, Save, Settings2, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import ReceiptPreview from "./ReceiptPreview";
 import type { ReceiptOrder } from "./ReceiptPreview";
 import { createPromoCode, deletePromoCode, getCashierSetting, getPosSettings, getPromoCodes, setCashierSetting, updatePosSettings, updatePromoCode, type PosSettings, type PromoCode } from "../../api/order";
@@ -35,17 +36,26 @@ export default function CashierSettingPage() {
   const [editingPromoId, setEditingPromoId] = useState<string | null>(null);
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
+  const [staffQuery, cashierQuery, settingsQuery, promosQuery] = useQueries({
+    queries: [
+      { queryKey: ["staff", "waiters"], queryFn: getStaff, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
+      { queryKey: ["cashier-setting"], queryFn: getCashierSetting, staleTime: 30 * 1000, refetchOnWindowFocus: false },
+      { queryKey: ["pos-settings"], queryFn: getPosSettings, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
+      { queryKey: ["promo-codes"], queryFn: getPromoCodes, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
+    ],
+  });
+
   function showAlert(type: "success" | "error", message: string) {
     setAlert({ type, message });
     window.setTimeout(() => setAlert(null), 3200);
   }
 
   useEffect(() => {
-    getStaff().then((res) => setStaff(res.data.map((s: any) => ({ id: s.id, name: s.name, role: s.role }))));
-    getCashierSetting().then((res) => setCurrent(res.data?.activeCashier ?? null));
-    getPosSettings().then((res) => setSettings(res.data));
-    getPromoCodes().then((res) => setPromos(res.data));
-  }, []);
+    if (staffQuery.data) setStaff(staffQuery.data.data.map((s: any) => ({ id: s.id, name: s.name, role: s.role })));
+    if (cashierQuery.data) setCurrent(cashierQuery.data.data?.activeCashier ?? null);
+    if (settingsQuery.data) setSettings(settingsQuery.data.data);
+    if (promosQuery.data) setPromos(promosQuery.data.data);
+  }, [staffQuery.data, cashierQuery.data, settingsQuery.data, promosQuery.data]);
 
   async function saveSettings(message = "POS settings saved") {
     if (!settings) return;
