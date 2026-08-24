@@ -36,6 +36,21 @@ export function getNextOrderNumber() {
   return request<ApiItemResponse<{ orderNumber: number }>>("/orders/next-number");
 }
 
+export type PosSettings = { id: string; taxRate: string; serviceCharge: string; autoPrintReceipt: boolean };
+export type PromoCode = { id: string; code: string; discountPercent: string; usageLimit: number | null; usageCount: number; isActive: boolean; showInPos: boolean };
+export function getPosSettings() { return request<ApiItemResponse<PosSettings>>("/settings/pos-settings"); }
+export function updatePosSettings(input: { taxRate: number; serviceCharge: number; autoPrintReceipt: boolean }) {
+  return request<ApiItemResponse<PosSettings>>("/settings/pos-settings", { method: "PATCH", body: JSON.stringify(input) });
+}
+export function getPromoCodes() { return request<ApiListResponse<PromoCode>>("/settings/promo-codes"); }
+export function createPromoCode(input: { code: string; discountPercent: number; usageLimit: number | null; isActive: boolean; showInPos: boolean }) {
+  return request<ApiItemResponse<PromoCode>>("/settings/promo-codes", { method: "POST", body: JSON.stringify(input) });
+}
+export function updatePromoCode(id: string, input: Partial<Pick<PromoCode, "code" | "usageLimit" | "isActive" | "showInPos">> & { discountPercent?: number | string }) {
+  return request<ApiItemResponse<PromoCode>>(`/settings/promo-codes/${id}`, { method: "PATCH", body: JSON.stringify(input) });
+}
+export function deletePromoCode(id: string) { return request<ApiItemResponse<null>>(`/settings/promo-codes/${id}`, { method: "DELETE" }); }
+
 export function createOrder(input: {
   orderType: OrderType;
   serverStaffId?: string;
@@ -50,6 +65,7 @@ export function createOrder(input: {
   tax: number;
   serviceCharge: number;
   total: number;
+  promoCode?: string;
 }) {
   return request<ApiItemResponse<Order>>("/orders/create", { method: "POST", body: JSON.stringify(input) });
 }

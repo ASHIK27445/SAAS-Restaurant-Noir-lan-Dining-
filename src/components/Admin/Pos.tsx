@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CakeSlice, IceCream, Minus, Plus, Printer, Search, Soup, Utensils, Wine } from 'lucide-react';
-import { getMenuItemsByBucket, createOrder, getNextOrderNumber } from '../../api/order';
+import { getMenuItemsByBucket, createOrder, getNextOrderNumber, getPosSettings, getPromoCodes, type PosSettings, type PromoCode } from '../../api/order';
 import { getStaff as getStaffMembers } from '../../api/employee';
 import type { MenuItemWithCategory, OrderType } from '../../types/order';
 import ReceiptPreview from './ReceiptPreview';
@@ -94,7 +94,10 @@ export default function Pos() {
   const [waiters, setWaiters] = useState<{ id: string; name: string }[]>([]);
   const [serverStaffId, setServerStaffId] = useState(() => localStorage.getItem('pos-selected-server-id') ?? '');
   const [nextOrderNumber, setNextOrderNumber] = useState<number | null>(null);
-  const [autoPrintReceipt] = useState(() => localStorage.getItem('pos-auto-print-receipt') !== 'false');
+  const [posSettings, setPosSettings] = useState<PosSettings | null>(null);
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -108,16 +111,16 @@ export default function Pos() {
   useEffect(() => {
     getStaffMembers({ role: "Waiter" }).then((res) => setWaiters(res.data.map((s: any) => ({ id: s.id, name: s.name }))));
     getNextOrderNumber().then((res) => setNextOrderNumber(res.data.orderNumber));
+    Promise.all([getPosSettings(), getPromoCodes()]).then(([settings, promos]) => {
+      setPosSettings(settings.data);
+      setPromoCodes(promos.data);
+    });
   }, []);
 
   useEffect(() => {
     if (serverStaffId) localStorage.setItem('pos-selected-server-id', serverStaffId);
     else localStorage.removeItem('pos-selected-server-id');
   }, [serverStaffId]);
-
-  useEffect(() => {
-    localStorage.setItem('pos-auto-print-receipt', String(autoPrintReceipt));
-  }, [autoPrintReceipt]);
 
   const filteredItems = useMemo(
     () => items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase())),
@@ -142,9 +145,11 @@ export default function Pos() {
   const clearOrder = () => { setOrderItems([]); setSpecialNote(''); };
 
   const subtotal = orderItems.reduce((sum, l) => sum + l.price * l.qty, 0);
-  const tax = subtotal * 0.08;
-  const serviceCharge = subtotal > 0 ? 5.0 : 0;
-  const total = subtotal + tax + serviceCharge;
+  const taxRate = Number(posSettings?.taxRate ?? 8);
+  const serviceCharge = Number(posSettings?.serviceCharge ?? 0);
+  const discount = appliedPromo ? subtotal * Number(appliedPromo.discountPercent) / 100 : 0;
+  const tax = subtotal * taxRate / 100;
+  const total = subtotal + tax + serviceCharge - discount;
   const selectedServerName = waiters.find((w) => w.id === serverStaffId)?.name ?? 'Unassigned';
   const needsServer = orderType !== 'DELIVERY';
   const draftReceipt: ReceiptOrder | null = orderItems.length === 0 ? null : {
@@ -156,6 +161,7 @@ export default function Pos() {
     paymentMethod: orderType === 'DINE_IN' ? null : paymentMethod,
     subtotal,
     tax,
+    discount,
     serviceCharge,
     total,
     items: orderItems.map((item) => ({
@@ -169,6 +175,18 @@ export default function Pos() {
 
   function printReceipt() {
     window.setTimeout(() => window.print(), 100);
+  }
+
+  function applyPromoCode() {
+    const code = promoInput.trim().toUpperCase();
+    const promo = promoCodes.find((item) => item.code === code && item.isActive && item.showInPos && (item.usageLimit === null || item.usageCount < item.usageLimit));
+    if (!promo) {
+      setAppliedPromo(null);
+      setError('Invalid or unavailable promo code');
+      return;
+    }
+    setAppliedPromo(promo);
+    setError(null);
   }
 
   async function handlePlaceOrder() {
@@ -190,13 +208,16 @@ export default function Pos() {
         paymentMethod: upfrontPaid ? paymentMethod : undefined,
         items: orderItems.map((l) => ({ menuItemId: l.menuItemId, quantity: l.qty, unitPrice: l.price, note: l.note })),
         subtotal, tax, serviceCharge, total,
+        promoCode: appliedPromo?.code,
       });
 
       setLastOrderReceipt(res.data);
       setNextOrderNumber(res.data.orderNumber + 1);
-      if (autoPrintReceipt) printReceipt();
+      if (posSettings?.autoPrintReceipt) printReceipt();
 
       clearOrder();
+      setPromoInput('');
+      setAppliedPromo(null);
       setTableNo(null);
       setGuestCount(null);
       setCustomerName('');
@@ -276,7 +297,8 @@ export default function Pos() {
           <div className="p-4 border-t border-outline-variant/20 bg-surface-container-low shrink-0">
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-secondary"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-xs text-secondary"><span>Tax (8%)</span><span>${tax.toFixed(2)}</span></div>
+              <div className="flex justify-between text-xs text-secondary"><span>Tax ({taxRate}%)</span><span>${tax.toFixed(2)}</span></div>
+              {discount > 0 && <div className="flex justify-between text-xs text-tertiary"><span>Discount{appliedPromo ? ` (${appliedPromo.code})` : ''}</span><span>-${discount.toFixed(2)}</span></div>}
               <div className="flex justify-between text-xs text-secondary"><span>Service Charge</span><span>${serviceCharge.toFixed(2)}</span></div>
               <div className="flex justify-between text-base font-serif text-primary border-t-2 border-outline-variant/30 pt-2.5 mt-1">
                 <span>Total</span><span className="font-bold">${total.toFixed(2)}</span>
@@ -354,6 +376,12 @@ export default function Pos() {
           {error && <p className="px-4 pt-3 text-xs text-error">{error}</p>}
 
           <div className="p-4 flex flex-col gap-2 mt-auto">
+            {promoCodes.some((promo) => promo.isActive && promo.showInPos && (promo.usageLimit === null || promo.usageCount < promo.usageLimit)) && (
+              <div className="flex gap-1.5">
+                <input value={promoInput} onChange={(e) => setPromoInput(e.target.value)} placeholder="Promo code" className="min-w-0 flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest px-2 py-2 text-xs uppercase" />
+                <button type="button" onClick={applyPromoCode} className="shrink-0 rounded-lg border border-primary px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10">Apply</button>
+              </div>
+            )}
             {orderType === "DINE_IN" && (
               <button type="button" onClick={printReceipt} disabled={!draftReceipt} className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-primary px-2 py-2 text-sm font-bold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40" title="Print current order">
                 <Printer size={15} /> Print
