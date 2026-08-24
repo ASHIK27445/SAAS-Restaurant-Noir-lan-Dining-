@@ -23,11 +23,13 @@ export function setCashierSetting(staffId: string) {
   return request<ApiItemResponse<CashierSetting>>("/orders/cashier-setting", { method: "PATCH", body: JSON.stringify({ staffId }) });
 }
 
-export function getOrders(filters: { status?: string; orderType?: string; date?: string } = {}) {
+export function getOrders(filters: { status?: string; orderType?: string; date?: string; fromDate?: string; toDate?: string } = {}) {
   const p = new URLSearchParams();
   if (filters.status) p.set("status", filters.status);
   if (filters.orderType) p.set("orderType", filters.orderType);
   if (filters.date) p.set("date", filters.date);
+  if (filters.fromDate) p.set("fromDate", filters.fromDate);
+  if (filters.toDate) p.set("toDate", filters.toDate);
   const qs = p.toString();
   return request<ApiListResponse<Order>>(`/orders${qs ? `?${qs}` : ""}`);
 }
