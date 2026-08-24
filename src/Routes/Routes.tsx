@@ -46,6 +46,7 @@ import Pos from "../components/Admin/Pos";
 import KitchenQueue from "../components/Admin/KitchenQueue";
 import CashierSettingPage from "../components/Admin/CashierSettingPage";
 import MenuItemManagement from "../components/Admin/MenuItemManagement";
+import PosKoh from "../components/Admin/PosKoh";
 
 export const router = createBrowserRouter([
     {
@@ -140,6 +141,15 @@ export const router = createBrowserRouter([
         Component: MenuItemManagement
     }
   ]
+},
+{
+    path: '/pos-koh',
+    Component: PosKoh,
+    children: [
+        { index: true, Component: Pos },
+        { path: 'kitchen-queue', Component: KitchenQueue },
+        { path: 'cashier-setting', Component: CashierSettingPage }
+    ]
 },
     {
         path: 'ed',

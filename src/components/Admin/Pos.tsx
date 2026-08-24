@@ -183,7 +183,7 @@ export default function Pos() {
           ))}
         </section>
 
-        <section style={{ flex: '60' }} className="min-w-0 p-6 overflow-y-auto bg-surface border-r border-outline-variant/10">
+        <section style={{ flex: '60' }} className="custom-scrollbar min-w-0 p-6 overflow-y-auto bg-surface border-r border-outline-variant/10">
           <header className="mb-6 flex justify-between items-end">
             <div>
               <h2 className="text-3xl font-serif italic text-primary">{BUCKETS.find((b) => b.key === activeBucket)?.label}</h2>
@@ -211,23 +211,21 @@ export default function Pos() {
 
         <section style={{ flex: '25' }} className="min-w-0 flex flex-col h-screen border-r border-outline-variant/10 bg-surface-container-lowest">
           <div className="p-4 border-b border-outline-variant/20 shrink-0">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="text-lg font-serif text-primary truncate">
-                  {orderType === 'DINE_IN' && tableNo ? `Table ${tableNo}` : 'Current Order'}
-                  {orderType === 'DINE_IN' && guestCount && ` • Guests: ${guestCount}`}
-                </h2>
-                <p className="text-xs font-medium text-secondary wrap-break-word">
-                  Order #{nextOrderNumber === null ? '-----' : String(nextOrderNumber).padStart(5, '0')} • Server: {selectedServerName}
-                </p>
-              </div>
+            <div className="flex w-full items-start justify-between gap-3">
+              <h2 className="min-w-0 flex-1 text-lg font-serif text-primary truncate">
+                {orderType === 'DINE_IN' && tableNo ? `Table ${tableNo}` : 'Current Order'}
+                {orderType === 'DINE_IN' && guestCount && ` • Guests: ${guestCount}`}
+              </h2>
               <span className="shrink-0 bg-tertiary/10 text-tertiary px-2 py-1 rounded-full text-[9px] font-bold uppercase">
                 {orderType.replace("_", "-")}
               </span>
             </div>
+            <p className="mt-1 w-full text-xs font-medium text-secondary wrap-break-word">
+              Order #{nextOrderNumber === null ? '-----' : String(nextOrderNumber).padStart(5, '0')} • Server: {selectedServerName}
+            </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="custom-scrollbar flex-1 overflow-y-auto p-4 space-y-4">
             {orderItems.length > 0 ? (
               orderItems.map((l) => (
                 <ReceiptItem key={l.menuItemId} name={l.name} qty={l.qty} price={`$${(l.price * l.qty).toFixed(2)}`}
@@ -252,7 +250,7 @@ export default function Pos() {
           </div>
         </section>
 
-        <section style={{ flex: '15' }} className="min-w-0 flex flex-col h-screen bg-surface-container-low overflow-y-auto">
+        <section style={{ flex: '15' }} className="custom-scrollbar min-w-0 flex flex-col h-screen bg-surface-container-low overflow-y-auto">
           <div className="p-4 border-b border-outline-variant/20 shrink-0">
             <p className="text-[10px] font-bold tracking-widest uppercase text-secondary">Order Type</p>
             <div className="grid grid-cols-1 gap-1.5 mt-2">
