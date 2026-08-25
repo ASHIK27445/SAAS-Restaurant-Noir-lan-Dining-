@@ -22,6 +22,12 @@ export default function UserManagement() {
 
   useEffect(() => { void loadUsers(); }, []);
 
+  useEffect(() => {
+    if (!message) return;
+    const timeout = window.setTimeout(() => setMessage(""), 3000);
+    return () => window.clearTimeout(timeout);
+  }, [message]);
+
   async function saveUser(user: UserSummary) {
     setSaving(user.id);
     try {
@@ -56,31 +62,34 @@ export default function UserManagement() {
   }
 
   return (
-    <section className="p-6 md:p-10 space-y-6">
-      <div className="flex items-start justify-between gap-4">
+    <section className="space-y-4 p-4 md:p-6">
+      <div className="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-primary font-bold">Administration</p>
-          <h1 className="text-3xl font-headline font-bold mt-1">User Management</h1>
-          <p className="text-sm text-on-surface-variant mt-2">Manage customer and staff accounts, roles, status, and passwords.</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Administration</p>
+          <h1 className="mt-1 font-headline text-2xl font-bold">User Management</h1>
+          <p className="mt-1 text-xs text-on-surface-variant">Manage accounts, access status, verification, and passwords.</p>
         </div>
-        <button title="Refresh users" onClick={() => void loadUsers()} className="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high"><RefreshCw size={17} /></button>
+        <button title="Refresh users" onClick={() => void loadUsers()} className="rounded-md border border-outline-variant/30 bg-surface-container-low p-2 text-primary hover:bg-surface-container-high"><RefreshCw size={16} /></button>
       </div>
-      {message && <p className="text-sm text-primary bg-primary/10 rounded-lg px-4 py-3">{message}</p>}
-      <div className="overflow-x-auto bg-surface-container-lowest rounded-xl border border-outline-variant/15">
-        <table className="w-full min-w-max text-left text-sm">
-          <thead className="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/15">
-            <tr><th className="p-4">User</th><th className="p-4">Role</th><th className="p-4">Contact</th><th className="p-4">Status</th><th className="p-4">Email Verification</th><th className="p-4">Password</th><th className="p-4">Actions</th></tr>
+      {message && <p className="rounded-md border border-primary/15 bg-primary/10 px-3 py-2 text-xs text-primary">{message}</p>}
+      <div className="overflow-x-auto rounded-md border border-[#aeb5ae] bg-surface-container-lowest shadow-sm">
+        <table className="w-full min-w-270 table-fixed border-collapse text-left text-xs">
+          <colgroup>
+            <col className="w-[25%]" /><col className="w-[13%]" /><col className="w-[15%]" /><col className="w-[11%]" /><col className="w-[15%]" /><col className="w-[13%]" /><col className="w-[8%]" />
+          </colgroup>
+          <thead className="bg-surface-container-high text-[9px] uppercase tracking-widest text-on-surface-variant">
+            <tr><th className="border border-[#aeb5ae] px-3 py-2.5 font-bold">User</th><th className="border border-[#aeb5ae] px-3 py-2.5 font-bold">Role</th><th className="border border-[#aeb5ae] px-3 py-2.5 font-bold">Contact</th><th className="border border-[#aeb5ae] px-3 py-2.5 font-bold">Status</th><th className="border border-[#aeb5ae] px-3 py-2.5 font-bold">Email Verification</th><th className="border border-[#aeb5ae] px-3 py-2.5 font-bold">Password</th><th className="border border-[#aeb5ae] px-3 py-2.5 text-center font-bold">Actions</th></tr>
           </thead>
           <tbody>
-            {loading ? <tr><td colSpan={7} className="p-8 text-center text-on-surface-variant">Loading users...</td></tr> : users.map((user) => (
-              <tr key={user.id} className="border-b border-outline-variant/10 last:border-0">
-                <td className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-full bg-primary/10 text-primary"><UserRound size={16} /></div><div><input value={user.name || ""} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, name: event.target.value } : item))} placeholder="Name" className="bg-surface-container-low rounded-lg px-3 py-2 text-xs w-36" /><p className="text-xs text-on-surface-variant mt-1">{user.email}</p></div></div></td>
-                <td className="p-4"><select value={user.role} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, role: event.target.value } : item))} className="bg-surface-container-low rounded-lg px-3 py-2 text-xs">{ROLES.map((role) => <option key={role}>{role}</option>)}</select></td>
-                <td className="p-4"><input value={user.phone || ""} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, phone: event.target.value } : item))} placeholder="Phone" className="bg-surface-container-low rounded-lg px-3 py-2 text-xs w-32" /></td>
-                <td className="p-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={user.isActive} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, isActive: event.target.checked } : item))} /> Active</label></td>
-                <td className="p-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={user.emailVerificationNeeded} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, emailVerificationNeeded: event.target.checked } : item))} /> Required</label></td>
-                <td className="p-4"><div className="flex min-w-48 flex-col gap-1.5"><span className="text-[10px] font-semibold text-on-surface-variant">Current Password</span><span className="text-xs text-on-surface-variant">•••••••• <span className="text-[10px]">(hidden)</span></span><button type="button" title="Set a new password" onClick={() => setPasswordUser(user)} className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/15"><KeyRound size={13} /> New Password</button></div></td>
-                <td className="p-4"><div className="flex gap-1"><button title="Save changes" disabled={saving === user.id} onClick={() => void saveUser(user)} className="p-2 text-primary hover:bg-primary/10 rounded-lg"><Save size={15} /></button><button title="Delete user" disabled={saving === user.id} onClick={() => void removeUser(user)} className="p-2 text-error hover:bg-error/10 rounded-lg"><Trash2 size={15} /></button></div></td>
+            {loading ? <tr><td colSpan={7} className="border border-[#aeb5ae] p-8 text-center text-on-surface-variant">Loading users...</td></tr> : users.map((user) => (
+              <tr key={user.id} className="even:bg-surface-container-low/45 hover:bg-primary/3">
+                <td className="border border-[#aeb5ae] px-3 py-2"><div className="flex items-center gap-2"><div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"><UserRound size={14} /></div><div className="min-w-0"><input value={user.name || ""} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, name: event.target.value } : item))} placeholder="Name" className="w-full rounded border border-outline-variant/30 bg-white px-2 py-1.5 text-xs outline-none focus:border-primary" /><p className="mt-1 truncate text-[10px] text-on-surface-variant">{user.email}</p></div></div></td>
+                <td className="border border-[#aeb5ae] px-3 py-2"><select value={user.role} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, role: event.target.value } : item))} className="w-full rounded border border-outline-variant/30 bg-white px-2 py-1.5 text-xs outline-none focus:border-primary">{ROLES.map((role) => <option key={role}>{role}</option>)}</select></td>
+                <td className="border border-[#aeb5ae] px-3 py-2"><input value={user.phone || ""} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, phone: event.target.value } : item))} placeholder="Phone" className="w-full rounded border border-outline-variant/30 bg-white px-2 py-1.5 text-xs outline-none focus:border-primary" /></td>
+                <td className="border border-[#aeb5ae] px-3 py-2"><label className="flex items-center gap-1.5 whitespace-nowrap text-xs"><input type="checkbox" checked={user.isActive} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, isActive: event.target.checked } : item))} className="accent-primary" /> Active</label></td>
+                <td className="border border-[#aeb5ae] px-3 py-2"><label className="flex items-center gap-1.5 whitespace-nowrap text-xs"><input type="checkbox" checked={user.emailVerificationNeeded} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, emailVerificationNeeded: event.target.checked } : item))} className="accent-primary" /> Required</label></td>
+                <td className="border border-[#aeb5ae] px-3 py-2"><div className="flex flex-col gap-1"><span className="text-[10px] text-on-surface-variant">••••••••</span><button type="button" title="Set a new password" onClick={() => setPasswordUser(user)} className="inline-flex w-fit items-center gap-1 rounded border border-primary/20 bg-primary/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-primary hover:bg-primary/15"><KeyRound size={11} /> New Password</button></div></td>
+                <td className="border border-[#aeb5ae] px-2 py-2"><div className="flex flex-col items-center gap-0.5"><div className="flex justify-center gap-1"><button title="Save changes" disabled={saving === user.id} onClick={() => void saveUser(user)} className="rounded border border-primary/20 p-1.5 text-primary hover:bg-primary/10 disabled:cursor-wait disabled:opacity-50"><Save size={14} /></button><button title="Delete user" disabled={saving === user.id} onClick={() => void removeUser(user)} className="rounded border border-error/20 p-1.5 text-error hover:bg-error/10 disabled:cursor-wait disabled:opacity-50"><Trash2 size={14} /></button></div>{saving === user.id && <span className="animate-pulse text-[10px] font-bold tracking-[0.2em] text-primary">...</span>}</div></td>
               </tr>
             ))}
           </tbody>
