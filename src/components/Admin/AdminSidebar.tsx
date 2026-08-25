@@ -145,10 +145,10 @@ function SidebarItem({ icon: Icon, label, to }: SidebarItemProps) {
 
 export default function AdminSidebar() {
   return (
-    <aside className="hidden md:flex flex-col h-screen w-72 border-r border-outline-variant/20 bg-surface py-8 px-4 sticky top-0">
+    <aside className="hidden md:flex flex-col h-screen w-72 border-r border-outline-variant/20 bg-surface py-8 px-4 sticky top-0 overflow-hidden">
 
       {/* Branding */}
-      <div className="mb-10 px-4">
+      <div className="mb-10 px-4 shrink-0">
         <h1 className="text-2xl font-headline font-bold text-primary tracking-tight">
           The Culinary Editorial
         </h1>
@@ -159,14 +159,14 @@ export default function AdminSidebar() {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-1">
         {NAV_ITEMS.map((item) => (
           <SidebarItem key={item.label} {...item} />
         ))}
       </nav>
 
       {/* Footer Navigation */}
-      <div className="mt-auto pt-6 space-y-1">
+      <div className="mt-auto pt-6 space-y-1 shrink-0">
         {FOOTER_ITEMS.map((item) => (
           <SidebarItem key={item.label} {...item} />
         ))}
