@@ -1,7 +1,9 @@
-import { Outlet, useLocation, Link } from "react-router";
+import { Outlet, useLocation, Link, useNavigate } from "react-router";
 import AdminSidebar from "./AdminSidebar";
 import { Bell, LogOut, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
+import { AuthContext } from "../Authentication/AuthContext";
+import type { AuthContextType } from "../Authentication/auth";
 
 const HEADER_CONFIG: Record<
   string,
@@ -24,9 +26,20 @@ const HEADER_CONFIG: Record<
 
 export default function AdminHome() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logoutUser } = use(AuthContext) as AuthContextType;
 
   const [headerLeft, setHeaderLeft] =
     useState<React.ReactNode>(null);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   // remove "/admin/" from pathname
   const path = location.pathname
@@ -130,7 +143,14 @@ export default function AdminHome() {
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <LogOut size={18} className="cursor-pointer"/>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  aria-label="Logout"
+                  className="text-secondary hover:opacity-80 transition-opacity"
+                >
+                  <LogOut size={18} className="cursor-pointer"/>
+                </button>
               </div>
             </div>
         </header>
