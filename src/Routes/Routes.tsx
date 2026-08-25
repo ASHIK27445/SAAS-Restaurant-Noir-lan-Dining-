@@ -28,7 +28,6 @@ import EmployeeManagement from "../components/Admin/EmployeeManagement";
 import AddEmployeeModal from "../components/Admin/AddEmployeeModal";
 import StaffSchedule from "../components/Admin/StaffSchedule";
 import EmployeeViewSchedule from "../components/Admin/EmployeeViewSchedule";
-import OrderManagement from "../components/Admin/OrderManagement";
 import Reports from "../components/Admin/Reports";
 import InvoiceHistory from "../components/Admin/InvoiceHistory";
 import SupplierProfile from "../components/supplier/SupplierProfile";
@@ -53,6 +52,7 @@ import OrderPosDetails from "../components/Admin/OrderPosDetails";
 import OrderManagementReal from "../components/Admin/OrderManagementReal";
 import UserManagement from "../components/Admin/UserManagement";
 import PermissionManagement from "../components/Admin/PermissionManagement";
+import ManagementLogin from "../components/Authentication/ManagementLogin";
 
 export const router = createBrowserRouter([
     {
@@ -175,6 +175,10 @@ export const router = createBrowserRouter([
     {
         path:'login',
         Component: Login
+    },
+    {
+        path: 'management-login',
+        Component: ManagementLogin
     },
     {
         path: 'add-staff',
