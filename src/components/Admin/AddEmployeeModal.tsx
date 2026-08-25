@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { employeeSchema } from "../../Schemas/employee.schema";
+import { authFetch } from "../../api/authFetch";
 
 const INPUT_CLS =
   "w-full bg-surface-container-low border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary/20 text-on-surface placeholder:text-outline/60 font-body transition-all outline-none";
@@ -57,9 +58,8 @@ export default function AddEmployeeModal({
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await fetch("http://localhost:3000/employees/staff/create", {
+      const response = await authFetch("http://localhost:3000/employees/staff/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
           hourlyRate: data.hourlyRate ? Number(data.hourlyRate) : undefined,
@@ -82,7 +82,7 @@ export default function AddEmployeeModal({
       }
     };
 
-  const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin"];
+  const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin", "DemoAdmin"];
 
   if (!showModal) return null;
 
@@ -185,6 +185,19 @@ export default function AddEmployeeModal({
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                )}
+              </div>
+
+              {/* Initial Firebase password */}
+              <div>
+                <input
+                  {...register("password")}
+                  className={INPUT_CLS + " py-2 text-sm"}
+                  placeholder="Temporary password"
+                  type="password"
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
                 )}
               </div>
 

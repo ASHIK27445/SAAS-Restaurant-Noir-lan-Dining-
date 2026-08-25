@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import LoginLeftPanel from "./LoginLeftPanel";
 import { AuthContext } from "./AuthContext";
 import type { AuthContextType } from "./auth";
+import { authFetch } from "../../api/authFetch";
 import {
   CreateAccountSchema,
   type CreateAccountFormData,
@@ -55,9 +56,8 @@ export default function CreateAccount() {
         phone: data.phone,
       };
 
-      const response = await fetch("http://localhost:3000/auth/user-create", {
+      const response = await authFetch("http://localhost:3000/auth/user-create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userInfo),
       });
 

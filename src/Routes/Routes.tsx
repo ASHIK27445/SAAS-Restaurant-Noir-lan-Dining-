@@ -51,6 +51,8 @@ import PosKoh from "../components/Admin/PosKoh";
 import OrderPos from "../components/Admin/OrderPos";
 import OrderPosDetails from "../components/Admin/OrderPosDetails";
 import OrderManagementReal from "../components/Admin/OrderManagementReal";
+import UserManagement from "../components/Admin/UserManagement";
+import PermissionManagement from "../components/Admin/PermissionManagement";
 
 export const router = createBrowserRouter([
     {
@@ -101,6 +103,14 @@ export const router = createBrowserRouter([
     {
         path: "employee",
         Component: EmployeeManagement
+    },
+    {
+        path: "users",
+        Component: UserManagement
+    },
+    {
+        path: "permissions",
+        Component: PermissionManagement
     },
 
     {

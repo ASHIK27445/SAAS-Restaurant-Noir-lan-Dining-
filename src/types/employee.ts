@@ -1,4 +1,4 @@
-export type RoleEnum = "Chef" | "SousChef" | "Waiter" | "Cashier" | "Manager" | "Admin";
+export type RoleEnum = "Chef" | "SousChef" | "Waiter" | "Cashier" | "Manager" | "Admin" | "DemoAdmin";
 export type Department = "Kitchen" | "Front of House" | "Administration";
 
 export type Staff = {

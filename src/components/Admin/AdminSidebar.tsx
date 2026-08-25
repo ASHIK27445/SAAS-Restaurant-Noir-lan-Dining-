@@ -13,6 +13,8 @@ import {
   ListCheck,
   LayoutGrid,
   ForkKnife,
+  UserCog,
+  ShieldCheck,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -35,6 +37,16 @@ const NAV_ITEMS = [
     icon: Users,
     label: "Employee Management",
     to: "/admin/employee",
+  },
+  {
+    icon: UserCog,
+    label: "User Management",
+    to: "/admin/users",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Permissions",
+    to: "/admin/permissions",
   },
   {
     icon: ListCheck,
