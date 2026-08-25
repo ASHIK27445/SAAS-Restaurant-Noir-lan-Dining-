@@ -3,11 +3,15 @@ import {
   ClipboardList,
   FileText,
   LayoutDashboard,
+  LogOut,
   Package,
   PaperBag,
   Users,
 } from "lucide-react";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
+import { use } from "react";
+import { AuthContext } from "../Authentication/AuthContext";
+import type { AuthContextType } from "../Authentication/auth";
 
 const links = [
   { to: "/supplier", label: "Directory", icon: LayoutDashboard, end: true },
@@ -19,6 +23,19 @@ const links = [
 ];
 
 export default function SupplierAside() {
+  const navigate = useNavigate();
+  const { logoutUser } = use(AuthContext) as AuthContextType;
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      sessionStorage.removeItem("supplier-access-granted");
+      navigate("/supplier-login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <aside className="flex w-full shrink-0 flex-col border-b border-outline-variant/20 bg-surface-container-lowest md:sticky md:top-0 md:h-screen md:w-72 md:border-b-0 md:border-r">
       <div className="px-6 py-6 md:px-7 md:py-8">
@@ -41,11 +58,19 @@ export default function SupplierAside() {
         ))}
       </nav>
 
-      <div className="mt-auto hidden border-t border-outline-variant/15 px-6 py-6 md:block">
+      <div className="mt-auto border-t border-outline-variant/15 px-4 py-4 md:px-6 md:py-6">
         <div className="flex items-center gap-3 text-sm text-on-surface-variant">
           <FileText size={17} />
           <span>Supplier operations</span>
         </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="mt-5 flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-error"
+        >
+          <LogOut size={17} />
+          <span>Logout</span>
+        </button>
       </div>
     </aside>
   );

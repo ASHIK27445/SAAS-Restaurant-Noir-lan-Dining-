@@ -57,6 +57,7 @@ import PosLogin from "../components/Authentication/PosLogin";
 import SupplierLogin from "../components/Authentication/SupplierLogin";
 import PosAccessGate from "../components/Authentication/PosAccessGate";
 import SupplierAccessGate from "../components/Authentication/SupplierAccessGate";
+import ManagementAccessGate from "../components/Authentication/ManagementAccessGate";
 
 export const router = createBrowserRouter([
     {
@@ -93,72 +94,77 @@ export const router = createBrowserRouter([
     },
 {
   path: "admin",
-  Component: AdminHome,
+  Component: ManagementAccessGate,
   children: [
-    { index: true, Component: AdminDashboardDefault },
-
     {
-      path: "menu",
+      Component: AdminHome,
       children: [
-        { index: true, Component: AddMenuItem },
-        { path: "category-manage", Component: CategoryManagement },
-        {path: "inventory-manage", Component: InventoryManagement}
+        { index: true, Component: AdminDashboardDefault },
+
+        {
+          path: "menu",
+          children: [
+            { index: true, Component: AddMenuItem },
+            { path: "category-manage", Component: CategoryManagement },
+            {path: "inventory-manage", Component: InventoryManagement}
+          ]
+        },
+
+        {
+            path: "employee",
+            Component: EmployeeManagement
+        },
+        {
+            path: "users",
+            Component: UserManagement
+        },
+        {
+            path: "permissions",
+            Component: PermissionManagement
+        },
+
+        {
+            path: 'staff-schedule',
+            Component: StaffSchedule
+        },
+
+        {
+            path: 'staff-view-schedule',
+            Component: EmployeeViewSchedule
+        },
+        {
+            path: 'orders',
+            Component: OrderManagementReal
+        },
+        {
+            path: 'reports',
+            Component: Reports
+        },
+        {
+            path: 'invoice-history',
+            Component: InvoiceHistory
+        },
+        {
+            path: 'wage-report',
+            Component: WageReport
+        },
+        {
+            path: 'attendence',
+            Component: DailyAttendance
+        },
+        {
+            path: 'floor-distribution',
+            Component: FloorAdmin
+        },
+        {
+            path: 'menu-item-manage',
+            Component: MenuItemManagement
+        },
+        {
+            path: 'settings',
+            Component: CashierSettingPage
+        }
       ]
-    },
-
-    {
-        path: "employee",
-        Component: EmployeeManagement
-    },
-    {
-        path: "users",
-        Component: UserManagement
-    },
-    {
-        path: "permissions",
-        Component: PermissionManagement
-    },
-
-    {
-        path: 'staff-schedule',
-        Component: StaffSchedule
-    },
-
-    {
-        path: 'staff-view-schedule',
-        Component: EmployeeViewSchedule
-    },
-    {
-        path: 'orders',
-        Component: OrderManagementReal
-    },
-    {
-        path: 'reports',
-        Component: Reports
-    },
-    {
-        path: 'invoice-history',
-        Component: InvoiceHistory
-    },
-    {
-        path: 'wage-report',
-        Component: WageReport
-    },
-    {
-        path: 'attendence',
-        Component: DailyAttendance
-    },
-    {
-        path: 'floor-distribution',
-        Component: FloorAdmin
-    },
-    {
-        path: 'menu-item-manage',
-        Component: MenuItemManagement
-    },
-    {
-        path: 'settings',
-        Component: CashierSettingPage
     }
   ]
 },

@@ -1,5 +1,8 @@
-import { ChefHat, ClipboardList, ShoppingCart } from "lucide-react";
-import { NavLink, Outlet } from "react-router";
+import { ChefHat, ClipboardList, LogOut, ShoppingCart } from "lucide-react";
+import { NavLink, Outlet, useNavigate } from "react-router";
+import { use } from "react";
+import { AuthContext } from "../Authentication/AuthContext";
+import type { AuthContextType } from "../Authentication/auth";
 
 const NAV_ITEMS = [
   { label: "POS", to: "/pos-koh", icon: ShoppingCart, end: true },
@@ -8,6 +11,19 @@ const NAV_ITEMS = [
 ];
 
 export default function PosKoh() {
+  const navigate = useNavigate();
+  const { logoutUser } = use(AuthContext) as AuthContextType;
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      sessionStorage.removeItem("pos-access-granted");
+      navigate("/pos-login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-surface text-on-surface font-body">
       <aside className="flex w-16 shrink-0 flex-col items-center border-r border-outline-variant/20 bg-surface-container-low py-5">
@@ -33,6 +49,16 @@ export default function PosKoh() {
             </NavLink>
           ))}
         </nav>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          title="Logout"
+          aria-label="Logout"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-error"
+        >
+          <LogOut size={19} />
+        </button>
 
         <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-on-surface-variant [writing-mode:vertical-rl]">
           POS KOH
