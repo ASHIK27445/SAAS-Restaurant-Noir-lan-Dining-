@@ -4,6 +4,7 @@ import { createCategorySchema, type CreateCategoryInput } from "../../Schemas/me
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { authFetch } from "../../api/authFetch";
 
 type Props = {
   isOpen: boolean;
@@ -30,7 +31,7 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
         setError("");
         
         try {
-            const res = await fetch("http://localhost:3000/menu/category/create", {
+            const res = await authFetch("http://localhost:3000/menu/category/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

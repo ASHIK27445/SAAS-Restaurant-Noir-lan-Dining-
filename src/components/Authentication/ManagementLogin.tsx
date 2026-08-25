@@ -7,7 +7,7 @@ import LoginLeftPanel from "./LoginLeftPanel";
 import { AuthContext } from "./AuthContext";
 import type { AuthContextType } from "./auth";
 import { LoginSchema, type LoginFormData } from "./ZodLoginSchema";
-import { getCurrentUser } from "../../api/authorization";
+import { bootstrapAdmin, getCurrentUser } from "../../api/authorization";
 
 const MANAGEMENT_ROLES = ["Admin", "DemoAdmin", "Manager", "Chef", "SousChef", "Waiter", "Cashier"];
 
@@ -28,13 +28,34 @@ export default function ManagementLogin() {
     setError("");
     try {
       const result = await loginUser(data.email, data.password);
+      await result.user.reload();
       if (!result.user.emailVerified) {
-        await sendEmailVerification(result.user);
-        await logoutUser();
-        setError("Please verify your email before using the management portal.");
+        try {
+          await sendEmailVerification(result.user, {
+            url: `${window.location.origin}/email-verification-success`,
+            handleCodeInApp: true,
+          });
+          await logoutUser();
+          setError("A verification link has been sent to your management email. Verify it, then sign in again.");
+        } catch (verificationError) {
+          await logoutUser();
+          const code = verificationError && typeof verificationError === "object" && "code" in verificationError
+            ? String(verificationError.code)
+            : "unknown";
+          setError(`Verification email could not be sent (${code}). Check that Email/Password is enabled in Firebase Authentication.`);
+        }
         return;
       }
-      const response = await getCurrentUser();
+      let response;
+      try {
+        response = await getCurrentUser();
+      } catch {
+        await bootstrapAdmin(await result.user.getIdToken(), {
+          name: result.user.displayName,
+          phone: result.user.phoneNumber,
+        });
+        response = await getCurrentUser();
+      }
       if (!MANAGEMENT_ROLES.includes(response.user.role)) {
         await logoutUser();
         setError("This account is for customer access only.");

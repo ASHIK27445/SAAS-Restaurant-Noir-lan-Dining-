@@ -27,10 +27,14 @@ export default function LoginPage() {
     //firebase
     try {
       const res = await loginUser(data.email, data.password)
+      await res.user.reload()
 
       //sent user verfication mail
       if(!res.user.emailVerified){
-        await sendEmailVerification(res.user)
+        await sendEmailVerification(res.user, {
+          url: `${window.location.origin}/email-verification-success`,
+          handleCodeInApp: true,
+        })
         await logoutUser()
         console.log(res.user.email)
         alert('verified email please!')

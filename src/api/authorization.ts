@@ -17,6 +17,17 @@ export function getCurrentUser() {
   return request<{ success: true; user: UserSummary }>("/auth/me");
 }
 
+export async function bootstrapAdmin(token: string, profile: { name?: string | null; phone?: string | null }) {
+  const response = await fetch(`${BASE_URL}/auth/bootstrap-admin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, ...profile }),
+  });
+  const body = await response.json();
+  if (!response.ok || body.success === false) throw new Error(body.message || "Admin bootstrap failed");
+  return body as { success: true; user: UserSummary };
+}
+
 export function getUsers() {
   return request<{ success: true; data: UserSummary[] }>("/auth/users");
 }

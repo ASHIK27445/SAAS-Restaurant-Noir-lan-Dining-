@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CategoryManagementSkeletonLoading from "./SkeletonLoading/CategoryManageLoading";
+import { authFetch } from "../../api/authFetch";
 
 type Category = {
   id: string;
@@ -78,11 +79,8 @@ const [imagePreview, setImagePreview] = useState<string>("");
     setError("");
     
     try {
-      const response = await fetch(`http://localhost:3000/menu/category/${category.id}`, {
+      const response = await authFetch(`http://localhost:3000/menu/category/${category.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(data),
       });
       
@@ -263,7 +261,7 @@ export default function CategoryManagement() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:3000/menu/all/categories");
+      const response = await authFetch("http://localhost:3000/menu/all/categories");
       const result = await response.json();
       
       if (result.success) {
@@ -286,11 +284,8 @@ export default function CategoryManagement() {
   // Toggle category active status
   const toggleCategoryStatus = async (id: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`http://localhost:3000/menu/category/${id}`, {
+      const response = await authFetch(`http://localhost:3000/menu/category/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ isActive: !currentStatus }),
       });
       

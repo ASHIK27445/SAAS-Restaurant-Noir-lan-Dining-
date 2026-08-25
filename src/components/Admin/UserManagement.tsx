@@ -31,7 +31,7 @@ export default function UserManagement() {
 
   async function resetPassword(user: UserSummary) {
     const password = passwords[user.id] || "";
-    if (password.length < 8) return setMessage("Password must be at least 8 characters");
+    if (password.length < 6 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) return setMessage("Password must be 6+ characters with lowercase, uppercase, and number");
     setSaving(user.id);
     try {
       await changeFirebasePassword(user.firebaseUid, password);

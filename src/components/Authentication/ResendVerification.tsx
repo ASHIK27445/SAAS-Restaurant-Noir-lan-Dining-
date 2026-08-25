@@ -85,7 +85,10 @@ export default function ResendVerification() {
 
     try {
       const res = await loginUser(data.email, data.password);
-      await sendEmailVerification(res.user);
+      await sendEmailVerification(res.user, {
+        url: `${window.location.origin}/email-verification-success`,
+        handleCodeInApp: true,
+      });
       startCooldown();
       setNow(Date.now()); // trigger immediate re-derive
       setStatus("success");

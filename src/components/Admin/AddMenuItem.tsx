@@ -3,6 +3,7 @@ import { ImageUp, Loader2} from "lucide-react";
 import { MenuItemSchema, type MenuItemFormData } from "../../Schemas/menu.schema";
 import { useForm, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
+import { authFetch } from "../../api/authFetch";
 
 
 type Category = {
@@ -63,14 +64,14 @@ export default function AddMenuItem() {
       setIsLoading(true);
       try {
         // Fetch categories
-        const categoriesRes = await fetch("http://localhost:3000/menu/categories");
+        const categoriesRes = await authFetch("http://localhost:3000/menu/categories");
         const categoriesResult = await categoriesRes.json();
         if (categoriesResult.success) {
           setCategories(categoriesResult.data);
         }
 
         // Fetch allergens
-        const allergensRes = await fetch("http://localhost:3000/menu/allergens");
+        const allergensRes = await authFetch("http://localhost:3000/menu/allergens");
         const allergensResult = await allergensRes.json();
         if (allergensResult.success) {
           setAllergens(allergensResult.data);
@@ -104,7 +105,7 @@ export default function AddMenuItem() {
   const onSubmit = async (data: MenuItemFormData) => {
     console.log(data);
     try {
-      const res = await fetch("http://localhost:3000/menu/create", {
+      const res = await authFetch("http://localhost:3000/menu/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

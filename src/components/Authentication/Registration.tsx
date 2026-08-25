@@ -2,6 +2,8 @@ import { Link } from "react-router";
 import { use, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { sendEmailVerification } from "firebase/auth";
+import { useNavigate } from "react-router";
 
 import LoginLeftPanel from "./LoginLeftPanel";
 import { AuthContext } from "./AuthContext";
@@ -13,6 +15,7 @@ import {
 } from "./ZodLoginSchema";
 
 export default function CreateAccount() {
+  const navigate = useNavigate();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,6 +50,10 @@ export default function CreateAccount() {
       const { user } = await createUserEP(data.email, data.password);
 
       await profileUpdate(data.name, "");
+      await sendEmailVerification(user, {
+        url: `${window.location.origin}/email-verification-success`,
+        handleCodeInApp: true,
+      });
 
       const token = await user.getIdToken();
 
@@ -65,7 +72,7 @@ export default function CreateAccount() {
       console.log("User created:", result);
 
       await logoutUser();
-      console.log("Logout successful");
+      navigate("/sent-email-verfication", { state: data.email });
     } catch (error) {
       console.error("Account creation failed:", error);
     }

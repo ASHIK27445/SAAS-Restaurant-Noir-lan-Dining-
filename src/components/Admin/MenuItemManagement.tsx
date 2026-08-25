@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, SquarePen, Trash2, X, ImagePlus } from "lucide-react";
+import { authFetch } from "../../api/authFetch";
 
 type Category = { id: string; name: string; bucketType: string };
 type Allergen = { id: string; name: string };
@@ -54,7 +55,7 @@ function EditItemModal({
     }
     setSubmitting(true);
     try {
-      const res = await fetch(`${BASE_URL}/menu/items/${item.id}`, {
+      const res = await authFetch(`${BASE_URL}/menu/items/${item.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -201,15 +202,15 @@ export default function MenuItemManagement() {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (categoryFilter) params.set("categoryId", categoryFilter);
-    return fetch(`${BASE_URL}/menu/items?${params}`)
+    return authFetch(`${BASE_URL}/menu/items?${params}`)
       .then((r) => r.json())
       .then((res) => { if (res.success) setItems(res.data); })
       .finally(() => setLoading(false));
   }
 
   useEffect(() => {
-    fetch(`${BASE_URL}/menu/categories`).then((r) => r.json()).then((res) => { if (res.success) setCategories(res.data); });
-    fetch(`${BASE_URL}/menu/allergens`).then((r) => r.json()).then((res) => { if (res.success) setAllergens(res.data); });
+    authFetch(`${BASE_URL}/menu/categories`).then((r) => r.json()).then((res) => { if (res.success) setCategories(res.data); });
+    authFetch(`${BASE_URL}/menu/allergens`).then((r) => r.json()).then((res) => { if (res.success) setAllergens(res.data); });
   }, []);
 
   useEffect(() => {
@@ -220,7 +221,7 @@ export default function MenuItemManagement() {
 
     async function toggleStatus(item: MenuItem) {
     try {
-        const res = await fetch(`${BASE_URL}/menu/items/${item.id}/status`, {
+        const res = await authFetch(`${BASE_URL}/menu/items/${item.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -252,7 +253,7 @@ export default function MenuItemManagement() {
     if (!confirmed) return;
 
     try {
-        const res = await fetch(`${BASE_URL}/menu/items/${item.id}`, {
+        const res = await authFetch(`${BASE_URL}/menu/items/${item.id}`, {
         method: "DELETE",
         });
 

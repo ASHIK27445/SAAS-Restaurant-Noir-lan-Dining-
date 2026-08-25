@@ -1,7 +1,33 @@
 import { CheckCircle } from "lucide-react";
-import { Link } from "react-router";
+import { applyActionCode } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router";
+import { auth } from "../../Firebase/firebase.init";
 
 export default function EmailVerificationSuccess() {
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    const code = searchParams.get("oobCode");
+
+    if (mode !== "verifyEmail" || !code) {
+      setStatus("error");
+      return;
+    }
+
+    void applyActionCode(auth, code)
+      .then(async () => {
+        if (auth.currentUser) await auth.currentUser.reload();
+        setStatus("success");
+      })
+      .catch((error) => {
+        console.error("Email verification failed", error);
+        setStatus("error");
+      });
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-[#fbf9f5] text-[#1b1c1a] font-sans antialiased">
 
@@ -39,10 +65,10 @@ export default function EmailVerificationSuccess() {
             <div className="space-y-4">
 
               {/* Verification badge */}
-              <div className="flex items-center space-x-3 text-primary">
+              <div className={`flex items-center space-x-3 ${status === "success" ? "text-primary" : "text-error"}`}>
                 <CheckCircle />
                 <span className="text-xs uppercase tracking-widest font-medium">
-                  Verification Complete
+                  {status === "loading" ? "Verifying email" : status === "success" ? "Verification Complete" : "Verification Link Invalid"}
                 </span>
               </div>
 
@@ -53,19 +79,19 @@ export default function EmailVerificationSuccess() {
 
               {/* Body */}
               <p className="text-on-surface-variant text-lg leading-relaxed max-w-md">
-                Your identity has been verified. You are now part of an
-                intentional community dedicated to the art of the meal and the
-                stories behind the ingredients.
+                {status === "loading" && "Please wait while we confirm your email address."}
+                {status === "success" && "Your identity has been verified. You can now sign in to your account."}
+                {status === "error" && "This verification link is missing, expired, or has already been used. Request a new link and try again."}
               </p>
             </div>
 
             {/* CTA + Quote */}
             <div className="w-full space-y-4 pt-4">
               <Link
-                to='/'
+                to={status === "success" ? "/login" : "/resent-verification"}
                 className="inline-flex items-center justify-center w-full md:w-auto px-10 py-5 bg-primary text-white font-semibold text-lg rounded-xl hover:opacity-90 transition-all duration-300 active:scale-[0.98]"
               >
-                Start Dining
+                {status === "success" ? "Continue to Login" : "Request New Link"}
               </Link>
 
               <div className="pt-6 border-t border-outline-variant/20 w-full">
