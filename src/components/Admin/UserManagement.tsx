@@ -25,7 +25,7 @@ export default function UserManagement() {
   async function saveUser(user: UserSummary) {
     setSaving(user.id);
     try {
-      await updateUser(user.id, { name: user.name || "", phone: user.phone || "", role: user.role, isActive: user.isActive });
+      await updateUser(user.id, { name: user.name || "", phone: user.phone || "", role: user.role, isActive: user.isActive, emailVerificationNeeded: user.emailVerificationNeeded });
       setMessage(`${user.email} updated`);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Failed to update user"); }
     finally { setSaving(null); }
@@ -69,15 +69,16 @@ export default function UserManagement() {
       <div className="overflow-x-auto bg-surface-container-lowest rounded-xl border border-outline-variant/15">
         <table className="w-full min-w-max text-left text-sm">
           <thead className="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/15">
-            <tr><th className="p-4">User</th><th className="p-4">Role</th><th className="p-4">Contact</th><th className="p-4">Status</th><th className="p-4">Password</th><th className="p-4">Actions</th></tr>
+            <tr><th className="p-4">User</th><th className="p-4">Role</th><th className="p-4">Contact</th><th className="p-4">Status</th><th className="p-4">Email Verification</th><th className="p-4">Password</th><th className="p-4">Actions</th></tr>
           </thead>
           <tbody>
-            {loading ? <tr><td colSpan={6} className="p-8 text-center text-on-surface-variant">Loading users...</td></tr> : users.map((user) => (
+            {loading ? <tr><td colSpan={7} className="p-8 text-center text-on-surface-variant">Loading users...</td></tr> : users.map((user) => (
               <tr key={user.id} className="border-b border-outline-variant/10 last:border-0">
                 <td className="p-4"><div className="flex items-center gap-3"><div className="p-2 rounded-full bg-primary/10 text-primary"><UserRound size={16} /></div><div><input value={user.name || ""} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, name: event.target.value } : item))} placeholder="Name" className="bg-surface-container-low rounded-lg px-3 py-2 text-xs w-36" /><p className="text-xs text-on-surface-variant mt-1">{user.email}</p></div></div></td>
                 <td className="p-4"><select value={user.role} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, role: event.target.value } : item))} className="bg-surface-container-low rounded-lg px-3 py-2 text-xs">{ROLES.map((role) => <option key={role}>{role}</option>)}</select></td>
                 <td className="p-4"><input value={user.phone || ""} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, phone: event.target.value } : item))} placeholder="Phone" className="bg-surface-container-low rounded-lg px-3 py-2 text-xs w-32" /></td>
                 <td className="p-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={user.isActive} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, isActive: event.target.checked } : item))} /> Active</label></td>
+                <td className="p-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={user.emailVerificationNeeded} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, emailVerificationNeeded: event.target.checked } : item))} /> Required</label></td>
                 <td className="p-4"><div className="flex min-w-48 flex-col gap-1.5"><span className="text-[10px] font-semibold text-on-surface-variant">Current Password</span><span className="text-xs text-on-surface-variant">•••••••• <span className="text-[10px]">(hidden)</span></span><button type="button" title="Set a new password" onClick={() => setPasswordUser(user)} className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/15"><KeyRound size={13} /> New Password</button></div></td>
                 <td className="p-4"><div className="flex gap-1"><button title="Save changes" disabled={saving === user.id} onClick={() => void saveUser(user)} className="p-2 text-primary hover:bg-primary/10 rounded-lg"><Save size={15} /></button><button title="Delete user" disabled={saving === user.id} onClick={() => void removeUser(user)} className="p-2 text-error hover:bg-error/10 rounded-lg"><Trash2 size={15} /></button></div></td>
               </tr>
