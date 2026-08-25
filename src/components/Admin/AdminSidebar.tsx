@@ -84,11 +84,6 @@ const NAV_ITEMS = [
     to: "/admin/invoice-history",
   },
   {
-    icon: FileClock,
-    label: "POS",
-    to: "/admin/pos",
-  },
-  {
     icon: ForkKnife,
     label: "Menu Item Management",
     to: "/admin/menu-item-manage",
@@ -145,10 +140,10 @@ function SidebarItem({ icon: Icon, label, to }: SidebarItemProps) {
 
 export default function AdminSidebar() {
   return (
-    <aside className="hidden md:flex flex-col h-screen w-72 border-r border-outline-variant/20 bg-surface py-8 px-4 sticky top-0 overflow-hidden">
+    <aside className="hidden md:flex flex-col h-screen w-72 border-r border-outline-variant/20 bg-surface py-2 px-4 sticky top-0 overflow-hidden">
 
       {/* Branding */}
-      <div className="mb-10 px-4 shrink-0">
+      <div className="mb-6 px-4 shrink-0">
         <h1 className="text-2xl font-headline font-bold text-primary tracking-tight">
           The Culinary Editorial
         </h1>
@@ -166,10 +161,12 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Footer Navigation */}
-      <div className="mt-auto pt-6 space-y-1 shrink-0">
-        {FOOTER_ITEMS.map((item) => (
-          <SidebarItem key={item.label} {...item} />
-        ))}
+      <div className="mt-auto pt-2 shrink-0">
+        <div className="grid grid-cols-2 gap-2">
+          {FOOTER_ITEMS.map((item) => (
+            <SidebarItem key={item.label} {...item} />
+          ))}
+        </div>
       </div>
     </aside>
   );

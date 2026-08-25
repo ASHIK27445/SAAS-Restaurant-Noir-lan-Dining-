@@ -147,10 +147,6 @@ export const router = createBrowserRouter([
         Component: FloorAdmin
     },
     {
-        path: 'pos',
-        Component: Pos
-    },
-    {
         path: 'menu-item-manage',
         Component: MenuItemManagement
     }
