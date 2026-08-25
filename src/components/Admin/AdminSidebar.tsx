@@ -83,11 +83,6 @@ const NAV_ITEMS = [
     label: "Invoice History",
     to: "/admin/invoice-history",
   },
-  {
-    icon: ForkKnife,
-    label: "Menu Item Management",
-    to: "/admin/menu-item-manage",
-  },
 ];
 
 const FOOTER_ITEMS = [

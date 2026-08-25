@@ -8,7 +8,7 @@ import type { AuthContextType } from "../Authentication/auth";
 const HEADER_CONFIG: Record<
   string,
   {
-    active: "catalog" | "categories" | "inventory";
+    active: "catalog" | "categories" | "inventory" | "menu-items";
   }
 > = {
   menu: {
@@ -20,8 +20,12 @@ const HEADER_CONFIG: Record<
   },
 
   "menu/inventory-manage": {
-    active: "inventory"
-  }
+    active: "inventory",
+  },
+
+  "menu-item-manage": {
+    active: "menu-items",
+  },
 };
 
 export default function AdminHome() {
@@ -102,6 +106,20 @@ export default function AdminHome() {
             `}
           >
             Inventory
+          </Link>
+
+          {/* Menu Item Management */}
+          <Link
+            to="/admin/menu-item-manage"
+            className={`text-sm uppercase tracking-widest transition-all pb-1
+              ${
+                config.active === "menu-items"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-secondary hover:opacity-80"
+              }
+            `}
+          >
+            Menu Item Management
           </Link>
         </nav>
       </div>
