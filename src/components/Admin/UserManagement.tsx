@@ -1,4 +1,4 @@
-import { KeyRound, RefreshCw, Save, ShieldCheck, Trash2, UserRound } from "lucide-react";
+import { Eye, EyeOff, KeyRound, RefreshCw, Save, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { changeFirebasePassword, deleteUser, getUsers, updateUser, type UserSummary } from "../../api/authorization";
 
@@ -9,6 +9,8 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [passwords, setPasswords] = useState<Record<string, string>>({});
+  const [passwordUser, setPasswordUser] = useState<UserSummary | null>(null);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [message, setMessage] = useState("");
 
   async function loadUsers() {
@@ -29,15 +31,19 @@ export default function UserManagement() {
     finally { setSaving(null); }
   }
 
-  async function resetPassword(user: UserSummary) {
+  async function resetPassword(user: UserSummary): Promise<boolean> {
     const password = passwords[user.id] || "";
-    if (password.length < 6 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) return setMessage("Password must be 6+ characters with lowercase, uppercase, and number");
+    if (password.length < 6 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setMessage("Password must be 6+ characters with lowercase, uppercase, and number");
+      return false;
+    }
     setSaving(user.id);
     try {
       await changeFirebasePassword(user.firebaseUid, password);
       setPasswords((current) => ({ ...current, [user.id]: "" }));
       setMessage(`Password updated for ${user.email}`);
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Failed to update password"); }
+      return true;
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Failed to update password"); return false; }
     finally { setSaving(null); }
   }
 
@@ -72,7 +78,7 @@ export default function UserManagement() {
                 <td className="p-4"><select value={user.role} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, role: event.target.value } : item))} className="bg-surface-container-low rounded-lg px-3 py-2 text-xs">{ROLES.map((role) => <option key={role}>{role}</option>)}</select></td>
                 <td className="p-4"><input value={user.phone || ""} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, phone: event.target.value } : item))} placeholder="Phone" className="bg-surface-container-low rounded-lg px-3 py-2 text-xs w-32" /></td>
                 <td className="p-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={user.isActive} onChange={(event) => setUsers((current) => current.map((item) => item.id === user.id ? { ...item, isActive: event.target.checked } : item))} /> Active</label></td>
-                <td className="p-4"><div className="flex gap-1"><input type="password" value={passwords[user.id] || ""} onChange={(event) => setPasswords((current) => ({ ...current, [user.id]: event.target.value }))} placeholder="New password" className="bg-surface-container-low rounded-lg px-3 py-2 text-xs w-28" /><button title="Update password" onClick={() => void resetPassword(user)} className="p-2 text-primary hover:bg-primary/10 rounded-lg"><KeyRound size={15} /></button></div></td>
+                <td className="p-4"><div className="flex min-w-48 flex-col gap-1.5"><span className="text-[10px] font-semibold text-on-surface-variant">Current Password</span><span className="text-xs text-on-surface-variant">•••••••• <span className="text-[10px]">(hidden)</span></span><button type="button" title="Set a new password" onClick={() => setPasswordUser(user)} className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/15"><KeyRound size={13} /> New Password</button></div></td>
                 <td className="p-4"><div className="flex gap-1"><button title="Save changes" disabled={saving === user.id} onClick={() => void saveUser(user)} className="p-2 text-primary hover:bg-primary/10 rounded-lg"><Save size={15} /></button><button title="Delete user" disabled={saving === user.id} onClick={() => void removeUser(user)} className="p-2 text-error hover:bg-error/10 rounded-lg"><Trash2 size={15} /></button></div></td>
               </tr>
             ))}
@@ -80,6 +86,41 @@ export default function UserManagement() {
         </table>
       </div>
       <div className="flex items-center gap-2 text-xs text-on-surface-variant"><ShieldCheck size={15} className="text-primary" /> Only Admin accounts can edit or delete users and change passwords.</div>
+      {passwordUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-surface/40 p-4" role="dialog" aria-modal="true" aria-labelledby="password-modal-title">
+          <div className="w-full max-w-md rounded-2xl bg-surface-container-lowest p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Password Management</p>
+                <h2 id="password-modal-title" className="mt-1 font-headline text-2xl text-primary">Update password</h2>
+                <p className="mt-1 text-xs text-on-surface-variant">{passwordUser.email}</p>
+              </div>
+              <button type="button" aria-label="Close password dialog" onClick={() => { setPasswordUser(null); setShowNewPassword(false); }} className="rounded-lg p-2 text-secondary hover:bg-surface-container-low"><X size={18} /></button>
+            </div>
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-secondary">Current Password</label>
+                <input type="password" value="" placeholder="Unavailable for security reasons" readOnly disabled className="w-full rounded-lg bg-surface-container-low px-3 py-2.5 text-sm text-on-surface-variant disabled:cursor-not-allowed" />
+                <p className="mt-1 text-[11px] text-on-surface-variant">Current passwords are never readable by administrators.</p>
+              </div>
+              <div>
+                <label htmlFor="new-password" className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-secondary">New Password</label>
+                <div className="relative">
+                  <input id="new-password" autoFocus type={showNewPassword ? "text" : "password"} value={passwords[passwordUser.id] || ""} onChange={(event) => setPasswords((current) => ({ ...current, [passwordUser.id]: event.target.value }))} placeholder="Enter new password" className="w-full rounded-lg bg-surface-container-low px-3 py-2.5 pr-11 text-sm text-primary outline-none ring-primary/20 focus:ring-2" />
+                  <button type="button" aria-label={showNewPassword ? "Hide new password" : "Show new password"} onClick={() => setShowNewPassword((current) => !current)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-secondary hover:bg-surface-container-high hover:text-primary">
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <p className="mt-1 text-[11px] text-on-surface-variant">Use 6+ characters with lowercase, uppercase, and number.</p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button type="button" onClick={() => { setPasswordUser(null); setShowNewPassword(false); }} className="rounded-lg bg-surface-container px-4 py-2 text-xs font-semibold text-primary">Cancel</button>
+              <button type="button" disabled={saving === passwordUser.id} onClick={() => void resetPassword(passwordUser).then((success) => { if (success) setPasswordUser(null); })} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-on-primary disabled:opacity-50"><KeyRound size={14} /> Save New Password</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
