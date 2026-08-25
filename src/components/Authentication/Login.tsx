@@ -3,10 +3,11 @@ import LoginLeftPanel from "./LoginLeftPanel";
 import { LoginSchema, type LoginFormData } from "./ZodLoginSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { use } from "react";
+import { use, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import type { AuthContextType } from "./auth";
 import { sendEmailVerification } from "firebase/auth";
+import { authFetch } from "../../api/authFetch";
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -15,7 +16,8 @@ export default function LoginPage() {
       resolver: zodResolver(LoginSchema)
     })
   
-  const {loginUser, user, logoutUser} = use(AuthContext) as AuthContextType
+  const {loginUser, signInWithGoogle, user, logoutUser} = use(AuthContext) as AuthContextType
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const onsubmit = async(data: LoginFormData) => {
     console.log(data);
@@ -49,6 +51,26 @@ export default function LoginPage() {
       console.log(err)
     }
 
+  };
+
+  const handleGoogleLogin = async () => {
+    if (user) return;
+    setGoogleLoading(true);
+    try {
+      const { user: googleUser } = await signInWithGoogle();
+      const response = await authFetch("http://localhost:3000/auth/user-create", {
+        method: "POST",
+        body: JSON.stringify({ name: googleUser.displayName, phone: googleUser.phoneNumber }),
+      });
+      if (!response.ok) throw new Error("Unable to create customer account");
+      navigate("/");
+    } catch (err) {
+      console.error("Google customer login failed", err);
+      await logoutUser();
+      alert("Google sign-in failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -132,6 +154,11 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          <button type="button" disabled={googleLoading} onClick={() => void handleGoogleLogin()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-outline-variant/30 bg-white py-2.5 text-xs font-semibold text-[#1b1c1a] hover:bg-surface-container-low disabled:opacity-60">
+            <span className="text-sm font-bold">G</span>
+            {googleLoading ? "Signing in..." : "Continue with Google"}
+          </button>
 
           {/* Divider */}
           <div className="relative py-3 lg:py-4">

@@ -51,6 +51,7 @@ import OrderPos from "../components/Admin/OrderPos";
 import OrderPosDetails from "../components/Admin/OrderPosDetails";
 import OrderManagementReal from "../components/Admin/OrderManagementReal";
 import UserManagement from "../components/Admin/UserManagement";
+import CustomerManagement from "../components/Admin/CustomerManagement";
 import PermissionManagement from "../components/Admin/PermissionManagement";
 import ManagementLogin from "../components/Authentication/ManagementLogin";
 import PosLogin from "../components/Authentication/PosLogin";
@@ -117,6 +118,10 @@ export const router = createBrowserRouter([
         {
             path: "users",
             Component: UserManagement
+        },
+        {
+            path: "customers",
+            Component: CustomerManagement
         },
         {
             path: "permissions",

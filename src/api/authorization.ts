@@ -11,7 +11,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export type AccessModule = "SUPPLIERS" | "INVENTORY" | "EMPLOYEES" | "ORDERS" | "ATTENDANCE" | "POS" | "MENU" | "USERS";
 export type AccessGrant = { id: string; userId: string; module: AccessModule; status: "PENDING" | "APPROVED" | "REJECTED"; user: UserSummary };
-export type UserSummary = { id: string; email: string; name: string | null; phone: string | null; role: string; isActive: boolean; emailVerificationNeeded: boolean; firebaseUid: string; accessGrants?: AccessGrant[] };
+export type UserSummary = { id: string; email: string; name: string | null; phone: string | null; role: string; isActive: boolean; emailVerificationNeeded: boolean; firebaseUid: string; createdAt?: string; accessGrants?: AccessGrant[] };
 
 export function getCurrentUser() {
   return request<{ success: true; user: UserSummary }>("/auth/me");

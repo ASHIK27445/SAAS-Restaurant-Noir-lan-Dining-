@@ -14,6 +14,7 @@ import {
   LayoutGrid,
   ForkKnife,
   UserCog,
+  UserRound,
   ShieldCheck,
 } from "lucide-react";
 
@@ -42,6 +43,11 @@ const NAV_ITEMS = [
     icon: UserCog,
     label: "User Management",
     to: "/admin/users",
+  },
+  {
+    icon: UserRound,
+    label: "Customer Management",
+    to: "/admin/customers",
   },
   {
     icon: ShieldCheck,
