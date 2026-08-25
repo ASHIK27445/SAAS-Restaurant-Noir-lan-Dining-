@@ -111,7 +111,7 @@ export default function EditEmployeeModal({
     }
   };
 
-  const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin"];
+  const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin", "Accountant", "Supplier"];
 
   if (!showModal || !employee) return null;
 

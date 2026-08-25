@@ -82,7 +82,7 @@ export default function AddEmployeeModal({
       }
     };
 
-  const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin", "DemoAdmin"];
+  const ROLES = ["Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin", "DemoAdmin", "Accountant", "Supplier"];
 
   if (!showModal) return null;
 

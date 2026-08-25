@@ -2,7 +2,7 @@ import { Eye, EyeOff, KeyRound, RefreshCw, Save, ShieldCheck, Trash2, UserRound,
 import { useEffect, useState } from "react";
 import { changeFirebasePassword, deleteUser, getUsers, updateUser, type UserSummary } from "../../api/authorization";
 
-const ROLES = ["Customer", "Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin", "DemoAdmin"];
+const ROLES = ["Customer", "Chef", "SousChef", "Waiter", "Cashier", "Manager", "Admin", "DemoAdmin", "Accountant", "Supplier"];
 
 export default function UserManagement() {
   const [users, setUsers] = useState<UserSummary[]>([]);

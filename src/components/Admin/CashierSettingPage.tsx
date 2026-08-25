@@ -60,7 +60,7 @@ export default function CashierSettingPage() {
   async function saveSettings(message = "POS settings saved") {
     if (!settings) return;
     try {
-      const res = await updatePosSettings({ taxRate: Number(settings.taxRate), serviceCharge: Number(settings.serviceCharge), autoPrintReceipt: settings.autoPrintReceipt });
+      const res = await updatePosSettings({ taxRate: Number(settings.taxRate), serviceCharge: Number(settings.serviceCharge), autoPrintReceipt: settings.autoPrintReceipt, posPin: settings.posPin });
       setSettings(res.data);
       showAlert("success", message);
     } catch (error: any) {
@@ -163,6 +163,13 @@ export default function CashierSettingPage() {
               </select>
               <button onClick={handleSave} disabled={saving || !selected} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary disabled:opacity-50"><Save size={14} />{saving ? "Saving" : "Set"}</button>
             </div>
+          </section>
+
+          <section className="rounded-2xl bg-surface-container-lowest p-5 shadow-sm ring-1 ring-outline-variant/10">
+            <h2 className="font-headline text-lg text-primary">POS security PIN</h2>
+            <p className="mt-1 text-xs text-on-surface-variant">Every POS login requires this PIN after the user password.</p>
+            <input type="password" inputMode="numeric" maxLength={8} value={settings?.posPin ?? ""} onChange={(e) => setSettings((current) => current ? { ...current, posPin: e.target.value.replace(/\D/g, "").slice(0, 8) } : current)} className="mt-4 w-full rounded-xl bg-surface-container-low px-3 py-2.5 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter 4-8 digit PIN" />
+            <button type="button" onClick={() => saveSettings("POS PIN saved")} disabled={!settings || (settings.posPin?.length ?? 0) < 4} className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary disabled:opacity-50"><Save size={14} /> Save PIN</button>
           </section>
 
           <section className="rounded-2xl bg-surface-container-lowest p-5 shadow-sm ring-1 ring-outline-variant/10">

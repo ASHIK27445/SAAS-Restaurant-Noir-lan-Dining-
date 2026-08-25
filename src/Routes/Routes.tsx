@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import Home from "../components/Home/Home";
 import CulinaryEditorial from "../components/Home/CulinaryEditional";
 import CulinaryEditorialAbout from "../components/Home/CulinaryEditionalAbout";
@@ -53,6 +53,10 @@ import OrderManagementReal from "../components/Admin/OrderManagementReal";
 import UserManagement from "../components/Admin/UserManagement";
 import PermissionManagement from "../components/Admin/PermissionManagement";
 import ManagementLogin from "../components/Authentication/ManagementLogin";
+import PosLogin from "../components/Authentication/PosLogin";
+import SupplierLogin from "../components/Authentication/SupplierLogin";
+import PosAccessGate from "../components/Authentication/PosAccessGate";
+import SupplierAccessGate from "../components/Authentication/SupplierAccessGate";
 
 export const router = createBrowserRouter([
     {
@@ -75,14 +79,16 @@ export const router = createBrowserRouter([
     },
     {
         path: '/POS', 
-        Component: PosHome,
+        Component: PosAccessGate,
         children:[
-            { index: true, Component: PosDashboard},
-            {path: 'menu', Component: CulinaryPOS},
-            {path: 'floor-plan', Component: FloorPlan},
-            {path: 'staff-view', Component: StaffDirectory},
-            {path: 'order', Component: PosOrderManagement},
-            {path: 'floor-live', Component: FloorDistribution}
+            { Component: PosHome, children: [
+                { index: true, Component: PosDashboard},
+                {path: 'menu', Component: CulinaryPOS},
+                {path: 'floor-plan', Component: FloorPlan},
+                {path: 'staff-view', Component: StaffDirectory},
+                {path: 'order', Component: PosOrderManagement},
+                {path: 'floor-live', Component: FloorDistribution}
+            ] }
         ]
     },
 {
@@ -149,20 +155,29 @@ export const router = createBrowserRouter([
     {
         path: 'menu-item-manage',
         Component: MenuItemManagement
+    },
+    {
+        path: 'settings',
+        Component: CashierSettingPage
     }
   ]
 },
 {
     path: '/pos-koh',
-    Component: PosKoh,
+    Component: PosAccessGate,
     children: [
-        { index: true, Component: Pos },
-        { path: 'orders', Component: OrderPos },
-        { path: 'orders/:orderId', Component: OrderPosDetails },
-        { path: 'kitchen-queue', Component: KitchenQueue },
-        { path: 'customer-display', Component: CustomerTokenDisplay },
-        { path: 'cashier-setting', Component: CashierSettingPage }
+        { Component: PosKoh, children: [
+            { index: true, Component: Pos },
+            { path: 'orders', Component: OrderPos },
+            { path: 'orders/:orderId', Component: OrderPosDetails },
+            { path: 'kitchen-queue', Component: KitchenQueue },
+            { path: 'customer-display', Component: CustomerTokenDisplay }
+        ] }
     ]
+},
+{
+    path: '/pos-koh/cashier-setting',
+    element: <Navigate to="/admin/settings" replace />
 },
     {
         path: 'ed',
@@ -171,6 +186,14 @@ export const router = createBrowserRouter([
     {
         path:'login',
         Component: Login
+    },
+    {
+        path: 'pos-login',
+        Component: PosLogin
+    },
+    {
+        path: 'supplier-login',
+        Component: SupplierLogin
     },
     {
         path: 'management-login',
@@ -198,15 +221,17 @@ export const router = createBrowserRouter([
     },
     {
         path: '/supplier',
-        Component: SupplierLayout,
+        Component: SupplierAccessGate,
         children: [
-            { index: true, Component: SupplierDirectory },
-            { path: 'procurement', Component: ProcurementPOTracking },
-            { path: 'usage', Component: InventorySuppliers },
-            { path: 'catalog', Component: SupplierCatalogManagement },
-            { path: 'performance', Component: SupplierPerformanceAnalysis },
-            { path: 'contacts', Component: SupplierContactDirectory },
-            { path: ':supplierId', Component: SupplierProfile },
+            { Component: SupplierLayout, children: [
+                { index: true, Component: SupplierDirectory },
+                { path: 'procurement', Component: ProcurementPOTracking },
+                { path: 'usage', Component: InventorySuppliers },
+                { path: 'catalog', Component: SupplierCatalogManagement },
+                { path: 'performance', Component: SupplierPerformanceAnalysis },
+                { path: 'contacts', Component: SupplierContactDirectory },
+                { path: ':supplierId', Component: SupplierProfile },
+            ] },
         ],
     },
     {
@@ -235,6 +260,6 @@ export const router = createBrowserRouter([
     },
     {
         path: '/cashier-setting',
-        Component: CashierSettingPage
+        element: <Navigate to="/admin/settings" replace />
     }
 ])

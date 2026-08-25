@@ -39,10 +39,10 @@ export function getNextOrderNumber() {
   return request<ApiItemResponse<{ orderNumber: number }>>("/orders/next-number");
 }
 
-export type PosSettings = { id: string; taxRate: string; serviceCharge: string; autoPrintReceipt: boolean };
+export type PosSettings = { id: string; taxRate: string; serviceCharge: string; autoPrintReceipt: boolean; posPin: string };
 export type PromoCode = { id: string; code: string; discountPercent: string; usageLimit: number | null; usageCount: number; isActive: boolean; showInPos: boolean };
 export function getPosSettings() { return request<ApiItemResponse<PosSettings>>("/settings/pos-settings"); }
-export function updatePosSettings(input: { taxRate: number; serviceCharge: number; autoPrintReceipt: boolean }) {
+export function updatePosSettings(input: { taxRate: number; serviceCharge: number; autoPrintReceipt: boolean; posPin?: string }) {
   return request<ApiItemResponse<PosSettings>>("/settings/pos-settings", { method: "PATCH", body: JSON.stringify(input) });
 }
 export function getPromoCodes() { return request<ApiListResponse<PromoCode>>("/settings/promo-codes"); }
@@ -95,3 +95,4 @@ export type CustomerToken = { orderNumber: number; customerName: string | null; 
 export function getCustomerTokens() {
   return request<ApiListResponse<CustomerToken>>("/orders/token-display");
 }
+export function verifyPosPin(pin: string) { return request<{ success: true; valid: boolean }>("/settings/pos-pin/verify", { method: "POST", body: JSON.stringify({ pin }) }); }

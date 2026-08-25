@@ -11,9 +11,7 @@ import { bootstrapAdmin, getCurrentUser } from "../../api/authorization";
 const MANAGEMENT_ROLES = ["Admin", "DemoAdmin", "Manager", "Chef", "SousChef", "Waiter", "Cashier"];
 
 function destinationForRole(role: string) {
-  if (role === "Cashier") return "/pos-koh";
-  if (role === "Chef" || role === "SousChef") return "/pos-koh/kitchen-queue";
-  if (role === "Waiter") return "/POS";
+  if (["Cashier", "Chef", "SousChef", "Waiter"].includes(role)) return "/pos-login";
   return "/admin";
 }
 
