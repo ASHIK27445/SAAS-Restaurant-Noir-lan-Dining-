@@ -1,9 +1,9 @@
-@import "tailwindcss";
-
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+@import "tailwindcss";
 
-
+/* Tailwind CSS v4 directive; ignored by generic CSS linters. */
+/* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
   --color-primary: #173124;
   --color-on-primary: #ffffff;

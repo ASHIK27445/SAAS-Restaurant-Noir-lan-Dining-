@@ -16,6 +16,7 @@ import {
   UserCog,
   UserRound,
   ShieldCheck,
+  MailBadge,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -73,6 +74,11 @@ const NAV_ITEMS = [
     icon: AlarmClockCheck,
     label: "Staff View Schedule",
     to: "/admin/staff-view-schedule",
+  },
+  {
+    icon: MailBadge,
+    label: "Inquiry",
+    to: "/admin/inquiry",
   },
   {
     icon: LineChart,
@@ -146,7 +152,7 @@ export default function AdminSidebar() {
       {/* Branding */}
       <div className="mb-6 px-4 shrink-0">
         <h1 className="text-2xl font-headline font-bold text-primary tracking-tight">
-          The Culinary Editorial
+          The WorkSpace
         </h1>
 
         <p className="text-xs uppercase tracking-widest text-secondary mt-1">

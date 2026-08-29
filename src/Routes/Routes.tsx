@@ -1,10 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router";
-import Home from "../components/Home/Home";
+import ExclusiveHomePage from "../components/Home/ExclusiveHomePage";
 import CulinaryEditorial from "../components/Home/CulinaryEditional";
 import CulinaryEditorialAbout from "../components/Home/CulinaryEditionalAbout";
 import Login from "../components/Authentication/Login";
 import ProductPage from "../components/Products/ProductPage";
-import HomePageM from "../components/Home/HomepageM";
 import AddMenuItemPage from "../components/Others/AddMenuItemPage";
 import EmployeeManagementPage from "../components/Others/EmployeeManagementPage";
 import OrderManagementPage from "../components/Others/OrderManagementPage";
@@ -59,25 +58,21 @@ import SupplierLogin from "../components/Authentication/SupplierLogin";
 import PosAccessGate from "../components/Authentication/PosAccessGate";
 import SupplierAccessGate from "../components/Authentication/SupplierAccessGate";
 import ManagementAccessGate from "../components/Authentication/ManagementAccessGate";
+import HomePageM from "../components/Home/HomepageM";
+import InquiryPage from "../components/Admin/InquiryPage";
 
 export const router = createBrowserRouter([
     {
         path: '/',
-        Component: Home ,
-        children: [
-            {
-                index: true, 
-                Component: HomePageM
-            },
-            {
-                path:'about',
-                Component: CulinaryEditorialAbout
-            },
-            {
-                path: '/product-page',
-                Component: ProductPage
-            }
-        ]
+        Component: HomePageM
+    },
+    {
+        path: '/about',
+        Component: CulinaryEditorialAbout
+    },
+    {
+        path: '/product-page',
+        Component: ProductPage
     },
     {
         path: '/POS', 
@@ -164,6 +159,10 @@ export const router = createBrowserRouter([
         {
             path: 'menu-item-manage',
             Component: MenuItemManagement
+        },
+        {
+            path: 'inquiry', 
+            Component: InquiryPage
         },
         {
             path: 'settings',

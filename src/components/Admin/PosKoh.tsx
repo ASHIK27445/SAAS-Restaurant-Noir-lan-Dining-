@@ -28,7 +28,7 @@ export default function PosKoh() {
     <div className="flex h-screen overflow-hidden bg-surface text-on-surface font-body">
       <aside className="flex w-16 shrink-0 flex-col items-center border-r border-outline-variant/20 bg-surface-container-low py-5">
         <div className="mb-8 flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-on-primary" title="POS KOH">
-          <ShoppingCart size={18} />
+          POS
         </div>
 
         <nav aria-label="POS KOH navigation" className="flex flex-1 flex-col items-center gap-3">
