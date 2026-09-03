@@ -1,4 +1,4 @@
-import { ChevronRight, CookingPot, GripHorizontal, ListFilterPlus, Martini, Plus, Search, SquarePen, X, Camera } from "lucide-react";
+import { ChevronRight, CookingPot, GripHorizontal, ListFilterPlus, Martini, Plus, Search, SquarePen, Trash2, X, Camera } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import CategoryAddModal from "./CategoryAddModal";
 import { useForm } from "react-hook-form";
@@ -295,6 +295,25 @@ export default function CategoryManagement() {
       }
     } catch (error) {
       console.error("Error updating category:", error);
+    }
+  };
+
+  const deleteCategory = async (category: Category) => {
+    if (!window.confirm(`Delete "${category.name}"? This cannot be undone.`)) return;
+
+    try {
+      const response = await authFetch(`http://localhost:3000/menu/category/${category.id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+      if (result.success) {
+        fetchCategories();
+      } else {
+        setError(result.message || "Failed to delete category");
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      setError("Network error. Please try again.");
     }
   };
 
@@ -693,6 +712,13 @@ export default function CategoryManagement() {
                         title="Edit Category"
                       >
                         <SquarePen size={14} />
+                      </button>
+                      <button
+                        onClick={() => void deleteCategory(category)}
+                        className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                        title="Delete Category"
+                      >
+                        <Trash2 size={14} />
                       </button>
                       <button className="p-1.5 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors cursor-move">
                         <GripHorizontal size={14} />

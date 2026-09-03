@@ -21,5 +21,5 @@ export async function getPublicMenu() {
   const response = await fetch(`${BASE_URL}/public/menu`);
   const body = await response.json();
   if (!response.ok || body.success === false) throw new Error(body.message || "Could not load menu");
-  return body as { success: true; data: PublicMenuCategory[] };
+  return body as { success: true; data: PublicMenuCategory[]; specials: PublicMenuCategory[] };
 }
