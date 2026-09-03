@@ -68,23 +68,24 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
     if (!isOpen) return null;
     
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface/70 px-4 py-6 backdrop-blur-sm">
-            <div className="flex w-full max-w-xl flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-[0_12px_32px_rgba(27,28,26,0.04)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4 py-6 backdrop-blur-[3px]">
+            <div className="flex max-h-[min(720px,calc(100vh-48px))] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-[0_24px_80px_rgba(27,28,26,0.18)]">
                 
                 {/* Header */}
-                <div className="flex items-start justify-between bg-surface-container-lowest px-5 py-4">
+                <div className="flex items-center justify-between border-b border-outline-variant/10 bg-surface-container-lowest px-6 py-5">
                     <div>
-                        <p className="mb-1 text-xs font-medium text-secondary">
+                        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-tertiary">
                             Menu Organization
                         </p>
-                        <h2 className="font-headline text-xl tracking-tight text-primary">
+                        <h2 className="font-headline text-2xl tracking-tight text-primary">
                             New Category
                         </h2>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-full p-1.5 text-on-surface-variant transition hover:bg-surface-container-low hover:text-primary"
+                        aria-label="Close modal"
+                        className="rounded-full border border-outline-variant/20 p-2 text-on-surface-variant transition hover:bg-surface-container-low hover:text-primary"
                     >
                         <X size={18} />
                     </button>
@@ -92,26 +93,26 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {/* Body */}
-                    <div className="space-y-5 bg-surface px-5 py-4">
+                    <div className="grid gap-6 overflow-y-auto bg-surface px-6 py-6 md:grid-cols-[1.15fr_0.85fr]">
                         
                         {/* Error Message */}
                         {error && (
-                            <div className="rounded-lg bg-red-50 p-3 text-xs text-red-600">
+                            <div className="rounded-xl border border-error/15 bg-error-container/40 p-3 text-xs text-error md:col-span-2">
                                 {error}
                             </div>
                         )}
                         
                         {/* Title */}
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                             <label className="block text-xs font-medium text-on-surface">
                                 Category Title *
                             </label>
-                            <div className="rounded-lg border border-outline-variant/20 bg-surface-container-low transition focus-within:border-primary/20 focus-within:bg-surface-container-high">
+                            <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low transition focus-within:border-primary/40 focus-within:bg-surface-container-high">
                                 <input
                                     type="text"
                                     placeholder="e.g., Artisanal Starters"
                                     {...register("name")}
-                                    className="w-full rounded-lg border-0 bg-transparent px-3 py-2.5 text-sm focus:outline-none"
+                                    className="w-full rounded-xl border-0 bg-transparent px-3 py-3 text-sm focus:outline-none"
                                 />
                             </div>
                             {errors.name && (
@@ -120,16 +121,16 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
                         </div>
 
                         {/* Description */}
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                             <label className="block text-xs font-medium text-on-surface">
                                 Editorial Description
                             </label>
-                            <div className="rounded-lg border border-outline-variant/20 bg-surface-container-low transition focus-within:border-primary/20 focus-within:bg-surface-container-high">
+                            <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low transition focus-within:border-primary/40 focus-within:bg-surface-container-high">
                                 <textarea
                                     rows={3}
                                     placeholder="A brief narrative..."
                                     {...register("description")}
-                                    className="w-full resize-none rounded-lg border-0 bg-transparent px-3 py-2.5 text-sm focus:outline-none"
+                                    className="w-full resize-none rounded-xl border-0 bg-transparent px-3 py-3 text-sm focus:outline-none"
                                 />
                             </div>
                             <p className="text-[11px] text-on-surface-variant">
@@ -138,7 +139,7 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
                         </div>
 
                         {/* Status */}
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <label className="block text-xs font-medium text-on-surface">
                                 Category Status
                             </label>
@@ -174,13 +175,13 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
                         </div>
 
                         {/* Upload */}
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <label className="block text-xs font-medium text-on-surface">
                                 Cover Imagery
                             </label>
                             {imagePreview ? (
                                 <div className="relative">
-                                    <img src={imagePreview} className="mt-2 h-32 w-full object-cover rounded-lg" />
+                                    <img src={imagePreview} alt="Category cover preview" className="mt-2 h-36 w-full rounded-xl object-cover" />
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -193,7 +194,7 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
                                     </button>
                                 </div>
                             ) : (
-                                <label className="group flex cursor-pointer justify-center rounded-lg border border-outline-variant/20 bg-surface-container-low px-5 py-6 transition hover:bg-surface-container-high">
+                                <label className="group flex cursor-pointer justify-center rounded-xl border border-dashed border-outline-variant/35 bg-surface-container-low px-5 py-8 transition hover:border-primary/35 hover:bg-surface-container-high">
                                     <div className="flex flex-col items-center justify-center text-center">
                                         <Camera size={20} />
                                         <div className="mt-2 flex justify-center text-xs text-on-surface-variant">
@@ -229,7 +230,7 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
 
                         <div className="flex flex-col gap-1">
                             <label className="text-[11px] font-medium text-on-surface-variant">POS Bucket *</label>
-                            <select {...register("bucketType")} className="h-7.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2.5 text-xs">
+                            <select {...register("bucketType")} className="h-10 rounded-xl border border-outline-variant/20 bg-surface-container-low px-3 text-sm focus:border-primary/40 focus:outline-none">
                                 <option value="MEALS">Meals</option>
                                 <option value="DRINKS">Drinks</option>
                                 <option value="DESSERTS">Desserts</option>
@@ -239,21 +240,24 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-end gap-3 bg-surface-container-lowest px-5 py-4">
+                    <div className="flex items-center justify-between gap-3 border-t border-outline-variant/10 bg-surface-container-lowest px-6 py-4">
+                        <p className="hidden text-[11px] text-secondary sm:block">Categories organize your public menu.</p>
+                        <div className="flex items-center gap-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-xl bg-surface-container-high px-5 py-2.5 text-xs font-medium text-primary hover:bg-surface-container"
+                            className="rounded-xl px-4 py-2.5 text-xs font-semibold text-secondary transition hover:bg-surface-container-low"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="rounded-xl bg-primary px-5 py-2.5 text-xs font-medium text-on-primary transition hover:bg-primary/90 disabled:opacity-50"
+                            className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-on-primary shadow-sm transition hover:bg-primary/90 hover:shadow-md disabled:opacity-50"
                         >
                             {isSubmitting ? "Creating..." : "Create Category"}
                         </button>
+                        </div>
                     </div>
                 </form>
             </div>
