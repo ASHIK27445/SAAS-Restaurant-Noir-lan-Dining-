@@ -64,6 +64,7 @@ import App from "../App";
 import ReviewHome from "../pages/ReviewHome";
 import ReviewAdminManagement from "../components/Admin/ReviewAdminManagement";
 import AdminReservationManagement from "../components/Admin/AdminReservationManagement";
+import AvrileBrunchMenu from "../pages/AvrileBrunchMenu";
 
 export const router = createBrowserRouter([
   {
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
       { index: true, Component: Home },
       { path: "about", Component: AboutPage },
     { path: "reviews", Component: ReviewHome },
+    { path: "menu-preview", Component: AvrileBrunchMenu },
     ],
   },
     {
