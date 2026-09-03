@@ -65,6 +65,8 @@ import ReviewHome from "../pages/ReviewHome";
 import ReviewAdminManagement from "../components/Admin/ReviewAdminManagement";
 import AdminReservationManagement from "../components/Admin/AdminReservationManagement";
 import AvrileBrunchMenu from "../pages/AvrileBrunchMenu";
+import GalleryPage from "../pages/GalleryPage";
+import GalleryAdminManagement from "../components/Admin/GalleryAdminManagement";
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +77,7 @@ export const router = createBrowserRouter([
       { path: "about", Component: AboutPage },
     { path: "reviews", Component: ReviewHome },
     { path: "menu-preview", Component: AvrileBrunchMenu },
+    { path: "gallery", Component: GalleryPage },
     ],
   },
     {
@@ -182,6 +185,10 @@ export const router = createBrowserRouter([
         {
             path: 'reservations',
             Component: AdminReservationManagement
+        },
+        {
+            path: 'gallery',
+            Component: GalleryAdminManagement
         },
         {
             path: 'settings',

@@ -18,6 +18,7 @@ import {
   MailBadge,
   MessageSquareQuote,
   CalendarCheck,
+  Images,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -90,6 +91,11 @@ const NAV_ITEMS = [
     icon: CalendarCheck,
     label: "Reservation Management",
     to: "/admin/reservations",
+  },
+  {
+    icon: Images,
+    label: "Gallery Management",
+    to: "/admin/gallery",
   },
   {
     icon: LineChart,
