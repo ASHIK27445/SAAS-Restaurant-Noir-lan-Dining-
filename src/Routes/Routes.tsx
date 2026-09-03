@@ -67,6 +67,8 @@ import AdminReservationManagement from "../components/Admin/AdminReservationMana
 import AvrileBrunchMenu from "../pages/AvrileBrunchMenu";
 import GalleryPage from "../pages/GalleryPage";
 import GalleryAdminManagement from "../components/Admin/GalleryAdminManagement";
+import UserAccessGate from "../components/Authentication/UserAccessGate";
+import UserDashboard from "../pages/UserDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -78,6 +80,11 @@ export const router = createBrowserRouter([
     { path: "reviews", Component: ReviewHome },
     { path: "menu-preview", Component: AvrileBrunchMenu },
     { path: "gallery", Component: GalleryPage },
+            {
+                path: "dashboard",
+                Component: UserAccessGate,
+                children: [{ index: true, Component: UserDashboard }],
+            },
     ],
   },
     {
@@ -220,7 +227,7 @@ export const router = createBrowserRouter([
         Component: CulinaryEditorial
     },
     {
-        path:'login',
+        path:'/login',
         Component: Login
     },
     {
