@@ -17,6 +17,7 @@ import {
   UserRound,
   ShieldCheck,
   MailBadge,
+  MessageSquareQuote,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -79,6 +80,11 @@ const NAV_ITEMS = [
     icon: MailBadge,
     label: "Inquiry",
     to: "/admin/inquiry",
+  },
+  {
+    icon: MessageSquareQuote,
+    label: "Review Management",
+    to: "/admin/reviews",
   },
   {
     icon: LineChart,

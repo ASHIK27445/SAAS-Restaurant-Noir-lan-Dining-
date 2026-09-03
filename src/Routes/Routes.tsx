@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate } from "react-router";
-import ExclusiveHomePage from "../components/Home/ExclusiveHomePage";
 import CulinaryEditorial from "../components/Home/CulinaryEditional";
 import CulinaryEditorialAbout from "../components/Home/CulinaryEditionalAbout";
 import Login from "../components/Authentication/Login";
@@ -58,14 +57,23 @@ import SupplierLogin from "../components/Authentication/SupplierLogin";
 import PosAccessGate from "../components/Authentication/PosAccessGate";
 import SupplierAccessGate from "../components/Authentication/SupplierAccessGate";
 import ManagementAccessGate from "../components/Authentication/ManagementAccessGate";
-import HomePageM from "../components/Home/HomepageM";
 import InquiryPage from "../components/Admin/InquiryPage";
+import Home from "../pages/Home";
+import AboutPage from "../pages/AboutPage";
+import App from "../App";
+import ReviewHome from "../pages/ReviewHome";
+import ReviewAdminManagement from "../components/Admin/ReviewAdminManagement";
 
 export const router = createBrowserRouter([
-    {
-        path: '/',
-        Component: HomePageM
-    },
+  {
+    path: "/",
+    Component: App,
+    children: [
+      { index: true, Component: Home },
+      { path: "about", Component: AboutPage },
+    { path: "reviews", Component: ReviewHome },
+    ],
+  },
     {
         path: '/about',
         Component: CulinaryEditorialAbout
@@ -163,6 +171,10 @@ export const router = createBrowserRouter([
         {
             path: 'inquiry', 
             Component: InquiryPage
+        },
+        {
+            path: 'reviews',
+            Component: ReviewAdminManagement
         },
         {
             path: 'settings',

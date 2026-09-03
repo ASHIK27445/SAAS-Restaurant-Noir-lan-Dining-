@@ -1,13 +1,15 @@
-
-import './App.css'
+import { Outlet } from "react-router"
+import Navbar from "./pages/Navbar"
+import Footer from "./pages/Footer"
 
 function App() {
 
+
   return (
     <>
-      <h2 className='bg-red-700 h-30 text-white'>
-        Hi there
-      </h2>
+    <Navbar />
+    <Outlet />
+    <Footer />
     </>
   )
 }
