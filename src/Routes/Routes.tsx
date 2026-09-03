@@ -63,6 +63,7 @@ import AboutPage from "../pages/AboutPage";
 import App from "../App";
 import ReviewHome from "../pages/ReviewHome";
 import ReviewAdminManagement from "../components/Admin/ReviewAdminManagement";
+import AdminReservationManagement from "../components/Admin/AdminReservationManagement";
 
 export const router = createBrowserRouter([
   {
@@ -175,6 +176,10 @@ export const router = createBrowserRouter([
         {
             path: 'reviews',
             Component: ReviewAdminManagement
+        },
+        {
+            path: 'reservations',
+            Component: AdminReservationManagement
         },
         {
             path: 'settings',

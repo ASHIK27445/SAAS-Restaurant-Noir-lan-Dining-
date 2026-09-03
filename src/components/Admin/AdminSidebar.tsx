@@ -12,12 +12,12 @@ import {
   LineChart,
   ListCheck,
   LayoutGrid,
-  ForkKnife,
   UserCog,
   UserRound,
   ShieldCheck,
   MailBadge,
   MessageSquareQuote,
+  CalendarCheck,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -85,6 +85,11 @@ const NAV_ITEMS = [
     icon: MessageSquareQuote,
     label: "Review Management",
     to: "/admin/reviews",
+  },
+  {
+    icon: CalendarCheck,
+    label: "Reservation Management",
+    to: "/admin/reservations",
   },
   {
     icon: LineChart,
