@@ -49,6 +49,8 @@ export type Order = {
   customerName: string | null;
   customerUserId: string | null;
   deliveryAddress: string | null;
+  outForDeliveryAt: string | null;
+  receivedAt: string | null;
   note: string | null;
   subtotal: string;
   tax: string;

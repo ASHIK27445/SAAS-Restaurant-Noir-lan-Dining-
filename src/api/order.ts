@@ -39,6 +39,10 @@ export function getMyOrders() {
   return request<ApiListResponse<Order>>("/orders/my-orders");
 }
 
+export type CartDraftItem = { id: string; name: string; price: number; image: string | null; qty: number };
+export function getCartDraft() { return request<ApiItemResponse<CartDraftItem[]>>("/orders/cart-draft"); }
+export function saveCartDraft(items: CartDraftItem[]) { return request<ApiItemResponse<CartDraftItem[]>>("/orders/cart-draft", { method: "PUT", body: JSON.stringify({ items }) }); }
+
 export function getNextOrderNumber() {
   return request<ApiItemResponse<{ orderNumber: number }>>("/orders/next-number");
 }
