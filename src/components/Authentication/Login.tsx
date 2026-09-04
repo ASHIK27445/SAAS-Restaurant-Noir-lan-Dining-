@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router";
-import LoginLeftPanel from "./LoginLeftPanel";
 import { LoginSchema, type LoginFormData } from "./ZodLoginSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,15 +8,18 @@ import type { AuthContextType } from "./auth";
 import { sendEmailVerification } from "firebase/auth";
 import { authFetch } from "../../api/authFetch";
 
+const BASE_URL = import.meta.env?.VITE_API_URL ?? "http://localhost:3000";
+
 export default function LoginPage() {
   const navigate = useNavigate()
-  const {register, handleSubmit, 
+  const {register, handleSubmit,
     formState: {errors, isSubmitting},} = useForm<LoginFormData>({
       resolver: zodResolver(LoginSchema)
     })
-  
+
   const {loginUser, signInWithGoogle, user, logoutUser} = use(AuthContext) as AuthContextType
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState("");
 
   const onsubmit = async(data: LoginFormData) => {
     console.log(data);
@@ -56,137 +58,140 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     if (user) return;
     setGoogleLoading(true);
+    setGoogleError("");
     try {
       const { user: googleUser } = await signInWithGoogle();
-      const response = await authFetch("http://localhost:3000/auth/user-create", {
+      const response = await authFetch(`${BASE_URL}/auth/user-create`, {
         method: "POST",
         body: JSON.stringify({ name: googleUser.displayName, phone: googleUser.phoneNumber }),
       });
-      if (!response.ok) throw new Error("Unable to create customer account");
+      if (!response.ok) {
+        const result = await response.json().catch(() => null) as { message?: string } | null;
+        throw new Error(result?.message ?? `Unable to create customer account (${response.status})`);
+      }
       navigate("/");
     } catch (err) {
       console.error("Google customer login failed", err);
       await logoutUser();
-      alert("Google sign-in failed. Please try again.");
+      setGoogleError(err instanceof Error ? err.message : "Google sign-in failed. Please try again.");
     } finally {
       setGoogleLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen h-screen flex flex-col md:flex-row overflow-hidden bg-[#fbf9f5] text-[#1b1c1a] font-['Inter',sans-serif]">
+    <div className="min-h-screen w-full bg-white flex items-center justify-center px-4 py-4 overflow-hidden">
+      <div className="w-full max-w-[420px] bg-white border border-[#E5E1D8] rounded-[28px] px-5 sm:px-8 md:px-10 py-6 md:py-8 flex flex-col items-center">
+        {/* Flower logo */}
+        <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6">
+          <ellipse cx="50" cy="28" rx="16" ry="22" fill="#171412" />
+          <ellipse cx="50" cy="72" rx="16" ry="22" fill="#171412" />
+          <ellipse cx="28" cy="50" rx="22" ry="16" fill="#171412" />
+          <ellipse cx="72" cy="50" rx="22" ry="16" fill="#171412" />
+          <ellipse cx="34" cy="34" rx="16" ry="20" transform="rotate(-45 34 34)" fill="#171412" />
+          <circle cx="50" cy="50" r="10" fill="#171412" />
+        </svg>
 
-      {/* ── Left Panel ── */}
-      <LoginLeftPanel/>
-      
-      {/* ── Right Panel ── */}
-      <div className="flex-1 bg-[#fbf9f5] flex flex-col items-center justify-center p-8 sm:p-12 md:p-16 lg:p-20 xl:p-24 relative overflow-hidden">
-        <div className="w-full max-w-md lg:space-y-1">
+        <h1 className="text-[26px] font-semibold text-[#171412] mb-2">Welcome back</h1>
+        <p className="text-[14px] text-[#171412] mb-7">Log in to Noir Dining.</p>
 
-          {/* Mobile title */}
-          <div className="md:hidden mb-5">
-            <h1 className="font-['Noto_Serif',serif] italic text-3xl text-primary leading-tight tracking-tight">
-              The Culinary Editorial
-            </h1>
+        <form onSubmit={handleSubmit(onsubmit)} className="w-full">
+          {/* Email */}
+          <div className="relative w-full mb-1">
+            <label
+              htmlFor="email"
+              className="absolute -top-2.5 left-3.5 bg-white px-1.5 text-[12px] font-medium text-[#171412]"
+            >
+              Email address<span className="text-red-500">*</span>
+            </label>
+            <input
+              {...register("email")}
+              id="email"
+              type="email"
+              className="w-full border border-[#171412] rounded-xl px-4 py-3.5 text-[14px] outline-none focus:ring-1 focus:ring-[#171412]"
+            />
           </div>
+          {errors.email && (
+            <p className="text-red-500 text-xs mb-4">{errors.email.message}</p>
+          )}
+          {!errors.email && <div className="mb-5" />}
 
-          {/* Heading */}
-          <div className="space-y-1">
-            <h2 className="font-['Noto_Serif',serif] text-base lg:text-xl text-[#1b1c1a]">Welcome Back</h2>
-            <p className="text-on-surface-variant text-sm lg:text-sm">
-              Please enter your credentials to access your journal.
-            </p>
+          {/* Password */}
+          <div className="relative w-full mb-1">
+            <label
+              htmlFor="password"
+              className="absolute -top-2.5 left-3.5 bg-white px-1.5 text-[12px] font-medium text-[#171412]"
+            >
+              Password<span className="text-red-500">*</span>
+            </label>
+            <input
+              {...register("password")}
+              id="password"
+              type="password"
+              className="w-full border border-[#171412] rounded-xl px-4 py-3.5 text-[14px] outline-none focus:ring-1 focus:ring-[#171412]"
+            />
           </div>
+          <div className="flex justify-end mt-2 mb-5">
+            <Link to={"/"} className="text-[12px] font-semibold underline text-[#171412]">
+              Forgot password?
+            </Link>
+          </div>
+          {errors.password && (
+            <p className="text-red-500 text-xs -mt-3 mb-4">{errors.password.message}</p>
+          )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit(onsubmit)} className="space-y-2 lg:space-y-3">
-            {/* Email */}
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="block font-['Inter',sans-serif] text-[10px] lg:text-xs uppercase tracking-widest text-secondary font-semibold">
-                Email Address
-              </label>
-              <input
-                {...register("email")}
-                type="email"
-                placeholder="name@domain.com"
-                className="w-full bg-surface-container-low border-none rounded-lg px-3 py-2 lg:py-2.5 focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-high transition-all outline-none text-sm lg:text-sm text-[#1b1c1a] placeholder:text-outline/50"
-              />
-
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label
-                  htmlFor="password"
-                  className="block font-['Inter',sans-serif] text-[10px] lg:text-xs uppercase tracking-widest text-secondary font-semibold">
-                  Password
-                </label>
-                <Link
-                  to={'/'}
-                  className="text-[9px] lg:text-[10px] uppercase tracking-widest text-primary font-bold hover:underline underline-offset-4 decoration-primary/30">
-                  Forgot Password?
-                </Link>
-              </div>
-              <input
-                {...register("password")}
-                type="password"
-                placeholder="••••••••"
-                className="w-full bg-surface-container-low border-none rounded-lg px-3 py-2 lg:py-2.5 focus:ring-1 focus:ring-primary/20 focus:bg-surface-container-high transition-all outline-none text-sm lg:text-sm text-[#1b1c1a] placeholder:text-outline/50"
-              />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {/* Submit */}
-            <div className="pt-1">
-              <button
-                disabled={isSubmitting}
-                type="submit"
-                className="w-full bg-primary text-white font-['Inter',sans-serif] uppercase tracking-widest text-xs lg:text-sm py-2 lg:py-2.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all"
-                style={{ boxShadow: "0 12px 32px -4px rgba(27,28,26,0.04)" }}>
-                {isSubmitting ? "Logging in..." : "Login"}
-              </button>
-            </div>
-          </form>
-
-          <button type="button" disabled={googleLoading} onClick={() => void handleGoogleLogin()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-outline-variant/30 bg-white py-2.5 text-xs font-semibold text-[#1b1c1a] hover:bg-surface-container-low disabled:opacity-60">
-            <span className="text-sm font-bold">G</span>
-            {googleLoading ? "Signing in..." : "Continue with Google"}
+          <button
+            disabled={isSubmitting}
+            type="submit"
+            className="w-full bg-[#171412] hover:bg-[#2a2521] transition-colors text-white text-[14px] font-medium rounded-xl py-3.5 mb-5 disabled:opacity-60"
+          >
+            {isSubmitting ? "Logging in..." : "Continue"}
           </button>
+        </form>
 
-          {/* Divider */}
-          <div className="relative py-3 lg:py-4">
-            <div aria-hidden="true" className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-outline-variant/30" />
-            </div>
-            <div className="relative flex justify-center text-[10px] lg:text-xs uppercase tracking-widest font-['Inter',sans-serif]">
-              <span className="bg-[#fbf9f5] px-4 text-secondary">New to the Table?</span>
-            </div>
-          </div>
+        <p className="text-[13px] text-[#171412] mb-6">
+          Don&apos;t have an account?{" "}
+          <Link to="/registration" className="font-semibold underline">
+            Join Noir Dining
+          </Link>
+        </p>
 
-          {/* Register Card */}
-          <div className="space-y-4">
-            <div className="p-4 lg:p-5 rounded-xl bg-surface-container-low border border-outline-variant/10 text-center">
-              <h3 className="font-['Noto_Serif',serif] text-sm lg:text-base text-[#1b1c1a] mb-1.5">
-                Create Account
-              </h3>
-              <p className="text-xs lg:text-sm text-on-surface-variant mb-4 leading-relaxed">
-                Join for exclusive reservations, chef's journals, and tailored culinary experiences.
-              </p>
-              <Link to='/registration' className="w-full bg-surface-container-high text-primary font-['Inter',sans-serif] uppercase tracking-widest text-[10px] lg:text-xs px-2 py-2 lg:py-2.5 rounded-xl border border-primary/5 hover:bg-surface-variant transition-colors">
-                Register Now
-              </Link>
-            </div>
-          </div>
-
+        <div className="w-full flex items-center gap-3 mb-6">
+          <span className="flex-1 h-px bg-[#E5E1D8]" />
+          <span className="text-[11px] tracking-wide text-[#171412]">OR</span>
+          <span className="flex-1 h-px bg-[#E5E1D8]" />
         </div>
+
+        <button
+          type="button"
+          disabled={googleLoading}
+          onClick={() => void handleGoogleLogin()}
+          className="w-full flex items-center justify-center gap-3 border border-[#E5E1D8] rounded-xl py-3.5 text-[14px] text-[#171412] hover:bg-[#FAFAF8] transition-colors disabled:opacity-60"
+        >
+          <svg width="18" height="18" viewBox="0 0 48 48">
+            <path
+              fill="#FFC107"
+              d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+            />
+            <path
+              fill="#FF3D00"
+              d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4c-7.682 0-14.344 4.337-17.694 10.691z"
+            />
+            <path
+              fill="#4CAF50"
+              d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+            />
+            <path
+              fill="#1976D2"
+              d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C39.99 36.902 44 30.999 44 24c0-1.341-.138-2.65-.389-3.917z"
+            />
+          </svg>
+          {googleLoading ? "Signing in..." : "Continue with Google"}
+        </button>
+        {googleError && (
+          <p role="alert" className="mt-3 w-full text-center text-xs text-red-500">{googleError}</p>
+        )}
       </div>
     </div>
-  )
+  );
 }

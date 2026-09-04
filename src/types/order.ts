@@ -47,6 +47,7 @@ export type Order = {
   tableNo: string | null;
   guestCount: number | null;
   customerName: string | null;
+  customerUserId: string | null;
   deliveryAddress: string | null;
   note: string | null;
   subtotal: string;

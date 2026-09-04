@@ -35,6 +35,10 @@ export function getOrders(filters: { status?: string; orderType?: string; date?:
   return request<ApiListResponse<Order>>(`/orders${qs ? `?${qs}` : ""}`);
 }
 
+export function getMyOrders() {
+  return request<ApiListResponse<Order>>("/orders/my-orders");
+}
+
 export function getNextOrderNumber() {
   return request<ApiItemResponse<{ orderNumber: number }>>("/orders/next-number");
 }
@@ -71,6 +75,10 @@ export function createOrder(input: {
   promoCode?: string;
 }) {
   return request<ApiItemResponse<Order>>("/orders/create", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function createCustomerOrder(input: Parameters<typeof createOrder>[0]) {
+  return request<ApiItemResponse<Order>>("/orders/customer-create", { method: "POST", body: JSON.stringify(input) });
 }
 
 export function updateOrderStatus(id: string, status: OrderStatus) {

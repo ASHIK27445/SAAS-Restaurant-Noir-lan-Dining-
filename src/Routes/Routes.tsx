@@ -68,7 +68,9 @@ import AvrileBrunchMenu from "../pages/AvrileBrunchMenu";
 import GalleryPage from "../pages/GalleryPage";
 import GalleryAdminManagement from "../components/Admin/GalleryAdminManagement";
 import UserAccessGate from "../components/Authentication/UserAccessGate";
-import UserDashboard from "../pages/UserDashboard";
+import UserDashboard from "../pages/UserDashboard.tsx";
+import FullMenu from "../pages/FullMenu";
+import CartCheckOut from "../pages/CartCheckOut";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +81,12 @@ export const router = createBrowserRouter([
       { path: "about", Component: AboutPage },
     { path: "reviews", Component: ReviewHome },
     { path: "menu-preview", Component: AvrileBrunchMenu },
+    { path: "full-menu", Component: FullMenu },
+        {
+            path: "cart-checkout",
+            Component: UserAccessGate,
+            children: [{ index: true, Component: CartCheckOut }],
+        },
     { path: "gallery", Component: GalleryPage },
             {
                 path: "dashboard",
