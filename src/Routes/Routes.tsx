@@ -27,6 +27,7 @@ import AddEmployeeModal from "../components/Admin/AddEmployeeModal";
 import StaffSchedule from "../components/Admin/StaffSchedule";
 import EmployeeViewSchedule from "../components/Admin/EmployeeViewSchedule";
 import Reports from "../components/Admin/Reports";
+import DemandForecast from "../components/Admin/DemandForecast";
 import InvoiceHistory from "../components/Admin/InvoiceHistory";
 import SupplierProfile from "../components/supplier/SupplierProfile";
 import SupplierDirectory from "../components/supplier/SupplierDirectory";
@@ -168,6 +169,10 @@ export const router = createBrowserRouter([
         {
             path: 'reports',
             Component: Reports
+        },
+        {
+            path: 'demand-forecast',
+            Component: DemandForecast
         },
         {
             path: 'invoice-history',

@@ -5,6 +5,7 @@ import {
   ReceiptText,
   Users,
   BarChart3,
+  Sparkles,
   FileClock,
   Settings,
   HelpCircle,
@@ -106,6 +107,11 @@ const NAV_ITEMS = [
     icon: BarChart3,
     label: "Reports",
     to: "/admin/reports",
+  },
+  {
+    icon: Sparkles,
+    label: "Demand Forecast",
+    to: "/admin/demand-forecast",
   },
   {
     icon: FileClock,
