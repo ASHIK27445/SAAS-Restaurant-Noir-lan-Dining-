@@ -81,6 +81,13 @@ export function createCustomerOrder(input: Parameters<typeof createOrder>[0]) {
   return request<ApiItemResponse<Order>>("/orders/customer-create", { method: "POST", body: JSON.stringify(input) });
 }
 
+export function validateCustomerPromo(code: string, subtotal: number) {
+  return request<ApiItemResponse<{ code: string; discountPercent: number; discount: number }>>("/orders/customer-promo", {
+    method: "POST",
+    body: JSON.stringify({ code, subtotal }),
+  });
+}
+
 export function updateOrderStatus(id: string, status: OrderStatus) {
   return request<ApiItemResponse<Order>>(`/orders/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
 }
