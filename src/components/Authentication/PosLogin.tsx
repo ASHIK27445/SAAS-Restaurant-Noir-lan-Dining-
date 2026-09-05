@@ -42,5 +42,116 @@ export default function PosLogin() {
     finally { setBusy(false); }
   }
 
-  return <main className="flex min-h-screen items-center justify-center bg-[#10251d] px-5 py-8 text-white"><div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(206,164,92,0.25),transparent_35%),radial-gradient(circle_at_90%_85%,rgba(54,122,91,0.35),transparent_40%)]" /><section className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#172c23]/95 p-7 shadow-2xl"><p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#d7b77a]">Front of house</p><h1 className="mt-2 font-headline text-4xl">Point of Sale</h1><p className="mt-2 text-sm text-white/65">Secure access for the restaurant floor.</p>{error && <p className="mt-5 rounded-lg bg-red-400/15 px-3 py-2 text-xs text-red-100">{error}</p>}{step === "login" ? <form onSubmit={submitLogin} className="mt-7 space-y-4"><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Work email" className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none placeholder:text-white/45 focus:border-[#d7b77a]" /><input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none placeholder:text-white/45 focus:border-[#d7b77a]" /><button disabled={busy} className="w-full rounded-lg bg-[#d7b77a] py-3 text-sm font-bold text-[#172c23] disabled:opacity-50">{busy ? "Checking access..." : "Continue to PIN"}</button></form> : <form onSubmit={submitPin} className="mt-7 space-y-4"><div><label htmlFor="pos-pin" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-white/65">POS security PIN</label><input id="pos-pin" required inputMode="numeric" pattern="[0-9]*" maxLength={8} autoFocus value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))} placeholder="Enter PIN" className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-center text-2xl tracking-[0.45em] outline-none placeholder:text-white/35 focus:border-[#d7b77a]" /></div><button disabled={busy} className="w-full rounded-lg bg-[#d7b77a] py-3 text-sm font-bold text-[#172c23] disabled:opacity-50">{busy ? "Verifying..." : "Enter POS"}</button></form>}<button type="button" onClick={() => navigate("/management-login")} className="mt-5 w-full text-center text-xs text-white/55 hover:text-white">Use another portal</button></section></main>;
+    return (
+      <main className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-6 text-[#171412]">
+        <section className="flex w-full max-w-105 flex-col items-center rounded-[28px] border border-[#E5E1D8] bg-white px-5 py-7 sm:px-8 md:px-10">
+          <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6">
+            <ellipse cx="50" cy="28" rx="16" ry="22" fill="#171412" />
+            <ellipse cx="50" cy="72" rx="16" ry="22" fill="#171412" />
+            <ellipse cx="28" cy="50" rx="22" ry="16" fill="#171412" />
+            <ellipse cx="72" cy="50" rx="22" ry="16" fill="#171412" />
+            <ellipse cx="34" cy="34" rx="16" ry="20" transform="rotate(-45 34 34)" fill="#171412" />
+            <circle cx="50" cy="50" r="10" fill="#171412" />
+          </svg>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#6b665f]">
+            Front of house
+          </p>
+          <h1 className="mt-2 text-[28px] font-semibold tracking-tight text-[#171412]">
+            POS access
+          </h1>
+          <p className="mt-2 text-[14px] text-[#6b665f]">
+            Sign in to manage the restaurant floor.
+          </p>
+
+          {error && (
+            <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-600">
+              {error}
+            </p>
+          )}
+
+          {step === "login" ? (
+            <form onSubmit={submitLogin} className="mt-7 w-full">
+              <div className="relative mb-1 w-full">
+                <label
+                  htmlFor="pos-email"
+                  className="absolute -top-2.5 left-3.5 bg-white px-1.5 text-[12px] font-medium text-[#171412]"
+                >
+                  Email address
+                </label>
+                <input
+                  id="pos-email"
+                  required
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="w-full rounded-xl border border-[#171412] px-4 py-3.5 text-[14px] outline-none focus:ring-1 focus:ring-[#171412]"
+                />
+              </div>
+              <div className="mb-5" />
+              <div className="relative mb-1 w-full">
+                <label
+                  htmlFor="pos-password"
+                  className="absolute -top-2.5 left-3.5 bg-white px-1.5 text-[12px] font-medium text-[#171412]"
+                >
+                  Password
+                </label>
+                <input
+                  id="pos-password"
+                  required
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="w-full rounded-xl border border-[#171412] px-4 py-3.5 text-[14px] outline-none focus:ring-1 focus:ring-[#171412]"
+                />
+              </div>
+              <button
+                disabled={busy}
+                type="submit"
+                className="mt-7 w-full rounded-xl bg-[#171412] py-3.5 text-[14px] font-medium text-white transition-colors hover:bg-[#2a2521] disabled:opacity-60"
+              >
+                {busy ? "Checking access..." : "Continue to PIN"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={submitPin} className="mt-7 w-full">
+              <div className="relative mb-1 w-full">
+                <label
+                  htmlFor="pos-pin"
+                  className="absolute -top-2.5 left-3.5 bg-white px-1.5 text-[12px] font-medium text-[#171412]"
+                >
+                  POS security PIN
+                </label>
+                <input
+                  id="pos-pin"
+                  required
+                  autoFocus
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={8}
+                  value={pin}
+                  onChange={(event) =>
+                    setPin(event.target.value.replace(/\D/g, ""))
+                  }
+                  className="w-full rounded-xl border border-[#171412] px-4 py-3.5 text-[14px] tracking-[0.35em] outline-none focus:ring-1 focus:ring-[#171412]"
+                />
+              </div>
+              <button
+                disabled={busy}
+                type="submit"
+                className="mt-7 w-full rounded-xl bg-[#171412] py-3.5 text-[14px] font-medium text-white transition-colors hover:bg-[#2a2521] disabled:opacity-60"
+              >
+                {busy ? "Verifying PIN..." : "Unlock POS"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("login")}
+                className="mt-5 w-full text-center text-[12px] font-semibold underline underline-offset-4"
+              >
+                Use another email
+              </button>
+            </form>
+          )}
+        </section>
+      </main>
+    );
 }
