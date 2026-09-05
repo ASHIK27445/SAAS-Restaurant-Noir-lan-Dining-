@@ -4,6 +4,7 @@ import { getCurrentUser } from "../../api/authorization";
 import { auth } from "../../Firebase/firebase.init";
 import { AuthContext } from "./AuthContext";
 import type { AuthContextType } from "./auth";
+import { Eye, EyeOff } from "lucide-react";
 
 const SUPPLIER_ROLES = ["Admin", "Manager", "Accountant", "Supplier"];
 
@@ -14,6 +15,7 @@ export default function SupplierLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -54,7 +56,7 @@ export default function SupplierLogin() {
 
         <form onSubmit={submit} className="mt-7 space-y-4">
           <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Business email" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-red-400" />
-          <input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-red-400" />
+          <div className="relative"><input required type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-11 text-sm outline-none placeholder:text-slate-400 focus:border-red-400" /><button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
           <button disabled={busy} className="w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-500 disabled:opacity-60">{busy ? "Signing in..." : "Enter supplier workspace"}</button>
         </form>
 

@@ -7,6 +7,7 @@ import { AuthContext } from "./AuthContext";
 import type { AuthContextType } from "./auth";
 import { sendEmailVerification } from "firebase/auth";
 import { authFetch } from "../../api/authFetch";
+import { Eye, EyeOff } from "lucide-react";
 
 const BASE_URL = import.meta.env?.VITE_API_URL ?? "http://localhost:3000";
 
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const {loginUser, signInWithGoogle, user, logoutUser} = use(AuthContext) as AuthContextType
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const onsubmit = async(data: LoginFormData) => {
     console.log(data);
@@ -81,7 +83,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full bg-white flex items-center justify-center px-4 py-4 overflow-hidden">
-      <div className="w-full max-w-[420px] bg-white border border-[#E5E1D8] rounded-[28px] px-5 sm:px-8 md:px-10 py-6 md:py-8 flex flex-col items-center">
+      <div className="w-full max-w-105 bg-white border border-[#E5E1D8] rounded-[28px] px-5 sm:px-8 md:px-10 py-6 md:py-8 flex flex-col items-center">
         {/* Flower logo */}
         <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6">
           <ellipse cx="50" cy="28" rx="16" ry="22" fill="#171412" />
@@ -120,16 +122,21 @@ export default function LoginPage() {
           <div className="relative w-full mb-1">
             <label
               htmlFor="password"
-              className="absolute -top-2.5 left-3.5 bg-white px-1.5 text-[12px] font-medium text-[#171412]"
+              className="absolute z-10 -top-2.5 left-3.5 bg-white px-1.5 text-[12px] font-medium text-[#171412]"
             >
               Password<span className="text-red-500">*</span>
             </label>
-            <input
-              {...register("password")}
-              id="password"
-              type="password"
-              className="w-full border border-[#171412] rounded-xl px-4 py-3.5 text-[14px] outline-none focus:ring-1 focus:ring-[#171412]"
-            />
+            <div className="relative">
+              <input
+                {...register("password")}
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="w-full border border-[#171412] rounded-xl px-4 py-3.5 pr-14 text-[14px] text-[#171412] outline-none focus:ring-1 focus:ring-[#171412]"
+              />
+              <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-transparent px-1 text-[#6b665f] hover:text-[#171412]">
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           <div className="flex justify-end mt-2 mb-5">
             <Link to={"/"} className="text-[12px] font-semibold underline text-[#171412]">

@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { authFetch } from "../../api/authFetch";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -31,7 +33,7 @@ const CategoryAddModal = ({ isOpen, onClose, onSuccess }: Props) => {
         setError("");
         
         try {
-            const res = await authFetch("http://localhost:3000/menu/category/create", {
+            const res = await authFetch(`${API_BASE_URL}/menu/category/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

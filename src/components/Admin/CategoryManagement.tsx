@@ -7,6 +7,8 @@ import { z } from "zod";
 import CategoryManagementSkeletonLoading from "./SkeletonLoading/CategoryManageLoading";
 import { authFetch } from "../../api/authFetch";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
 type Category = {
   id: string;
   name: string;
@@ -83,7 +85,7 @@ const [imagePreview, setImagePreview] = useState<string>("");
     setError("");
     
     try {
-      const response = await authFetch(`http://localhost:3000/menu/category/${category.id}`, {
+      const response = await authFetch(`${API_BASE_URL}/menu/category/${category.id}`, {
         method: "PUT",
         body: JSON.stringify(data),
       });
@@ -276,7 +278,7 @@ export default function CategoryManagement() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authFetch("http://localhost:3000/menu/all/categories");
+      const response = await authFetch(`${API_BASE_URL}/menu/all/categories`);
       const result = await response.json();
       
       if (result.success) {
@@ -299,7 +301,7 @@ export default function CategoryManagement() {
   // Toggle category active status
   const toggleCategoryStatus = async (id: string, currentStatus: boolean) => {
     try {
-      const response = await authFetch(`http://localhost:3000/menu/category/${id}`, {
+      const response = await authFetch(`${API_BASE_URL}/menu/category/${id}`, {
         method: "PATCH",
         body: JSON.stringify({ isActive: !currentStatus }),
       });
@@ -317,7 +319,7 @@ export default function CategoryManagement() {
     if (!window.confirm(`Delete "${category.name}"? This cannot be undone.`)) return;
 
     try {
-      const response = await authFetch(`http://localhost:3000/menu/category/${category.id}`, {
+      const response = await authFetch(`${API_BASE_URL}/menu/category/${category.id}`, {
         method: "DELETE",
       });
       const result = await response.json();

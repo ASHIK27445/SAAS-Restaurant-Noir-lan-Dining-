@@ -5,6 +5,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { authFetch } from "../../api/authFetch";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 type Category = {
   id: string;
@@ -64,14 +65,14 @@ export default function AddMenuItem() {
       setIsLoading(true);
       try {
         // Fetch categories
-        const categoriesRes = await authFetch("http://localhost:3000/menu/categories");
+        const categoriesRes = await authFetch(`${API_BASE_URL}/menu/categories`);
         const categoriesResult = await categoriesRes.json();
         if (categoriesResult.success) {
           setCategories(categoriesResult.data);
         }
 
         // Fetch allergens
-        const allergensRes = await authFetch("http://localhost:3000/menu/allergens");
+        const allergensRes = await authFetch(`${API_BASE_URL}/menu/allergens`);
         const allergensResult = await allergensRes.json();
         if (allergensResult.success) {
           setAllergens(allergensResult.data);
@@ -105,7 +106,7 @@ export default function AddMenuItem() {
   const onSubmit = async (data: MenuItemFormData) => {
     console.log(data);
     try {
-      const res = await authFetch("http://localhost:3000/menu/create", {
+      const res = await authFetch(`${API_BASE_URL}/menu/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
