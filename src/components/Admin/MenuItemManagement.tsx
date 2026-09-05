@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, SquarePen, Trash2, X, ImagePlus } from "lucide-react";
+import { ClipboardList, Search, SquarePen, Trash2, X, ImagePlus } from "lucide-react";
 import { authFetch } from "../../api/authFetch";
+import RecipeManager from "./RecipeManager";
 
 type Category = { id: string; name: string; bucketType: string };
 type Allergen = { id: string; name: string };
@@ -195,6 +196,7 @@ export default function MenuItemManagement() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [recipeItem, setRecipeItem] = useState<MenuItem | null>(null);
 
 
   function loadItems() {
@@ -321,6 +323,9 @@ export default function MenuItemManagement() {
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-sm font-medium text-on-surface truncate">{item.name}</p>
                           <div className="flex items-center gap-1 shrink-0">
+                            <button onClick={() => setRecipeItem(item)} className="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Recipe and ingredient cost">
+                              <ClipboardList size={14} />
+                            </button>
                             <button onClick={() => setEditingItem(item)} className="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Edit">
                               <SquarePen size={14} />
                             </button>
@@ -349,6 +354,7 @@ export default function MenuItemManagement() {
       {editingItem && (
         <EditItemModal item={editingItem} categories={categories} allergens={allergens} onClose={() => setEditingItem(null)} onSaved={loadItems} />
       )}
+      {recipeItem && <RecipeManager menuItem={recipeItem} onClose={() => setRecipeItem(null)} />}
     </div>
   );
 }

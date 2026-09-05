@@ -91,7 +91,7 @@ export default function SupplierPerformanceAnalysis() {
     : selectedSupplier?.rating ?? null;
   const trackedDeliveryOrders = receivedOrders.filter((order) => order.expectedDate && order.deliveredDate);
   const onTimeOrders = trackedDeliveryOrders.filter(
-    (order) => new Date(order.deliveredDate!).getTime() <= new Date(order.expectedDate!).getTime()
+    (order) => new Date(order.deliveredDate!).toISOString().slice(0, 10) <= new Date(order.expectedDate!).toISOString().slice(0, 10)
   );
   const onTimeDeliveryScore = trackedDeliveryOrders.length ? (onTimeOrders.length / trackedDeliveryOrders.length) * 100 : null;
   const qualityTotals = receivedOrders.reduce(
