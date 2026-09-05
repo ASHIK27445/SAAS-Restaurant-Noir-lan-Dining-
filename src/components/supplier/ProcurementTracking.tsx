@@ -451,9 +451,9 @@ export default function ProcurementPOTracking() {
     .reduce((sum, o) => sum + Number(o.totalAmount), 0);
 
   return (
-    <div className="flex h-screen overflow-hidden antialiased selection:bg-primary selection:text-on-primary bg-surface text-on-surface font-body">
+    <div className="flex min-h-screen antialiased selection:bg-primary selection:text-on-primary bg-surface text-on-surface font-body">
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-surface relative">
-        <div className="flex-1 overflow-y-auto p-6 md:p-12 lg:px-16">
+        <div className="flex-1 p-6 md:p-12 lg:px-16">
           {/* Page Header */}
           <div className="max-w-6xl mx-auto mb-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>

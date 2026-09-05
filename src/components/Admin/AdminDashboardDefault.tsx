@@ -13,7 +13,6 @@ import {
 import { Link } from "react-router";
 import { getOrders } from "../../api/order";
 import type { Order } from "../../types/order";
-import BusinessAssistant from "./BusinessAssistant";
 
 const money = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
@@ -127,7 +126,7 @@ export default function AdminDashboardDefault() {
   ];
 
   return (
-    <section className="space-y-6 p-5 md:p-8">
+    <section className="min-h-full space-y-6 p-5 md:p-8">
       <header className="flex flex-col justify-between gap-4 border-b border-outline-variant/20 pb-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-secondary">
@@ -357,9 +356,6 @@ export default function AdminDashboardDefault() {
             </table>
           </div>
         )}
-      </section>
-      <section className="overflow-hidden">
-        <BusinessAssistant />
       </section>
     </section>
   );

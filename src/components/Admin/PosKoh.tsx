@@ -25,9 +25,29 @@ export default function PosKoh() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-surface text-on-surface font-body">
-      <aside className="flex w-16 shrink-0 flex-col items-center border-r border-outline-variant/20 bg-surface-container-low py-5">
-        <div className="mb-8 flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-on-primary" title="POS KOH">
+    <div
+      className="flex h-screen overflow-hidden bg-sky-50 text-slate-900 font-body"
+      style={{
+        ['--color-primary' as string]: '#2563eb',
+        ['--color-on-primary' as string]: '#ffffff',
+        ['--color-primary-container' as string]: '#dbeafe',
+        ['--color-on-primary-container' as string]: '#1d4ed8',
+        ['--color-secondary' as string]: '#475569',
+        ['--color-on-secondary' as string]: '#ffffff',
+        ['--color-secondary-container' as string]: '#e2e8f0',
+        ['--color-on-secondary-container' as string]: '#1e293b',
+        ['--color-surface' as string]: '#f8fbff',
+        ['--color-on-surface' as string]: '#0f172a',
+        ['--color-surface-variant' as string]: '#e2e8f0',
+        ['--color-on-surface-variant' as string]: '#334155',
+        ['--color-surface-container-lowest' as string]: '#ffffff',
+        ['--color-surface-container-low' as string]: '#eff6ff',
+        ['--color-surface-container' as string]: '#eaf2ff',
+        ['--color-surface-container-high' as string]: '#dfeafd',
+      }}
+    >
+      <aside className="flex w-16 shrink-0 flex-col items-center border-r border-blue-200 bg-white py-5 shadow-sm">
+        <div className="mb-8 flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white" title="POS KOH">
           POS
         </div>
 
@@ -41,8 +61,8 @@ export default function PosKoh() {
               aria-label={label}
               className={({ isActive }) => `flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
                 isActive
-                  ? "bg-primary text-on-primary shadow-sm"
-                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
               }`}
             >
               <Icon size={19} />
@@ -55,17 +75,17 @@ export default function PosKoh() {
           onClick={handleLogout}
           title="Logout"
           aria-label="Logout"
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-error"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-blue-50 hover:text-red-600"
         >
           <LogOut size={19} />
         </button>
 
-        <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-on-surface-variant [writing-mode:vertical-rl]">
+        <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500 [writing-mode:vertical-rl]">
           POS KOH
         </div>
       </aside>
 
-      <main className="custom-scrollbar min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+      <main className="custom-scrollbar min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-[linear-gradient(180deg,#f8fbff_0%,#eef6ff_100%)]">
         <Outlet />
       </main>
     </div>

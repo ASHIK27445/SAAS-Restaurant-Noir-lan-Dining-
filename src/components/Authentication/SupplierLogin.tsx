@@ -44,27 +44,21 @@ export default function SupplierLogin() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f0ece3] px-5 py-8 text-[#25231f]">
-      <div className="relative flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-[#fffdf8] shadow-2xl md:flex-row">
-        <div className="min-h-56 flex-1 bg-[#475c52] p-8 text-white md:min-h-140 md:p-12">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#e2c891]">Culinary supply network</p>
-          <h1 className="mt-5 max-w-sm font-headline text-5xl leading-tight">Good ingredients, carefully managed.</h1>
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/70">A focused workspace for purchasing, catalog, and supplier performance.</p>
-        </div>
-        <section className="flex flex-1 items-center p-7 sm:p-12">
-          <div className="w-full max-w-sm">
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#475c52]">Supplier workspace</p>
-            <h2 className="mt-2 font-headline text-3xl">Welcome back</h2>
-            <p className="mt-2 text-sm text-[#716d64]">Sign in with your approved business account.</p>
-            {error && <p className="mt-5 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
-            <form onSubmit={submit} className="mt-7 space-y-4">
-              <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Business email" className="w-full rounded-lg border border-[#d6d0c4] bg-white px-4 py-3 text-sm outline-none focus:border-[#475c52]" />
-              <input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="w-full rounded-lg border border-[#d6d0c4] bg-white px-4 py-3 text-sm outline-none focus:border-[#475c52]" />
-              <button disabled={busy} className="w-full rounded-lg bg-[#475c52] py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Signing in..." : "Enter supplier workspace"}</button>
-            </form>
-            <button type="button" onClick={() => navigate("/management-login")} className="mt-5 text-xs font-semibold text-[#475c52] hover:underline">Use another portal</button>
-          </div>
-        </section>
+    <main className="flex min-h-screen items-center justify-center bg-white px-5 py-8 text-slate-900">
+      <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_20px_50px_rgba(15,23,42,0.08)] sm:p-10">
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-red-600">Supplier workspace</p>
+        <h1 className="mt-2 font-headline text-4xl text-slate-900">Welcome back</h1>
+        <p className="mt-2 text-sm text-slate-500">Sign in with your approved business account.</p>
+
+        {error && <p className="mt-5 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
+
+        <form onSubmit={submit} className="mt-7 space-y-4">
+          <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Business email" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-red-400" />
+          <input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-red-400" />
+          <button disabled={busy} className="w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-500 disabled:opacity-60">{busy ? "Signing in..." : "Enter supplier workspace"}</button>
+        </form>
+
+        <button type="button" onClick={() => navigate("/management-login")} className="mt-5 text-xs font-semibold text-slate-500 hover:text-red-700">Use another portal</button>
       </div>
     </main>
   );

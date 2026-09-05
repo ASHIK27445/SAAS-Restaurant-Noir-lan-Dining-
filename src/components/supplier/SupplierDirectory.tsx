@@ -111,7 +111,7 @@ export default function SupplierDirectory() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden antialiased selection:bg-primary-container selection:text-on-primary-container bg-surface text-on-surface font-body">
+    <div className="flex min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container bg-surface text-on-surface font-body">
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-surface relative">
         {/* TopAppBar (Mobile Only) */}
         <header className="md:hidden flex justify-between items-center w-full px-6 py-4 sticky top-0 z-50 bg-surface-container-low/80 backdrop-blur-xl">

@@ -5,7 +5,6 @@ import {
   ReceiptText,
   Users,
   BarChart3,
-  Sparkles,
   FileClock,
   Settings,
   HelpCircle,
@@ -20,6 +19,8 @@ import {
   MessageSquareQuote,
   CalendarCheck,
   Images,
+  TrendingUpDown,
+  Bot,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -37,6 +38,11 @@ const NAV_ITEMS = [
     icon: ReceiptText,
     label: "Order Management",
     to: "/admin/orders",
+  },
+  {
+    icon: Bot,
+    label: "Business Assistant",
+    to: "/admin/business-assistant",
   },
   {
     icon: Users,
@@ -109,7 +115,7 @@ const NAV_ITEMS = [
     to: "/admin/reports",
   },
   {
-    icon: Sparkles,
+    icon: TrendingUpDown,
     label: "Demand Forecast",
     to: "/admin/demand-forecast",
   },
@@ -170,34 +176,67 @@ function SidebarItem({ icon: Icon, label, to }: SidebarItemProps) {
 
 export default function AdminSidebar() {
   return (
-    <aside className="hidden md:flex flex-col h-screen w-72 border-r border-outline-variant/20 bg-surface py-2 px-4 sticky top-0 overflow-hidden">
+    <>
+      <aside className="hidden md:flex h-screen w-72 shrink-0 flex-col border-r border-red-100 bg-white px-4 py-4 shadow-sm sticky top-0 overflow-hidden">
+        <div className="mb-6 shrink-0 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-red-500">
+            Workspace
+          </p>
+          <h1 className="mt-2 font-headline text-2xl font-bold tracking-tight text-red-700">
+            The WorkSpace
+          </h1>
+          <p className="mt-1 text-xs uppercase tracking-[0.18em] text-red-600">
+            Admin Console
+          </p>
+        </div>
 
-      {/* Branding */}
-      <div className="mb-6 px-4 shrink-0">
-        <h1 className="text-2xl font-headline font-bold text-primary tracking-tight">
-          The WorkSpace
-        </h1>
-
-        <p className="text-xs uppercase tracking-widest text-secondary mt-1">
-          Admin Console
-        </p>
-      </div>
-
-      {/* Main Navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-1">
-        {NAV_ITEMS.map((item) => (
-          <SidebarItem key={item.label} {...item} />
-        ))}
-      </nav>
-
-      {/* Footer Navigation */}
-      <div className="mt-auto pt-2 shrink-0">
-        <div className="grid grid-cols-2 gap-2">
-          {FOOTER_ITEMS.map((item) => (
+        <nav className="flex-1 space-y-1.5 overflow-y-auto custom-scrollbar pr-1">
+          {NAV_ITEMS.map((item) => (
             <SidebarItem key={item.label} {...item} />
           ))}
+        </nav>
+
+        <div className="mt-auto pt-3 shrink-0">
+          <div className="grid grid-cols-2 gap-2">
+            {FOOTER_ITEMS.map((item) => (
+              <SidebarItem key={item.label} {...item} />
+            ))}
+          </div>
         </div>
+      </aside>
+
+      <div className="border-b border-red-100 bg-white px-3 py-3 shadow-sm md:hidden">
+        <div className="mb-2 flex items-center justify-between">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-red-600">
+              Admin
+            </p>
+            <h2 className="font-headline text-xl font-bold text-slate-800">Workspace</h2>
+          </div>
+        </div>
+        <nav className="flex flex-wrap gap-2">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const location = window.location.pathname;
+            const isActive = location === item.to || location.startsWith(item.to + "/");
+
+            return (
+              <Link
+                key={item.label}
+                to={item.to}
+                className={`flex items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-semibold transition-all ${
+                  isActive
+                    ? "border-red-600 bg-red-600 text-white shadow-sm"
+                    : "border-red-100 bg-red-50 text-slate-700 hover:border-red-200 hover:bg-red-100"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
-    </aside>
+    </>
   );
 }

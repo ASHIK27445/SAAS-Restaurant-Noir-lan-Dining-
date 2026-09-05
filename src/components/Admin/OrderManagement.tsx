@@ -314,37 +314,39 @@ export default function OrderManagement() {
           </div>
 
           {/* ── Insight cards ── */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-3">
+            <div className="space-y-8 md:col-span-2">
+              {/* Kitchen load advisory */}
+              <div className="relative overflow-hidden rounded-xl bg-black p-8 text-white group">
+                <div className="relative z-10 max-w-md">
+                  <h4 className="mb-4 font-headline text-2xl font-bold">Kitchen Load Advisory</h4>
+                  <p className="mb-6 text-sm leading-relaxed text-white/75">
+                    High volume detected for "Main Grill". Estimated preparation times are currently
+                    12 minutes above seasonal average. Suggest highlighting cold appetizers on
+                    user-facing featured menu.
+                  </p>
+                  <button className="rounded-xl bg-white px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-white/85">
+                    Adjust Menu Visibility
+                  </button>
+                </div>
+                <div className="pointer-events-none absolute right-0 top-0 h-full w-1/3 opacity-20 grayscale">
+                  <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJblunIyJHyiRoxiV9G6x-bz0XyvB7PrEdzLuAWLyEncCQMGdFL1qXLrjmbUdr63vGeT8zb4rvOPqzMvUcC4jSbXljv4CSCLz-8qRR0RwHRdIM86XtA98zJOR7JLToWGItPWHugEazyjCpuIqofBRllfnBP71ejxgu1GHr7yx6RMxmZe4YTgOmiAhaOMP1_c8pTRPcC1CeV3dJZ1LXGD4MUCtAZPcAq4Z-fVx6JJkBjG2lGseXgmQ4mHMtE3-eSOETRuLo92iQ4Oc"
+                    alt="Professional kitchen"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
 
-            {/* Kitchen load advisory */}
-            <div className="md:col-span-2 bg-primary text-on-primary p-8 rounded-xl relative overflow-hidden group">
-              <div className="relative z-10 max-w-md">
-                <h4 className="font-headline text-2xl font-bold mb-4">Kitchen Load Advisory</h4>
-                <p className="text-sm text-on-primary-container leading-relaxed mb-6 opacity-90">
-                  High volume detected for "Main Grill". Estimated preparation times are currently
-                  12 minutes above seasonal average. Suggest highlighting cold appetizers on
-                  user-facing featured menu.
-                </p>
-                <button className="px-6 py-3 bg-on-primary text-primary rounded-xl font-bold text-sm hover:bg-surface-container-lowest transition-colors">
-                  Adjust Menu Visibility
-                </button>
-              </div>
-              <div className="absolute right-0 top-0 h-full w-1/3 opacity-20 grayscale group-hover:grayscale-0 transition-all duration-700 pointer-events-none">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJblunIyJHyiRoxiV9G6x-bz0XyvB7PrEdzLuAWLyEncCQMGdFL1qXLrjmbUdr63vGeT8zb4rvOPqzMvUcC4jSbXljv4CSCLz-8qRR0RwHRdIM86XtA98zJOR7JLToWGItPWHugEazyjCpuIqofBRllfnBP71ejxgu1GHr7yx6RMxmZe4YTgOmiAhaOMP1_c8pTRPcC1CeV3dJZ1LXGD4MUCtAZPcAq4Z-fVx6JJkBjG2lGseXgmQ4mHMtE3-eSOETRuLo92iQ4Oc"
-                  alt="Professional kitchen"
-                  className="h-full w-full object-cover"
-                />
-              </div>
             </div>
 
             {/* Quality card */}
-            <div className="bg-surface-container-low p-8 rounded-xl flex flex-col justify-center items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-tertiary/10 text-tertiary flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center space-y-4 rounded-xl border border-black/15 bg-white p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-black/10 text-black flex items-center justify-center">
                 <Star size={28} fill="currentColor" />
               </div>
-              <h4 className="font-headline text-xl font-bold text-primary">Order Quality Goal</h4>
-              <p className="text-sm text-secondary">
+              <h4 className="font-headline text-xl font-bold text-black">Order Quality Goal</h4>
+              <p className="text-sm text-black/65">
                 98% of orders today met the "Hot on Arrival" standard. Continue maintaining high
                 logistics efficiency.
               </p>

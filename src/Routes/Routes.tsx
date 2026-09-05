@@ -49,6 +49,7 @@ import PosKoh from "../components/Admin/PosKoh";
 import OrderPos from "../components/Admin/OrderPos";
 import OrderPosDetails from "../components/Admin/OrderPosDetails";
 import OrderManagementReal from "../components/Admin/OrderManagementReal";
+import AdminBusinessAssistant from "../components/Admin/AdminBusinessAssistant";
 import UserManagement from "../components/Admin/UserManagement";
 import CustomerManagement from "../components/Admin/CustomerManagement";
 import PermissionManagement from "../components/Admin/PermissionManagement";
@@ -165,6 +166,10 @@ export const router = createBrowserRouter([
         {
             path: 'orders',
             Component: OrderManagementReal
+        },
+        {
+            path: 'business-assistant',
+            Component: AdminBusinessAssistant
         },
         {
             path: 'reports',

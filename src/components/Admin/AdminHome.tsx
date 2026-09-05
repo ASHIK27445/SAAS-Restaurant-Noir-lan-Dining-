@@ -127,49 +127,42 @@ export default function AdminHome() {
   }, [path]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-surface text-on-surface font-body">
-
-      {/* Sidebar */}
+    <div className="flex h-dvh bg-white text-slate-900 font-body">
       <AdminSidebar />
 
-      {/* Main */}
-      <main className="h-full min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-surface">
-
-        {/* Header */}
-        <header className="flex justify-between items-center w-full px-8 h-20 sticky top-0 z-40 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10">
-
-          {/* Dynamic Left */}
+      <main className="h-full min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-white">
+        <header className="sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b border-red-100 bg-white px-4 shadow-sm sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             {headerLeft}
           </div>
 
-          {/* Fixed Right */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 rounded-full border border-outline-variant/20 bg-surface-container-low px-3 py-1.5">
-                <div className="h-10 w-10 rounded-full overflow-hidden bg-surface-container-high ring-1 ring-outline-variant/20 shrink-0">
-                  <img
-                    src={avatarUrl}
-                    alt={displayName}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex flex-col leading-tight">
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-secondary">Logged in</span>
-                  <span className="text-sm font-semibold text-primary">{displayName}</span>
-                </div>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 rounded-full border border-red-100 bg-red-50 px-2.5 py-1.5 shadow-sm sm:px-3">
+              <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm sm:h-10 sm:w-10">
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="h-full w-full object-cover"
+                />
               </div>
-              <button
-                type="button"
-                onClick={handleLogout}
-                aria-label="Logout"
-                className="text-secondary hover:opacity-80 transition-opacity"
-              >
-                <LogOut size={18} className="cursor-pointer"/>
-              </button>
+              <div className="hidden min-[420px]:flex flex-col leading-tight sm:flex">
+                <span className="text-[9px] uppercase tracking-[0.18em] text-slate-500">
+                  Logged in
+                </span>
+                <span className="text-sm font-semibold text-red-700">{displayName}</span>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="Logout"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-red-100 bg-white text-slate-600 transition-colors hover:border-red-200 hover:text-red-700"
+            >
+              <LogOut size={18} className="cursor-pointer" />
+            </button>
+          </div>
         </header>
 
-        {/* Page Content */}
         <Outlet />
       </main>
     </div>

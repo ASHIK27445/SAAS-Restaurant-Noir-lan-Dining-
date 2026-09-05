@@ -37,20 +37,24 @@ export default function SupplierAside() {
   };
 
   return (
-    <aside className="flex w-full shrink-0 flex-col border-b border-outline-variant/20 bg-surface-container-lowest md:sticky md:top-0 md:h-screen md:w-72 md:border-b-0 md:border-r">
-      <div className="px-6 py-6 md:px-7 md:py-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">The Culinary Editorial</p>
-        <h1 className="mt-2 font-headline text-2xl tracking-tight text-on-surface">Supplier workspace</h1>
-        <p className="mt-1 text-sm text-on-surface-variant">Procurement network</p>
+    <aside className="flex w-full shrink-0 flex-col border-b border-red-100 bg-white shadow-sm md:sticky md:top-0 md:h-screen md:w-72 md:border-b-0 md:border-r md:shadow-none">
+      <div className="px-5 py-5 md:px-6 md:py-7">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-red-500">
+            The Culinary Editorial
+          </p>
+          <h1 className="mt-2 font-headline text-2xl tracking-tight text-red-700">Supplier workspace</h1>
+          <p className="mt-1 text-sm text-red-600">Procurement network</p>
+        </div>
       </div>
 
-      <nav className="flex gap-2 overflow-x-auto px-4 pb-4 md:flex-col md:overflow-visible md:px-4 md:pb-0" aria-label="Supplier navigation">
+      <nav className="flex flex-wrap gap-2 px-3 pb-4 md:flex-col md:overflow-visible md:px-4 md:pb-0" aria-label="Supplier navigation">
         {links.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
-            className={({ isActive }) => `flex shrink-0 items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${isActive ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-surface-container-low hover:text-primary"}`}
+            className={({ isActive }) => `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${isActive ? "bg-red-600 text-white shadow-sm" : "text-slate-700 hover:bg-red-50 hover:text-red-700"}`}
           >
             <Icon size={18} />
             {label}
@@ -58,15 +62,15 @@ export default function SupplierAside() {
         ))}
       </nav>
 
-      <div className="mt-auto border-t border-outline-variant/15 px-4 py-4 md:px-6 md:py-6">
-        <div className="flex items-center gap-3 text-sm text-on-surface-variant">
+      <div className="mt-auto border-t border-red-100 px-4 py-4 md:px-6 md:py-6">
+        <div className="flex items-center gap-3 rounded-xl bg-red-50 px-3 py-3 text-sm font-medium text-red-700">
           <FileText size={17} />
           <span>Supplier operations</span>
         </div>
         <button
           type="button"
           onClick={handleLogout}
-          className="mt-5 flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-error"
+          className="mt-4 flex w-full items-center gap-3 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700"
         >
           <LogOut size={17} />
           <span>Logout</span>
