@@ -127,13 +127,13 @@ export default function AdminHome() {
   }, [path]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-surface text-on-surface font-body">
+    <div className="flex h-dvh overflow-hidden bg-surface text-on-surface font-body">
 
       {/* Sidebar */}
       <AdminSidebar />
 
       {/* Main */}
-      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-surface">
+      <main className="h-full min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-surface">
 
         {/* Header */}
         <header className="flex justify-between items-center w-full px-8 h-20 sticky top-0 z-40 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10">
