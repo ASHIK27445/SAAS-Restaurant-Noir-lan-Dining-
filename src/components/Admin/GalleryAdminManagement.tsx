@@ -8,6 +8,7 @@ import {
   type GalleryCategory,
   type GalleryImage,
 } from "../../api/gallery";
+import { toast } from "sonner";
 
 const categoryLabels: Record<GalleryCategory, string> = {
   INTERIOR: "Interior & Space",
@@ -71,16 +72,24 @@ export default function GalleryAdminManagement() {
       );
     }
   }
-  async function remove(image: GalleryImage) {
-    if (!window.confirm(`Delete \"${image.title}\"?`)) return;
-    try {
-      await deleteGalleryImage(image.id);
-      await load();
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Could not delete image",
-      );
-    }
+  function remove(image: GalleryImage) {
+    toast(`Delete "${image.title}"?`, {
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          try {
+            await deleteGalleryImage(image.id);
+            toast.success(`"${image.title}" deleted`);
+            await load();
+          } catch (error) {
+            const msg = error instanceof Error ? error.message : "Could not delete image";
+            setMessage(msg);
+            toast.error(msg);
+          }
+        },
+      },
+      cancel: { label: "Cancel", onClick: () => {} },
+    });
   }
   function upload(file: File | undefined) {
     if (!file) return;

@@ -248,30 +248,28 @@ export default function MenuItemManagement() {
     }
     }
 
-    async function requestDelete(item: MenuItem) {
-    const confirmed = window.confirm(
-        `Delete "${item.name}" from the menu?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-        const res = await authFetch(`${BASE_URL}/menu/items/${item.id}`, {
-        method: "DELETE",
-        });
-
-        const result = await res.json();
-
-        if (!res.ok || !result.success) {
-        throw new Error(result.message || "Failed to delete item");
-        }
-
-        toast.success(`${item.name} deleted.`);
-
-        loadItems();
-    } catch (error: any) {
-        toast.error(error.message || "Failed to delete item");
-    }
+    function requestDelete(item: MenuItem) {
+      toast(`Delete "${item.name}" from the menu?`, {
+        action: {
+          label: "Delete",
+          onClick: async () => {
+            try {
+              const res = await authFetch(`${BASE_URL}/menu/items/${item.id}`, {
+                method: "DELETE",
+              });
+              const result = await res.json();
+              if (!res.ok || !result.success) {
+                throw new Error(result.message || "Failed to delete item");
+              }
+              toast.success(`${item.name} deleted.`);
+              loadItems();
+            } catch (error: any) {
+              toast.error(error.message || "Failed to delete item");
+            }
+          },
+        },
+        cancel: { label: "Cancel", onClick: () => {} },
+      });
     }
 
   const grouped = useMemo(() => {

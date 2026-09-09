@@ -11,6 +11,7 @@ import {
 } from "../../api/authorization";
 import { getStaffList } from "../../api/employee";
 import type { EmployeeListItem } from "../../types/employee";
+import { toast } from "sonner";
 
 const MODULES: AccessModule[] = [
   "SUPPLIERS",
@@ -74,22 +75,26 @@ export default function PermissionManagement() {
     }
   }
 
-  async function remove(id: string, label: string) {
-    if (
-      !window.confirm(
-        `Remove ${label} access? This only removes this permission.`,
-      )
-    )
-      return;
-    try {
-      await removeAccess(id);
-      setMessage(`${label} access removed`);
-      await load();
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Failed to remove access",
-      );
-    }
+  function remove(id: string, label: string) {
+    toast(`Remove ${label} access?`, {
+      description: "This only removes this permission.",
+      action: {
+        label: "Remove",
+        onClick: async () => {
+          try {
+            await removeAccess(id);
+            setMessage(`${label} access removed`);
+            toast.success(`${label} access removed`);
+            await load();
+          } catch (error) {
+            const msg = error instanceof Error ? error.message : "Failed to remove access";
+            setMessage(msg);
+            toast.error(msg);
+          }
+        },
+      },
+      cancel: { label: "Cancel", onClick: () => {} },
+    });
   }
 
   return (

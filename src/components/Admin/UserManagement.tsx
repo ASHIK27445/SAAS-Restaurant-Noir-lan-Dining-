@@ -19,6 +19,7 @@ import {
   updateUser,
   type UserSummary,
 } from "../../api/authorization";
+import { toast } from "sonner";
 
 const ROLES = [
   "Customer",
@@ -115,18 +116,29 @@ export default function UserManagement() {
     }
   }
 
-  async function deactivateAccount(user: UserSummary) {
-    if (!window.confirm(`Deactivate ${user.email}? Their employee account will also be inactive.`)) return;
-    setSaving(user.id);
-    try {
-      await deactivateUser(user.id);
-      setUsers((current) => current.map((item) => item.id === user.id ? { ...item, isActive: false } : item));
-      setMessage(`${user.email} deactivated`);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Failed to deactivate user");
-    } finally {
-      setSaving(null);
-    }
+  function deactivateAccount(user: UserSummary) {
+    toast(`Deactivate ${user.email}?`, {
+      description: "Their employee account will also be inactive.",
+      action: {
+        label: "Deactivate",
+        onClick: async () => {
+          setSaving(user.id);
+          try {
+            await deactivateUser(user.id);
+            setUsers((current) => current.map((item) => item.id === user.id ? { ...item, isActive: false } : item));
+            setMessage(`${user.email} deactivated`);
+            toast.success(`${user.email} deactivated`);
+          } catch (error) {
+            const msg = error instanceof Error ? error.message : "Failed to deactivate user";
+            setMessage(msg);
+            toast.error(msg);
+          } finally {
+            setSaving(null);
+          }
+        },
+      },
+      cancel: { label: "Cancel", onClick: () => {} },
+    });
   }
 
   async function restoreAccount(user: UserSummary) {
@@ -142,18 +154,29 @@ export default function UserManagement() {
     }
   }
 
-  async function hardDeleteAccount(user: UserSummary) {
-    if (!window.confirm(`PERMANENTLY DELETE ${user.email}? This removes Firebase, employee, attendance, wages, grants, and all linked records. This cannot be undone.`)) return;
-    setSaving(user.id);
-    try {
-      await deleteUser(user.id);
-      setUsers((current) => current.filter((item) => item.id !== user.id));
-      setMessage(`${user.email} permanently deleted`);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Failed to permanently delete user");
-    } finally {
-      setSaving(null);
-    }
+  function hardDeleteAccount(user: UserSummary) {
+    toast(`PERMANENTLY DELETE ${user.email}?`, {
+      description: "This removes Firebase, employee, attendance, wages, grants, and all linked records. This cannot be undone.",
+      action: {
+        label: "Delete forever",
+        onClick: async () => {
+          setSaving(user.id);
+          try {
+            await deleteUser(user.id);
+            setUsers((current) => current.filter((item) => item.id !== user.id));
+            setMessage(`${user.email} permanently deleted`);
+            toast.success(`${user.email} permanently deleted`);
+          } catch (error) {
+            const msg = error instanceof Error ? error.message : "Failed to permanently delete user";
+            setMessage(msg);
+            toast.error(msg);
+          } finally {
+            setSaving(null);
+          }
+        },
+      },
+      cancel: { label: "Cancel", onClick: () => {} },
+    });
   }
 
   return (
