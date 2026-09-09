@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { employeeSchema } from "../../Schemas/employee.schema";
 import { authFetch } from "../../api/authFetch";
+import { toast } from "sonner";
 
 const INPUT_CLS =
   "w-full bg-surface-container-low border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary/20 text-on-surface placeholder:text-grey-700 font-body transition-all outline-none";
@@ -69,16 +70,18 @@ export default function AddEmployeeModal({
         if (response.ok) {
           const newEmployee = await response.json();
           onSuccess?.(newEmployee);
-          console.log(newEmployee, onSuccess?.(newEmployee))
-          alert(newEmployee.message)
-          // setShowModal(false);
-          // reset();
+          // console.log(newEmployee, onSuccess?.(newEmployee))
+          toast.success(newEmployee.message)
+          setShowModal(false);
+          reset();
         } else {
           const error = await response.json();
-          console.error("Validation error:", error);
+          // console.error("Validation error:", error);
+          toast.error("Validation Error: ", error)
         }
       } catch (error) {
-        console.error("Error creating employee:", error);
+        // console.error("Error creating employee:", error);
+        toast.error("Error creating employee:");
       }
     };
 
