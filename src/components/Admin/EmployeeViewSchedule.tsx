@@ -6,8 +6,10 @@ import type { AttendanceRow, OpenShift, Staff } from "../../types/employee";
 type DatedAttendance = AttendanceRow & { attendanceDate: string };
 
 function todayStr() { return new Date().toISOString().slice(0, 10); }
+const BUSINESS_TIME_ZONE = "Asia/Dhaka";
+
 function formatTime(value: string | null) {
-  return value ? new Date(value).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "Not recorded";
+  return value ? new Date(value).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TIME_ZONE }) : "Not recorded";
 }
 function formatDate(value: string) {
   return new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });

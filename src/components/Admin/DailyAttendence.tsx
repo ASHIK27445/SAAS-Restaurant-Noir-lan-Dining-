@@ -6,13 +6,20 @@ import type { AttendanceRow } from "../../types/employee";
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
+const BUSINESS_TIME_ZONE = "Asia/Dhaka";
+
 function formatTime(iso: string | null) {
-  return iso ? new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "—";
+  return iso ? new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TIME_ZONE }) : "—";
 }
 
 function inputTime(iso: string) {
   const date = new Date(iso);
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: BUSINESS_TIME_ZONE,
+  }).format(date);
 }
 
 function TimeCell({ row, date, field, onSaved }: { row: AttendanceRow; date: string; field: "checkIn" | "checkOut"; onSaved: () => void }) {

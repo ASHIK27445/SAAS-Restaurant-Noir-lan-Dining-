@@ -6,7 +6,7 @@ import { employeeSchema } from "../../Schemas/employee.schema";
 import { authFetch } from "../../api/authFetch";
 
 const INPUT_CLS =
-  "w-full bg-surface-container-low border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary/20 text-on-surface placeholder:text-outline/60 font-body transition-all outline-none";
+  "w-full bg-surface-container-low border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary/20 text-on-surface placeholder:text-grey-700 font-body transition-all outline-none";
 
 export default function AddEmployeeModal({
   showModal,
@@ -58,7 +58,7 @@ export default function AddEmployeeModal({
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await authFetch("http://localhost:3000/employees/staff/create", {
+      const response = await authFetch(`${import.meta.env?.VITE_API_URL}/employees/staff/create`, {
         method: "POST",
         body: JSON.stringify({
           ...data,
@@ -90,7 +90,7 @@ export default function AddEmployeeModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-on-primary-fixed/40 backdrop-blur-md">
       <div className="bg-surface w-full max-w-3xl max-h-[90vh] rounded-xl overflow-hidden flex flex-col md:flex-row">
         {/* LEFT */}
-        <div className="hidden md:block w-1/3 relative bg-primary-container">
+        <div className="hidden md:block w-1/3 relative bg-red-500 opacity-80">
           <img
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZQ4QkPAKE0UVYCdj0oHH77VjKjIuQvPn7u9VD8EfRBS9PGrjrKYdTubRGQExRN3e30CaWzioK-OqjXyr0N0q7YSWEhj_uSRzxjl057i2hbwYJRDnVUzdm1Vlh_tSyhB38Y5B3orQhgUNsXIdhymKynQP-c3bWhXt8YvL3M_YntMMhX29Qu64nnWmJtzmoZ-iuMRXCk8dZvPpqdKix28Rfj637YBBxbvscb_-IoIlI9tDmDuHP4LT1ecUH4wzg90ylLnTr1mj26T4"
             className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
