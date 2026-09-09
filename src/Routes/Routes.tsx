@@ -55,7 +55,6 @@ import CustomerManagement from "../components/Admin/CustomerManagement";
 import PermissionManagement from "../components/Admin/PermissionManagement";
 import ManagementLogin from "../components/Authentication/ManagementLogin";
 import PosLogin from "../components/Authentication/PosLogin";
-import SupplierLogin from "../components/Authentication/SupplierLogin";
 import PosAccessGate from "../components/Authentication/PosAccessGate";
 import SupplierAccessGate from "../components/Authentication/SupplierAccessGate";
 import ManagementAccessGate from "../components/Authentication/ManagementAccessGate";
@@ -256,10 +255,6 @@ export const router = createBrowserRouter([
     {
         path: 'pos-login',
         Component: PosLogin
-    },
-    {
-        path: 'supplier-login',
-        Component: SupplierLogin
     },
     {
         path: 'management-login',
