@@ -1,7 +1,7 @@
-import { X, Camera } from "lucide-react";
+import { X, Camera, EyeOff, Eye } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { employeeSchema } from "../../Schemas/employee.schema";
 import { authFetch } from "../../api/authFetch";
 import { toast } from "sonner";
@@ -41,6 +41,7 @@ export default function AddEmployeeModal({
   const systemAccess = watch("systemAccess");
   const imageUrl = watch("image");
   const avatarPreview = imageUrl;
+  const [showPassword, setShowPassword] = useState(false);
 
   // Reset form when modal closes
   useEffect(() => {
@@ -192,13 +193,16 @@ export default function AddEmployeeModal({
               </div>
 
               {/* Initial Firebase password */}
-              <div>
+              <div className="relative">
                 <input
                   {...register("password")}
                   className={INPUT_CLS + " py-2 text-sm"}
                   placeholder="Temporary password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                 />
+                <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-transparent px-1 text-red-700 hover:text-[#171412]">
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
                 {errors.password && (
                   <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
                 )}
