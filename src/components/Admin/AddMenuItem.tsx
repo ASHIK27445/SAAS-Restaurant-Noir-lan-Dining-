@@ -4,6 +4,7 @@ import { MenuItemSchema, type MenuItemFormData } from "../../Schemas/menu.schema
 import { useForm, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { authFetch } from "../../api/authFetch";
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -79,7 +80,7 @@ export default function AddMenuItem() {
           // console.log(allergensResult.data)
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        // console.error("Error fetching data:", error);
         // Fallback to hardcoded data if API fails
         setCategories([
           { id: "1", name: "Starter", isActive: true },
@@ -104,7 +105,7 @@ export default function AddMenuItem() {
     fetchData();
   }, []);
   const onSubmit = async (data: MenuItemFormData) => {
-    console.log(data);
+    // console.log(data);
     try {
       const res = await authFetch(`${API_BASE_URL}/menu/create`, {
         method: "POST",
@@ -115,9 +116,14 @@ export default function AddMenuItem() {
       })
 
       const result = await res.json()
-      console.log(result)
+      // console.log(result)
+      if(result){
+        toast.success("Menu Item Created Successfully!")
+      }
+      
     } catch (error) {
-      console.log(error)
+      // console.log(error)
+      toast.error("Error to creating menu")
     }
   };
 
