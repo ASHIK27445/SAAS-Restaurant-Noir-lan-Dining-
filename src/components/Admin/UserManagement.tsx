@@ -54,7 +54,7 @@ export default function UserManagement() {
       setLoading(false);
     }
   }
-  console.log(users)
+  // console.log(users)
 
   useEffect(() => {
     void loadUsers();

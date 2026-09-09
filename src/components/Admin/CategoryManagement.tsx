@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CategoryManagementSkeletonLoading from "./SkeletonLoading/CategoryManageLoading";
 import { authFetch } from "../../api/authFetch";
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -97,6 +98,7 @@ const [imagePreview, setImagePreview] = useState<string>("");
         onClose();
         reset();
         setImagePreview("");
+        toast.success("Menu Edited Successfully!")
       } else {
         setError(result.message || "Failed to update category");
       }
@@ -312,26 +314,41 @@ export default function CategoryManagement() {
       }
     } catch (error) {
       console.error("Error updating category:", error);
+      toast.error("Error updating category")
     }
   };
 
-  const deleteCategory = async (category: Category) => {
-    if (!window.confirm(`Delete "${category.name}"? This cannot be undone.`)) return;
 
-    try {
-      const response = await authFetch(`${API_BASE_URL}/menu/category/${category.id}`, {
-        method: "DELETE",
-      });
-      const result = await response.json();
-      if (result.success) {
-        fetchCategories();
-      } else {
-        setError(result.message || "Failed to delete category");
-      }
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      setError("Network error. Please try again.");
-    }
+  const deleteCategory = (category: Category) => {
+    toast(`Delete "${category.name}"?`, {
+      description: "This cannot be undone.",
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          try {
+            const response = await authFetch(`${API_BASE_URL}/menu/category/${category.id}`, {
+              method: "DELETE",
+            });
+            const result = await response.json();
+            if (result.success) {
+              fetchCategories();
+              toast.success(`"${category.name}" deleted`);
+            } else {
+              setError(result.message || "Failed to delete category");
+              toast.error(result.message || "Failed to delete category");
+            }
+          } catch (error) {
+            console.error("Error deleting category:", error);
+            setError("Network error. Please try again.");
+            toast.error("Network error. Please try again.");
+          }
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
   };
 
   // Open edit modal
