@@ -7,7 +7,6 @@ import { AuthContext } from "./AuthContext";
 import type { AuthContextType } from "./auth";
 import { LoginSchema, type LoginFormData } from "./ZodLoginSchema";
 import { bootstrapAdmin, getCurrentUser } from "../../api/authorization";
-import { verifyPosPin } from "../../api/order";
 import { auth } from "../../Firebase/firebase.init";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -20,7 +19,6 @@ const MANAGEMENT_ROLES = [
   "Waiter",
   "Cashier",
 ];
-const POS_ROLES = ["Admin", "Manager", "Cashier"];
 const SUPPLIER_ROLES = ["Admin", "Manager", "Accountant", "Supplier"];
 
 function destinationForRole(role: string) {
@@ -29,11 +27,10 @@ function destinationForRole(role: string) {
   return "/admin";
 }
 
-type Portal = "management" | "pos" | "supplier";
+type Portal = "management" | "supplier";
 
 const PORTALS: { id: Portal; label: string }[] = [
   { id: "management", label: "Management" },
-  { id: "pos", label: "POS" },
   { id: "supplier", label: "Supplier" },
 ];
 
@@ -102,67 +99,6 @@ export default function ManagementLogin() {
     }
   }
 
-  // --- POS form (email/password -> PIN step) ---
-  const [posEmail, setPosEmail] = useState("");
-  const [posPassword, setPosPassword] = useState("");
-  const [posPin, setPosPin] = useState("");
-  const [posStep, setPosStep] = useState<"login" | "pin">("login");
-  const [posBusy, setPosBusy] = useState(false);
-
-  async function submitPosLogin(event: React.FormEvent) {
-    event.preventDefault();
-    setError("");
-    setPosBusy(true);
-    try {
-      await loginUser(posEmail, posPassword);
-      const response = await getCurrentUser();
-      const allowed =
-        POS_ROLES.includes(response.user.role) ||
-        response.user.accessGrants?.some(
-          (grant) => grant.module === "POS" && grant.status === "APPROVED",
-        );
-      if (!allowed) {
-        await logoutUser();
-        setError("Your account does not have POS access.");
-        return;
-      }
-      if (
-        response.user.emailVerificationNeeded &&
-        !auth.currentUser?.emailVerified
-      ) {
-        await logoutUser();
-        setError("Verify your email before entering the POS.");
-        return;
-      }
-      setPosStep("pin");
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Unable to sign in");
-    } finally {
-      setPosBusy(false);
-    }
-  }
-
-  async function submitPosPin(event: React.FormEvent) {
-    event.preventDefault();
-    setError("");
-    setPosBusy(true);
-    try {
-      const response = await verifyPosPin(posPin);
-      if (!response.valid) {
-        setError("Incorrect POS PIN.");
-        return;
-      }
-      sessionStorage.setItem("pos-access-granted", "true");
-      navigate("/pos-koh");
-    } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "Unable to verify POS PIN",
-      );
-    } finally {
-      setPosBusy(false);
-    }
-  }
-
   // --- Supplier form ---
   const [supplierEmail, setSupplierEmail] = useState("");
   const [supplierPassword, setSupplierPassword] = useState("");
@@ -203,7 +139,6 @@ export default function ManagementLogin() {
     setPortal(next);
     setError("");
     setShowPassword(false);
-    setPosStep("login");
   }
 
   return (
@@ -219,7 +154,7 @@ export default function ManagementLogin() {
           </div>
 
           {/* Portal switcher */}
-          <div className="mb-5 grid grid-cols-3 gap-1 rounded-lg border border-white/20 p-1">
+          <div className="mb-5 grid grid-cols-2 gap-1 rounded-lg border border-white/20 p-1">
             {PORTALS.map(({ id, label }) => (
               <button
                 key={id}
@@ -293,74 +228,6 @@ export default function ManagementLogin() {
             </form>
           )}
 
-          {portal === "pos" && posStep === "login" && (
-            <form onSubmit={submitPosLogin} className="space-y-3">
-              <input
-                required
-                type="email"
-                value={posEmail}
-                onChange={(event) => setPosEmail(event.target.value)}
-                placeholder="Email address"
-                className="w-full rounded-lg border border-white/20 bg-transparent px-3 py-2.5 text-xs text-white outline-none placeholder:text-white/55 focus:border-white/50"
-              />
-              <div className="relative">
-                <input
-                  required
-                  type={showPassword ? "text" : "password"}
-                  value={posPassword}
-                  onChange={(event) => setPosPassword(event.target.value)}
-                  placeholder="Password"
-                  className="w-full rounded-lg border border-white/20 bg-transparent px-3 py-2.5 pr-10 text-xs text-white outline-none placeholder:text-white/55 focus:border-white/50"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((visible) => !visible)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-              <button
-                disabled={posBusy}
-                type="submit"
-                className="w-full rounded-lg bg-white py-2.5 text-xs font-semibold text-[#171717] hover:bg-white/90"
-              >
-                {posBusy ? "Checking access..." : "Continue to PIN"}
-              </button>
-            </form>
-          )}
-
-          {portal === "pos" && posStep === "pin" && (
-            <form onSubmit={submitPosPin} className="space-y-3">
-              <input
-                required
-                autoFocus
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={8}
-                value={posPin}
-                onChange={(event) => setPosPin(event.target.value.replace(/\D/g, ""))}
-                placeholder="POS security PIN"
-                className="w-full rounded-lg border border-white/20 bg-transparent px-3 py-2.5 text-xs tracking-[0.35em] text-white outline-none placeholder:text-white/55 placeholder:tracking-normal focus:border-white/50"
-              />
-              <button
-                disabled={posBusy}
-                type="submit"
-                className="w-full rounded-lg bg-white py-2.5 text-xs font-semibold text-[#171717] hover:bg-white/90"
-              >
-                {posBusy ? "Verifying PIN..." : "Unlock POS"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setPosStep("login")}
-                className="w-full text-center text-[10px] font-semibold text-white/60 underline underline-offset-4 hover:text-white"
-              >
-                Use another email
-              </button>
-            </form>
-          )}
-
           {portal === "supplier" && (
             <form onSubmit={submitSupplier} className="space-y-3">
               <input
@@ -402,6 +269,13 @@ export default function ManagementLogin() {
           <p className="mt-5 text-center text-[10px] text-white/60">
             Need access? Contact your administrator.
           </p>
+          <button
+            type="button"
+            onClick={() => navigate("/pos-login")}
+            className="mt-3 w-full text-center text-[10px] font-semibold text-white/60 underline underline-offset-4 hover:text-white"
+          >
+            Front of house? Go to POS login
+          </button>
         </section>
         <div className="max-w-xs text-center md:text-left">
           <p className="text-3xl font-bold tracking-tight">Restaurant Admin</p>
