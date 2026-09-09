@@ -40,6 +40,14 @@ export function deleteUser(id: string) {
   return request<{ success: true; message: string }>(`/auth/users/${id}`, { method: "DELETE" });
 }
 
+export function deactivateUser(id: string) {
+  return request<{ success: true; message: string }>(`/auth/users/${id}/deactivate`, { method: "PATCH" });
+}
+
+export function restoreUser(id: string) {
+  return request<{ success: true; message: string }>(`/auth/users/${id}/restore`, { method: "PATCH" });
+}
+
 export function getAccessGrants() {
   return request<{ success: true; data: AccessGrant[] }>("/auth/access-grants");
 }
@@ -50,6 +58,10 @@ export function requestAccess(userId: string, module: AccessModule) {
 
 export function reviewAccess(grantId: string, status: "APPROVED" | "REJECTED") {
   return request(`/auth/access-grants/${grantId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+}
+
+export function removeAccess(grantId: string) {
+  return request<{ success: true; message: string }>(`/auth/access-grants/${grantId}`, { method: "DELETE" });
 }
 
 export function changeFirebasePassword(uid: string, password: string) {
