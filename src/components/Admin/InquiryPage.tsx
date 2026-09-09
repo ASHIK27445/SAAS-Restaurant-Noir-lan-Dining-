@@ -332,7 +332,7 @@ export default function InquiryPage() {
       {/* Loading */}
       {loading ? (
         <div className="
-          flex min-h-[300px]
+          flex min-h-75
           items-center justify-center
           rounded-xl border
         ">

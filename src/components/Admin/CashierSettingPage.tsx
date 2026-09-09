@@ -38,7 +38,7 @@ export default function CashierSettingPage() {
 
   const [staffQuery, cashierQuery, settingsQuery, promosQuery] = useQueries({
     queries: [
-      { queryKey: ["staff", "waiters"], queryFn: getStaff, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
+      { queryKey: ["staff", "waiters"], queryFn: () => getStaff(), staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
       { queryKey: ["cashier-setting"], queryFn: getCashierSetting, staleTime: 30 * 1000, refetchOnWindowFocus: false },
       { queryKey: ["pos-settings"], queryFn: getPosSettings, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
       { queryKey: ["promo-codes"], queryFn: getPromoCodes, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
