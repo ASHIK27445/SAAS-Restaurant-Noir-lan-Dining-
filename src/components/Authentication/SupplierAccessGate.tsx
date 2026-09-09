@@ -27,7 +27,7 @@ export default function SupplierAccessGate() {
   }, [loading, user]);
 
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-surface text-sm text-secondary">Restoring supplier session...</div>;
-  if (!user || allowed === false) return <Navigate to="/supplier-login" replace />;
+  if (!user || allowed === false) return <Navigate to="/management-login" replace />;
   if (allowed === null) return <div className="flex min-h-screen items-center justify-center bg-surface text-sm text-secondary">Checking supplier access...</div>;
   return <Outlet />;
 }

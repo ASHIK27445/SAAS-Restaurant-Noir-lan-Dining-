@@ -30,7 +30,7 @@ export default function SupplierAside() {
     try {
       await logoutUser();
       sessionStorage.removeItem("supplier-access-granted");
-      navigate("/supplier-login");
+      navigate("/management-login");
     } catch (error) {
       console.error("Logout failed:", error);
     }
