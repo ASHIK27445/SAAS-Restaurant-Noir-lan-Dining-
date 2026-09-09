@@ -112,17 +112,18 @@ export default function InquiryPage() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <section className="min-h-full space-y-6 bg-surface p-5 text-on-surface sm:p-7 lg:p-10">
 
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
         <div>
-          <h1 className="text-2xl font-bold">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-tertiary">Administration / Inbox</p>
+          <h1 className="mt-1 font-headline text-3xl text-primary">
             Inquiries
           </h1>
 
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-on-surface-variant">
             Manage and monitor website inquiries.
           </p>
         </div>
@@ -134,9 +135,9 @@ export default function InquiryPage() {
           disabled={refreshing}
           className="
             inline-flex items-center justify-center gap-2
-            rounded-lg border px-4 py-2
+            rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-2
             text-sm font-medium
-            transition hover:bg-muted
+            text-primary transition hover:bg-surface-container-high
             disabled:cursor-not-allowed
             disabled:opacity-50
           "
@@ -158,31 +159,27 @@ export default function InquiryPage() {
       ">
 
         {/* Total */}
-        <div className="
-          rounded-xl border
-          bg-background p-5
-        ">
+        <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-5">
           <div className="
             flex items-center
             justify-between
           ">
             <div>
               <p className="
-                text-sm
-                text-muted-foreground
+                text-[10px] uppercase tracking-wider text-on-surface-variant
               ">
                 Total Inquiries
               </p>
 
               <h2 className="
-                mt-2 text-3xl font-bold
+                mt-2 font-headline text-3xl text-primary
               ">
                 {stats.total}
               </h2>
             </div>
 
             <div className="
-              rounded-lg bg-muted p-3
+              rounded-lg bg-primary/10 p-3 text-primary
             ">
               <Users className="h-5 w-5" />
             </div>
@@ -190,31 +187,27 @@ export default function InquiryPage() {
         </div>
 
         {/* Get Started */}
-        <div className="
-          rounded-xl border
-          bg-background p-5
-        ">
+        <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-5">
           <div className="
             flex items-center
             justify-between
           ">
             <div>
               <p className="
-                text-sm
-                text-muted-foreground
+                text-[10px] uppercase tracking-wider text-on-surface-variant
               ">
                 Get Started
               </p>
 
               <h2 className="
-                mt-2 text-3xl font-bold
+                mt-2 font-headline text-3xl text-primary
               ">
                 {stats.getStarted}
               </h2>
             </div>
 
             <div className="
-              rounded-lg bg-muted p-3
+              rounded-lg bg-primary/10 p-3 text-primary
             ">
               <CheckCircle2 className="h-5 w-5" />
             </div>
@@ -222,31 +215,27 @@ export default function InquiryPage() {
         </div>
 
         {/* Book Demo */}
-        <div className="
-          rounded-xl border
-          bg-background p-5
-        ">
+        <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-5">
           <div className="
             flex items-center
             justify-between
           ">
             <div>
               <p className="
-                text-sm
-                text-muted-foreground
+                text-[10px] uppercase tracking-wider text-on-surface-variant
               ">
                 Book a Demo
               </p>
 
               <h2 className="
-                mt-2 text-3xl font-bold
+                mt-2 font-headline text-3xl text-primary
               ">
                 {stats.bookDemo}
               </h2>
             </div>
 
             <div className="
-              rounded-lg bg-muted p-3
+              rounded-lg bg-tertiary/10 p-3 text-tertiary
             ">
               <Calendar className="h-5 w-5" />
             </div>
@@ -265,13 +254,12 @@ export default function InquiryPage() {
             handleFilterChange("ALL")
           }
           className={`
-            rounded-lg px-4 py-2
-            text-sm font-medium transition
+            rounded-lg border px-4 py-2 text-sm font-medium transition
 
             ${
               filter === "ALL"
-                ? "bg-primary text-primary-foreground"
-                : "border hover:bg-muted"
+                ? "border-primary bg-primary text-on-primary"
+                : "border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
             }
           `}
         >
@@ -283,13 +271,12 @@ export default function InquiryPage() {
             handleFilterChange("GET_STARTED")
           }
           className={`
-            rounded-lg px-4 py-2
-            text-sm font-medium transition
+            rounded-lg border px-4 py-2 text-sm font-medium transition
 
             ${
               filter === "GET_STARTED"
-                ? "bg-primary text-primary-foreground"
-                : "border hover:bg-muted"
+                ? "border-primary bg-primary text-on-primary"
+                : "border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
             }
           `}
         >
@@ -301,13 +288,12 @@ export default function InquiryPage() {
             handleFilterChange("BOOK_A_DEMO")
           }
           className={`
-            rounded-lg px-4 py-2
-            text-sm font-medium transition
+            rounded-lg border px-4 py-2 text-sm font-medium transition
 
             ${
               filter === "BOOK_A_DEMO"
-                ? "bg-primary text-primary-foreground"
-                : "border hover:bg-muted"
+                ? "border-primary bg-primary text-on-primary"
+                : "border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high"
             }
           `}
         >
@@ -320,10 +306,10 @@ export default function InquiryPage() {
       {error && (
         <div className="
           rounded-lg border
-          border-destructive/50
-          bg-destructive/10
+          border-error/30
+          bg-error/10
           p-4 text-sm
-          text-destructive
+          text-error
         ">
           {error}
         </div>
@@ -334,9 +320,9 @@ export default function InquiryPage() {
         <div className="
           flex min-h-75
           items-center justify-center
-          rounded-xl border
+          rounded-xl border border-outline-variant/20 bg-surface-container-lowest
         ">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-on-surface-variant">
             Loading inquiries...
           </div>
         </div>
@@ -344,7 +330,7 @@ export default function InquiryPage() {
 
         <div className="
           overflow-hidden
-          rounded-xl border
+          rounded-xl border border-outline-variant/20 bg-surface-container-lowest
         ">
 
           <div className="overflow-x-auto">
@@ -354,26 +340,26 @@ export default function InquiryPage() {
             ">
 
               <thead className="
-                border-b bg-muted/50
+                border-b border-outline-variant/20 bg-surface-container-low
               ">
                 <tr>
                   <th className="
                     px-6 py-4 text-left
-                    font-medium
+                    font-medium text-on-surface-variant
                   ">
                     Email
                   </th>
 
                   <th className="
                     px-6 py-4 text-left
-                    font-medium
+                    font-medium text-on-surface-variant
                   ">
                     Inquiry Type
                   </th>
 
                   <th className="
                     px-6 py-4 text-left
-                    font-medium
+                    font-medium text-on-surface-variant
                   ">
                     Date & Time
                   </th>
@@ -390,7 +376,7 @@ export default function InquiryPage() {
                       className="
                         px-6 py-16
                         text-center
-                        text-muted-foreground
+                        text-on-surface-variant
                       "
                     >
                       No inquiries found.
@@ -405,7 +391,7 @@ export default function InquiryPage() {
                       key={inquiry.id}
                       className="
                         border-b last:border-0
-                        transition hover:bg-muted/40
+                        border-outline-variant/15 transition hover:bg-surface-container-low
                       "
                     >
 
@@ -416,15 +402,13 @@ export default function InquiryPage() {
                           flex items-center gap-3
                         ">
                           <Mail className="
-                            h-4 w-4
-                            text-muted-foreground
+                            h-4 w-4 text-primary
                           " />
 
                           <a
                             href={`mailto:${inquiry.email}`}
                             className="
-                              font-medium
-                              hover:underline
+                              font-medium text-primary hover:underline
                             "
                           >
                             {inquiry.email}
@@ -446,8 +430,8 @@ export default function InquiryPage() {
                             ${
                               inquiry.type ===
                               "GET_STARTED"
-                                ? "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
-                                : "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400"
+                                ? "bg-primary-container text-on-primary-container"
+                                : "bg-tertiary-container text-on-tertiary-container"
                             }
                           `}
                         >
@@ -461,7 +445,7 @@ export default function InquiryPage() {
                       {/* Date */}
                       <td className="
                         px-6 py-4
-                        text-muted-foreground
+                        text-on-surface-variant
                       ">
                         {formatDate(
                           inquiry.createdAt
@@ -484,6 +468,6 @@ export default function InquiryPage() {
 
       )}
 
-    </div>
+    </section>
   );
 }

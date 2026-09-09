@@ -60,6 +60,7 @@ import PosAccessGate from "../components/Authentication/PosAccessGate";
 import SupplierAccessGate from "../components/Authentication/SupplierAccessGate";
 import ManagementAccessGate from "../components/Authentication/ManagementAccessGate";
 import InquiryPage from "../components/Admin/InquiryPage";
+import SupportPage from "../components/Admin/SupportPage.tsx";
 import Home from "../pages/Home";
 import AboutPage from "../pages/AboutPage";
 import App from "../App";
@@ -218,6 +219,10 @@ export const router = createBrowserRouter([
         {
             path: 'settings',
             Component: CashierSettingPage
+        },
+        {
+            path: 'support',
+                    Component: SupportPage,
         }
       ]
     }
