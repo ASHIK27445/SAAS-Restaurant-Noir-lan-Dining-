@@ -150,8 +150,8 @@ export default function InvoiceHistory() {
   const visibleRows = invoiceRows.slice((activePage - 1) * pageSize, activePage * pageSize);
 
   const totalRevenue = invoiceRows.reduce((sum, row) => sum + row.amount, 0);
-  const paidOrders = invoiceRows.filter((row) => row.type !== "Unpaid").length;
-  const avgTicket = invoiceRows.length ? totalRevenue / invoiceRows.length : 0;
+  // const paidOrders = invoiceRows.filter((row) => row.type !== "Unpaid").length;
+  // const avgTicket = invoiceRows.length ? totalRevenue / invoiceRows.length : 0;
 
   const monthlyPerformance = useMemo(() => {
     const monthMap = new Map<string, number>();

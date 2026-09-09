@@ -1,15 +1,41 @@
 import { useEffect, useState } from "react";
-import { BarChart2, CalendarDays, CheckCircle, LoaderCircle, TrendingUp, Utensils } from "lucide-react";
+import {
+  BarChart2,
+  CalendarDays,
+  CheckCircle,
+  LoaderCircle,
+  TrendingUp,
+  Utensils,
+} from "lucide-react";
 import { getReportsOverview, type ReportsOverview } from "../../api/report";
 
 const PERIODS = ["This Week", "This Month", "Quarterly", "Custom"] as const;
-type Period = typeof PERIODS[number];
+type Period = (typeof PERIODS)[number];
 type DailyPoint = ReportsOverview["daily"][number];
 
-function dateValue(date: Date) { return date.toISOString().slice(0, 10); }
-function rangeFor(period: Period) { const today = new Date(); const from = new Date(today); if (period === "This Week") from.setDate(today.getDate() - 6); if (period === "This Month") from.setDate(1); if (period === "Quarterly") from.setMonth(today.getMonth() - 2, 1); return { fromDate: dateValue(from), toDate: dateValue(today) }; }
-function money(value: number) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value); }
-function shortDate(value: string) { return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(`${value}T00:00:00`)); }
+function dateValue(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+function rangeFor(period: Period) {
+  const today = new Date();
+  const from = new Date(today);
+  if (period === "This Week") from.setDate(today.getDate() - 6);
+  if (period === "This Month") from.setDate(1);
+  if (period === "Quarterly") from.setMonth(today.getMonth() - 2, 1);
+  return { fromDate: dateValue(from), toDate: dateValue(today) };
+}
+function money(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(value);
+}
+function shortDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
+}
 
 function TrajectoryChart({ daily }: { daily: DailyPoint[] }) {
   const width = 800;
@@ -17,16 +43,89 @@ function TrajectoryChart({ daily }: { daily: DailyPoint[] }) {
   const padding = { top: 16, right: 8, bottom: 28, left: 8 };
   const maxRevenue = Math.max(...daily.map((item) => item.revenue), 1);
   const points = daily.map((item, index) => {
-    const x = daily.length === 1 ? width / 2 : padding.left + (index / (daily.length - 1)) * (width - padding.left - padding.right);
-    const y = padding.top + (1 - item.revenue / maxRevenue) * (height - padding.top - padding.bottom);
+    const x =
+      daily.length === 1
+        ? width / 2
+        : padding.left +
+          (index / (daily.length - 1)) * (width - padding.left - padding.right);
+    const y =
+      padding.top +
+      (1 - item.revenue / maxRevenue) * (height - padding.top - padding.bottom);
     return { ...item, x, y };
   });
-  const line = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x},${point.y}`).join(" ");
-  const area = points.length ? `${line} L${points[points.length - 1].x},${height - padding.bottom} L${points[0].x},${height - padding.bottom} Z` : "";
+  const line = points
+    .map((point, index) => `${index === 0 ? "M" : "L"}${point.x},${point.y}`)
+    .join(" ");
+  const area = points.length
+    ? `${line} L${points[points.length - 1].x},${height - padding.bottom} L${points[0].x},${height - padding.bottom} Z`
+    : "";
   const hasSales = daily.some((item) => item.revenue > 0);
-  const labelIndexes = points.length <= 8 ? points.map((_, index) => index) : [0, Math.floor(points.length / 3), Math.floor((points.length * 2) / 3), points.length - 1];
+  const labelIndexes =
+    points.length <= 8
+      ? points.map((_, index) => index)
+      : [
+          0,
+          Math.floor(points.length / 3),
+          Math.floor((points.length * 2) / 3),
+          points.length - 1,
+        ];
 
-  return <div className="relative h-56 w-full"><div className="absolute inset-0 flex flex-col justify-between pb-7 pt-2">{[0, 1, 2, 3].map((item) => <div key={item} className="h-px w-full bg-outline-variant/10" />)}</div><svg className="absolute inset-0 h-full w-full" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="Daily revenue line chart"><defs><linearGradient id="reportArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#173124" stopOpacity="0.22" /><stop offset="100%" stopColor="#173124" stopOpacity="0" /></linearGradient></defs>{area && <path d={area} fill="url(#reportArea)" />}{line && <path d={line} fill="none" stroke="#173124" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />}{points.map((point) => <circle key={point.date} cx={point.x} cy={point.y} r="3.5" fill="#173124"><title>{`${shortDate(point.date)}: ${money(point.revenue)}`}</title></circle>)}</svg>{!hasSales && <span className="absolute inset-0 flex items-center justify-center text-xs text-secondary">No paid sales in this period</span>}<div className="absolute bottom-0 left-0 flex w-full justify-between text-[9px] font-bold uppercase tracking-widest text-secondary">{labelIndexes.map((index) => <span key={points[index].date}>{shortDate(points[index].date)}</span>)}</div></div>;
+  return (
+    <div className="relative h-56 w-full">
+      <div className="absolute inset-0 flex flex-col justify-between pb-7 pt-2">
+        {[0, 1, 2, 3].map((item) => (
+          <div key={item} className="h-px w-full bg-outline-variant/10" />
+        ))}
+      </div>
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        role="img"
+        aria-label="Daily revenue line chart"
+      >
+        <defs>
+          <linearGradient id="reportArea" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#173124" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#173124" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {area && <path d={area} fill="url(#reportArea)" />}
+        {line && (
+          <path
+            d={line}
+            fill="none"
+            stroke="#173124"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+        {points.map((point) => (
+          <circle
+            key={point.date}
+            cx={point.x}
+            cy={point.y}
+            r="3.5"
+            fill="#173124"
+          >
+            <title>{`${shortDate(point.date)}: ${money(point.revenue)}`}</title>
+          </circle>
+        ))}
+      </svg>
+      {!hasSales && (
+        <span className="absolute inset-0 flex items-center justify-center text-xs text-secondary">
+          No paid sales in this period
+        </span>
+      )}
+      <div className="absolute bottom-0 left-0 flex w-full justify-between text-[9px] font-bold uppercase tracking-widest text-secondary">
+        {labelIndexes.map((index) => (
+          <span key={points[index].date}>{shortDate(points[index].date)}</span>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function Reports() {
@@ -36,9 +135,267 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const range = period === "Custom" ? customRange : rangeFor(period);
-  useEffect(() => { let mounted = true; setLoading(true); setError(""); getReportsOverview(range.fromDate, range.toDate).then((data) => { if (mounted) setReport(data); }).catch((reason) => { if (mounted) setError(reason instanceof Error ? reason.message : "Failed to load reports"); }).finally(() => { if (mounted) setLoading(false); }); return () => { mounted = false; }; }, [range.fromDate, range.toDate]);
-  const maxDish = Math.max(...(report?.topDishes.map((item) => item.quantity) ?? [0]), 1);
-  const colors = ["bg-primary", "bg-tertiary", "bg-secondary", "bg-on-primary-container"];
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError("");
+    getReportsOverview(range.fromDate, range.toDate)
+      .then((data) => {
+        if (mounted) setReport(data);
+      })
+      .catch((reason) => {
+        if (mounted)
+          setError(
+            reason instanceof Error ? reason.message : "Failed to load reports",
+          );
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [range.fromDate, range.toDate]);
+  const maxDish = Math.max(
+    ...(report?.topDishes.map((item) => item.quantity) ?? [0]),
+    1,
+  );
+  const colors = [
+    "bg-primary",
+    "bg-tertiary",
+    "bg-secondary",
+    "bg-on-primary-container",
+  ];
 
-  return <div className="bg-surface text-on-surface flex min-h-full overflow-visible font-body"><main className="relative flex min-h-full flex-1 flex-col"><header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-outline-variant/10 bg-surface/70 px-6 backdrop-blur-xl"><h2 className="text-xs font-bold uppercase tracking-widest text-primary">Reports & Analytics</h2></header><div className="mx-auto w-full max-w-7xl space-y-6 p-6 pb-24 md:pb-8"><section className="flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><h1 className="font-headline text-2xl leading-tight tracking-tight">Performance Editorial</h1><p className="mt-1 max-w-md text-sm leading-relaxed text-secondary">A detailed overview of the establishment's financial health for the selected period.</p></div><div className="flex flex-wrap rounded-xl bg-surface-container-low p-1">{PERIODS.map((item) => <button key={item} type="button" onClick={() => setPeriod(item)} className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ${period === item ? "bg-surface-container-lowest text-primary shadow-sm" : "text-secondary"}`}>{item === "Custom" && <CalendarDays size={11} className="mr-1 inline" />}{item}</button>)}</div></section>{period === "Custom" && <div className="flex flex-wrap gap-4 rounded-xl bg-surface-container-low p-4 text-xs"><label>From <input type="date" value={customRange.fromDate} onChange={(event) => setCustomRange({ ...customRange, fromDate: event.target.value })} className="ml-2 rounded border border-outline-variant/30 bg-surface-container-lowest px-2 py-1" /></label><label>To <input type="date" value={customRange.toDate} onChange={(event) => setCustomRange({ ...customRange, toDate: event.target.value })} className="ml-2 rounded border border-outline-variant/30 bg-surface-container-lowest px-2 py-1" /></label></div>}{loading && <div className="flex items-center gap-2 rounded-xl bg-surface-container-low p-5 text-sm text-secondary"><LoaderCircle size={16} className="animate-spin" /> Loading report data...</div>}{error && <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}{!loading && !error && report && <><p className="text-xs text-secondary">{report.period.fromDate} to {report.period.toDate}</p><section className="grid grid-cols-1 gap-4 md:grid-cols-3"><div className="relative flex h-36 flex-col justify-between overflow-hidden rounded-xl bg-surface-container-lowest p-5"><span className="text-[10px] font-bold uppercase tracking-widest text-secondary">Total Revenue</span><div className="flex items-baseline gap-2"><h3 className="font-headline text-2xl text-primary">{money(report.summary.revenue)}</h3><span className="text-[11px] font-bold text-primary">Paid orders</span></div><div className="flex items-center gap-2 text-xs text-secondary/70"><TrendingUp size={13} /> Real database sales</div></div><div className="flex h-36 flex-col justify-between rounded-xl bg-surface-container-lowest p-5"><span className="text-[10px] font-bold uppercase tracking-widest text-secondary">Avg Order Value</span><h3 className="font-headline text-2xl text-primary">{money(report.summary.averageOrderValue)}</h3><div className="flex items-center gap-2 text-xs text-secondary/70"><Utensils size={13} /> {report.summary.orderCount} paid orders</div></div><div className="flex h-36 flex-col justify-between rounded-xl bg-primary p-5 text-on-primary"><span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Orders Completed</span><h3 className="font-headline text-2xl">{report.summary.orderCount.toLocaleString()}</h3><div className="flex items-center gap-2 text-xs opacity-70"><CheckCircle size={13} /> Selected period</div></div></section><section className="grid grid-cols-1 gap-5 lg:grid-cols-5"><div className="rounded-xl bg-surface-container-lowest p-5 lg:col-span-3"><div className="mb-5"><h4 className="font-headline text-base">Profit & Loss Trajectory</h4><p className="mt-0.5 text-[11px] text-secondary">Daily revenue from paid orders</p></div><TrajectoryChart daily={report.daily} /></div><div className="rounded-xl bg-surface-container-low p-5 lg:col-span-2"><h4 className="font-headline text-base">Category Performance</h4><p className="mt-0.5 text-[11px] text-secondary">Distribution of revenue by department</p><div className="mt-5 space-y-4">{report.categories.map((item, index) => <div key={item.name}><div className="mb-1.5 flex justify-between text-[10px] font-bold uppercase tracking-widest"><span className="text-primary">{item.name}</span><span className="text-secondary">{item.percentage}%</span></div><div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-highest"><div className={`h-full rounded-full ${colors[index % colors.length]}`} style={{ width: `${item.percentage}%` }} /></div></div>)}</div></div></section><section className="grid grid-cols-1 gap-6 md:grid-cols-2"><div className="rounded-xl bg-surface-container-lowest p-5"><div className="mb-5 flex items-start justify-between"><div><h4 className="font-headline text-base">Top Dishes</h4><p className="mt-0.5 text-[11px] text-secondary">Best-selling menu items</p></div><BarChart2 size={17} className="text-primary" /></div><div className="space-y-4">{report.topDishes.slice(0, 6).map((dish) => <div key={dish.menuItemId}><div className="mb-1.5 flex justify-between text-xs"><span className="font-semibold">{dish.name}</span><span className="text-secondary">{dish.quantity} sold</span></div><div className="h-1.5 rounded-full bg-surface-container-highest"><div className="h-full rounded-full bg-tertiary" style={{ width: `${dish.quantity / maxDish * 100}%` }} /></div></div>)}</div></div><div className="flex flex-col justify-center space-y-4"><div className="border-l-4 border-tertiary pl-5"><h4 className="font-headline text-lg">Channel Performance</h4><p className="mt-2 text-xs leading-relaxed text-secondary">Revenue split across dine-in, takeaway, and delivery from paid orders.</p></div><div className="grid grid-cols-2 gap-3">{report.orderTypes.slice(0, 2).map((item) => <div key={item.orderType} className="rounded-lg bg-surface-container-low p-3.5"><span className="block text-[9px] font-bold uppercase tracking-widest text-secondary">{item.orderType.replace("_", " ")}</span><span className="font-headline text-base text-primary">{money(item.revenue)}</span></div>)}</div></div></section></>}</div></main></div>;
+  return (
+    <div className="bg-surface text-on-surface flex min-h-full overflow-visible font-body">
+      <main className="relative flex min-h-full flex-1 flex-col">
+        <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-outline-variant/10 bg-surface/70 px-6 backdrop-blur-xl">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
+            Reports & Analytics
+          </h2>
+        </header>
+        <div className="mx-auto w-full max-w-7xl space-y-6 p-6 pb-24 md:pb-8">
+          <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <h1 className="font-headline text-2xl leading-tight tracking-tight">
+                Performance Editorial
+              </h1>
+              <p className="mt-1 max-w-md text-sm leading-relaxed text-secondary">
+                A detailed overview of the establishment's financial health for
+                the selected period.
+              </p>
+            </div>
+            <div className="flex flex-wrap rounded-xl bg-surface-container-low p-1">
+              {PERIODS.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setPeriod(item)}
+                  className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ${period === item ? "bg-surface-container-lowest text-primary shadow-sm" : "text-secondary"}`}
+                >
+                  {item === "Custom" && (
+                    <CalendarDays size={11} className="mr-1 inline" />
+                  )}
+                  {item}
+                </button>
+              ))}
+            </div>
+          </section>
+          {period === "Custom" && (
+            <div className="flex flex-wrap gap-4 rounded-xl bg-surface-container-low p-4 text-xs">
+              <label>
+                From{" "}
+                <input
+                  type="date"
+                  value={customRange.fromDate}
+                  onChange={(event) =>
+                    setCustomRange({
+                      ...customRange,
+                      fromDate: event.target.value,
+                    })
+                  }
+                  className="ml-2 rounded border border-outline-variant/30 bg-surface-container-lowest px-2 py-1"
+                />
+              </label>
+              <label>
+                To{" "}
+                <input
+                  type="date"
+                  value={customRange.toDate}
+                  onChange={(event) =>
+                    setCustomRange({
+                      ...customRange,
+                      toDate: event.target.value,
+                    })
+                  }
+                  className="ml-2 rounded border border-outline-variant/30 bg-surface-container-lowest px-2 py-1"
+                />
+              </label>
+            </div>
+          )}
+          {loading && (
+            <div className="flex items-center gap-2 rounded-xl bg-surface-container-low p-5 text-sm text-secondary">
+              <LoaderCircle size={16} className="animate-spin" /> Loading report
+              data...
+            </div>
+          )}
+          {error && (
+            <div
+              role="alert"
+              className="rounded-xl bg-red-50 p-4 text-sm text-red-700"
+            >
+              {error}
+            </div>
+          )}
+          {!loading && !error && report && (
+            <>
+              <p className="text-xs text-secondary">
+                {report.period.fromDate} to {report.period.toDate}
+              </p>
+              <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="relative flex h-36 flex-col justify-between overflow-hidden rounded-xl bg-surface-container-lowest p-5">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">
+                    Total Revenue
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="font-headline text-2xl text-primary">
+                      {money(report.summary.revenue)}
+                    </h3>
+                    <span className="text-[11px] font-bold text-primary">
+                      Paid orders
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-secondary/70">
+                    <TrendingUp size={13} /> Real database sales
+                  </div>
+                </div>
+                <div className="flex h-36 flex-col justify-between rounded-xl bg-surface-container-lowest p-5">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">
+                    Avg Order Value
+                  </span>
+                  <h3 className="font-headline text-2xl text-primary">
+                    {money(report.summary.averageOrderValue)}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-secondary/70">
+                    <Utensils size={13} /> {report.summary.orderCount} paid
+                    orders
+                  </div>
+                </div>
+                <div className="flex h-36 flex-col justify-between rounded-xl bg-primary p-5 text-on-primary">
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">
+                    Orders Completed
+                  </span>
+                  <h3 className="font-headline text-2xl">
+                    {report.summary.orderCount.toLocaleString()}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs opacity-70">
+                    <CheckCircle size={13} /> Selected period
+                  </div>
+                </div>
+              </section>
+              <section className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+                <div className="rounded-xl bg-surface-container-lowest p-5 lg:col-span-3">
+                  <div className="mb-5">
+                    <h4 className="font-headline text-base">
+                      Profit & Loss Trajectory
+                    </h4>
+                    <p className="mt-0.5 text-[11px] text-secondary">
+                      Daily revenue from paid orders
+                    </p>
+                  </div>
+                  <TrajectoryChart daily={report.daily} />
+                </div>
+                <div className="rounded-xl bg-surface-container-low p-5 lg:col-span-2">
+                  <h4 className="font-headline text-base">
+                    Category Performance
+                  </h4>
+                  <p className="mt-0.5 text-[11px] text-secondary">
+                    Distribution of revenue by department
+                  </p>
+                  <div className="mt-5 space-y-4">
+                    {report.categories.map((item, index) => (
+                      <div key={item.name}>
+                        <div className="mb-1.5 flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                          <span className="text-primary">{item.name}</span>
+                          <span className="text-secondary">
+                            {item.percentage}%
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-highest">
+                          <div
+                            className={`h-full rounded-full ${colors[index % colors.length]}`}
+                            style={{ width: `${item.percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+              <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="rounded-xl bg-surface-container-lowest p-5">
+                  <div className="mb-5 flex items-start justify-between">
+                    <div>
+                      <h4 className="font-headline text-base">Top Dishes</h4>
+                      <p className="mt-0.5 text-[11px] text-secondary">
+                        Best-selling menu items
+                      </p>
+                    </div>
+                    <BarChart2 size={17} className="text-primary" />
+                  </div>
+                  <div className="space-y-4">
+                    {report.topDishes.slice(0, 6).map((dish) => (
+                      <div key={dish.menuItemId}>
+                        <div className="mb-1.5 flex justify-between text-xs">
+                          <span className="font-semibold">{dish.name}</span>
+                          <span className="text-secondary">
+                            {dish.quantity} sold
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-surface-container-highest">
+                          <div
+                            className="h-full rounded-full bg-tertiary"
+                            style={{
+                              width: `${(dish.quantity / maxDish) * 100}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center space-y-4">
+                  <div className="border-l-4 border-tertiary pl-5">
+                    <h4 className="font-headline text-lg">
+                      Channel Performance
+                    </h4>
+                    <p className="mt-2 text-xs leading-relaxed text-secondary">
+                      Revenue split across dine-in, takeaway, and delivery from
+                      paid orders.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {report.orderTypes.slice(0, 2).map((item) => (
+                      <div
+                        key={item.orderType}
+                        className="rounded-lg bg-surface-container-low p-3.5"
+                      >
+                        <span className="block text-[9px] font-bold uppercase tracking-widest text-secondary">
+                          {item.orderType.replace("_", " ")}
+                        </span>
+                        <span className="font-headline text-base text-primary">
+                          {money(item.revenue)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+        </div>
+      </main>
+    </div>
+  );
 }

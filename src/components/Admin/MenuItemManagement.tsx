@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ClipboardList, Search, SquarePen, Trash2, X, ImagePlus } from "lucide-react";
 import { authFetch } from "../../api/authFetch";
 import RecipeManager from "./RecipeManager";
+import { toast } from "sonner";
 
 type Category = { id: string; name: string; bucketType: string };
 type Allergen = { id: string; name: string };
@@ -237,13 +238,13 @@ export default function MenuItemManagement() {
         throw new Error(result.message || "Failed to update status");
         }
 
-        alert(
+        toast.success(
         `${item.name} ${!item.isActive ? "activated" : "deactivated"}.`
         );
 
         loadItems();
     } catch (error: any) {
-        alert(error.message || "Failed to update status");
+        toast.error(error.message || "Failed to update status");
     }
     }
 
@@ -265,11 +266,11 @@ export default function MenuItemManagement() {
         throw new Error(result.message || "Failed to delete item");
         }
 
-        alert(`${item.name} deleted.`);
+        toast.success(`${item.name} deleted.`);
 
         loadItems();
     } catch (error: any) {
-        alert(error.message || "Failed to delete item");
+        toast.error(error.message || "Failed to delete item");
     }
     }
 
@@ -336,8 +337,8 @@ export default function MenuItemManagement() {
                         </div>
                         <p className="text-xs text-on-surface-variant truncate">${Number(item.price).toFixed(2)} • {item.sku}</p>
                         <button onClick={() => toggleStatus(item)}
-                          className={`mt-1.5 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
-                            item.isActive ? "bg-primary-fixed text-on-primary-fixed" : "bg-surface-container-high text-on-surface-variant"
+                          className={`cursor-pointer hover:text-blue-500 mt-1.5 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                            item.isActive ? "bg-primary-fixed text-on-primary-fixed" : "bg-surface-container-high text-red-500"
                           }`}>
                           {item.isActive ? "Active" : "Inactive"}
                         </button>
