@@ -1,8 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import CulinaryEditorial from "../components/Home/CulinaryEditional";
-import CulinaryEditorialAbout from "../components/Home/CulinaryEditionalAbout";
 import Login from "../components/Authentication/Login";
-import ProductPage from "../components/Products/ProductPage";
 import AddMenuItemPage from "../components/Others/AddMenuItemPage";
 import EmployeeManagementPage from "../components/Others/EmployeeManagementPage";
 import OrderManagementPage from "../components/Others/OrderManagementPage";
@@ -60,50 +58,16 @@ import SupplierAccessGate from "../components/Authentication/SupplierAccessGate"
 import ManagementAccessGate from "../components/Authentication/ManagementAccessGate";
 import InquiryPage from "../components/Admin/InquiryPage";
 import SupportPage from "../components/Admin/SupportPage.tsx";
-import Home from "../pages/Home";
-import AboutPage from "../pages/AboutPage";
-import App from "../App";
-import ReviewHome from "../pages/ReviewHome";
 import ReviewAdminManagement from "../components/Admin/ReviewAdminManagement";
 import AdminReservationManagement from "../components/Admin/AdminReservationManagement";
-import AvrileBrunchMenu from "../pages/AvrileBrunchMenu";
-import GalleryPage from "../pages/GalleryPage";
 import GalleryAdminManagement from "../components/Admin/GalleryAdminManagement";
-import UserAccessGate from "../components/Authentication/UserAccessGate";
-import UserDashboard from "../pages/UserDashboard.tsx";
-import FullMenu from "../pages/FullMenu";
-import CartCheckOut from "../pages/CartCheckOut";
+import HomePageM from "../components/Home/HomepageM.tsx";
+
 
 export const router = createBrowserRouter([
-  {
-    path: "/",
-    Component: App,
-    children: [
-      { index: true, Component: Home },
-      { path: "about", Component: AboutPage },
-    { path: "reviews", Component: ReviewHome },
-    { path: "menu-preview", Component: AvrileBrunchMenu },
-    { path: "full-menu", Component: FullMenu },
-        {
-            path: "cart-checkout",
-            Component: UserAccessGate,
-            children: [{ index: true, Component: CartCheckOut }],
-        },
-    { path: "gallery", Component: GalleryPage },
-            {
-                path: "dashboard",
-                Component: UserAccessGate,
-                children: [{ index: true, Component: UserDashboard }],
-            },
-    ],
-  },
     {
-        path: '/about',
-        Component: CulinaryEditorialAbout
-    },
-    {
-        path: '/product-page',
-        Component: ProductPage
+        path: '/',
+        Component: HomePageM
     },
     {
         path: '/POS', 
