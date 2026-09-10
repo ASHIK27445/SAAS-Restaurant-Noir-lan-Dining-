@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ClipboardList, Search, SquarePen, Trash2, X, ImagePlus } from "lucide-react";
 import { authFetch } from "../../api/authFetch";
-import RecipeManager from "./RecipeManager";
+import RecipeManager from "../Pos/RecipeManager";
 import { toast } from "sonner";
 
 type Category = { id: string; name: string; bucketType: string };

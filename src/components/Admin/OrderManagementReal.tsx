@@ -10,8 +10,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { getOrders } from "../../api/order";
 import type { Order } from "../../types/order";
-import ReceiptPreview from "./ReceiptPreview";
-import type { ReceiptOrder } from "./ReceiptPreview";
+import ReceiptPreview from "../Pos/ReceiptPreview";
+import type { ReceiptOrder } from "../Pos/ReceiptPreview";
 import BusinessAssistant from "./BusinessAssistant";
 
 type RangeMode = "range" | "monthly" | "yearly";

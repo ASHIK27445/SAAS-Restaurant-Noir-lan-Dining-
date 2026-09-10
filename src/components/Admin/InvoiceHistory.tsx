@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import { getOrders } from "../../api/order";
 import type { Order } from "../../types/order";
-import ReceiptPreview from "./ReceiptPreview";
-import type { ReceiptOrder } from "./ReceiptPreview";
+import ReceiptPreview from "../Pos/ReceiptPreview";
+import type { ReceiptOrder } from "../Pos/ReceiptPreview";
 
 type PayType = "Card" | "Cash" | "Mobile" | "Unpaid";
 

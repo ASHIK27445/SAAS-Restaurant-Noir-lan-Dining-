@@ -23,15 +23,19 @@ dist-ssr
 *.sln
 *.sw?
 
+.firebase
 .env
+firebase.json
+.firebaserc
+
+
 src/Firebase
 src/data
-src/components/Others
 src/components/POS
-src/components/products
-src/components/Home/Pos.tsx
-src/components/Home
 src/components/Admin/StaffSchedule.tsx
 src/pages
-
-.github
+src/components/Admin/CustomerTokenDisplay.tsx
+src/components/Admin/MenuItemManagement.tsx
+src/components/Admin/KichenQueue.tsx
+src/components/Authentication
+src/components/Others

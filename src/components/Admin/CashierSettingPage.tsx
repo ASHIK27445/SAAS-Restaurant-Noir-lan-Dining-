@@ -1,8 +1,8 @@
 import { CheckCircle2, Printer, Save, Settings2, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
-import ReceiptPreview from "./ReceiptPreview";
-import type { ReceiptOrder } from "./ReceiptPreview";
+import ReceiptPreview from "../Pos/ReceiptPreview";
+import type { ReceiptOrder } from "../Pos/ReceiptPreview";
 import { createPromoCode, deletePromoCode, getCashierSetting, getPosSettings, getPromoCodes, setCashierSetting, updatePosSettings, updatePromoCode, type PosSettings, type PromoCode } from "../../api/order";
 import { getStaff } from "../../api/employee";
 

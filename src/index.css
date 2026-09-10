@@ -2,9 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
 @import "tailwindcss";
 
-
-/* Tailwind CSS v4 directive; ignored by generic CSS linters. */
-/* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
   --color-primary: #dc2626;
   --color-on-primary: #ffffff;
